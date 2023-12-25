@@ -12,7 +12,7 @@
 
 #include <JuceHeader.h>
 
-enum { fft4096=12, fft8192=13, fft16384=14 } curFftSize;
+static enum { fft4096=12, fft8192=13, fft16384=14 } curFftSize;
 //enum { spec = 1, sono, wave } curAnalyzerMode;
 
 struct DSETTINGS {
