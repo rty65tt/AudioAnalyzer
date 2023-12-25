@@ -12,4 +12,5 @@ Attention! I can't compile for Windows and Linux. If anyone has succeeded, let m
 ![screenshot2](sonogram.png  "Sonogram")
 
 
-![screenshot3](settings.png  "Options")
+![screenshot3](options.png  "Options")
+
