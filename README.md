@@ -1,2 +1,2 @@
 # AudioAnalyzer
-VST AU mac win audio analyzer plugin
+VST AU mac win audio analyzer plugin (JUCE)
