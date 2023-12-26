@@ -15,8 +15,6 @@
 /**
 */
 class AudioAnalyzerAudioProcessor  : public juce::AudioProcessor
-//                                     public juce::AudioProcessorValueTreeState::Listener,
-//                                     public juce::ChangeBroadcaster
 {
 public:
     //==============================================================================
@@ -33,7 +31,6 @@ public:
 
     void processBlock (juce::AudioBuffer<float>&, juce::MidiBuffer&) override;
 
-    juce::AudioProcessorValueTreeState& getPluginState();
     //==============================================================================
     juce::AudioProcessorEditor* createEditor() override;
     bool hasEditor() const override;
@@ -56,7 +53,7 @@ public:
     //==============================================================================
     void getStateInformation (juce::MemoryBlock& destData) override;
     void setStateInformation (const void* data, int sizeInBytes) override;
-    void extracted(int &imageHeight, int &imageWidth);
+//    void extracted(int &imageHeight, int &imageWidth);
     
     //====================
     void createAnalyserPlot (const juce::Rectangle<int> bounds, float minFreq);
@@ -70,12 +67,8 @@ public:
     juce::Path                    analyserPathCh2L;
     juce::Path                    analyserPathCh2R;
     
-//    juce::AudioProcessorValueTreeState  parameters;
 
 private:
-    //** PARAMETERS =======================================
-//    juce::AudioProcessorValueTreeState::ParameterLayout createParametrLayer();
-//    void parameterChanged (const juce::String& parameterID, float newValue) override;
 
     double sampleRate = 0;
     Analyser<float> inputAnalyserL1 { &cS };

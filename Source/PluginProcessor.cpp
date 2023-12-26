@@ -17,14 +17,13 @@ AudioAnalyzerAudioProcessor::AudioAnalyzerAudioProcessor()
                      #if ! JucePlugin_IsMidiEffect
                       #if ! JucePlugin_IsSynth
                        .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                       .withInput  ("Sidechain", juce::AudioChannelSet::stereo())
+                       .withInput  ("Input", juce::AudioChannelSet::stereo())
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
                        )
 #endif
 {
-//    startTimerHz (30);
 }
 
 AudioAnalyzerAudioProcessor::~AudioAnalyzerAudioProcessor()
@@ -163,8 +162,10 @@ void AudioAnalyzerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     {
         inputAnalyserL1.addAudioData (buffer, 0, 0);
         inputAnalyserR1.addAudioData (buffer, 1, 0);
-        inputAnalyserL2.addAudioData (buffer, 2, 0);
-        inputAnalyserR2.addAudioData (buffer, 3, 0);
+        if (getTotalNumInputChannels() >= 4) {
+            inputAnalyserL2.addAudioData (buffer, 2, 0);
+            inputAnalyserR2.addAudioData (buffer, 3, 0);
+        }
     }
     //    juce::dsp::AudioBlock<float> block (buffer);
 }

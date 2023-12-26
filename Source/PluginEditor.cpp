@@ -125,9 +125,9 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
             setFftGroup.addAndMakeVisible(fft13_button);
             setFftGroup.addAndMakeVisible(fft14_button);
             
-            if (aP.cS.fftOrder ==  fft4096) { fft12_button.setToggleState(true, juce::dontSendNotification); }
-            if (aP.cS.fftOrder ==  fft8192) { fft13_button.setToggleState(true, juce::dontSendNotification); }
-            if (aP.cS.fftOrder == fft16384) { fft14_button.setToggleState(true, juce::dontSendNotification); }
+            if (aP.cS.fftOrder == 12) { fft12_button.setToggleState(true, juce::dontSendNotification); }
+            if (aP.cS.fftOrder == 13) { fft13_button.setToggleState(true, juce::dontSendNotification); }
+            if (aP.cS.fftOrder == 14) { fft14_button.setToggleState(true, juce::dontSendNotification); }
             
             settingsFrame.addAndMakeVisible(setOverlapGroup);
         }
@@ -172,7 +172,6 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     setLookAndFeel (&otherLookAndFeel);
 
 //    curAnalyzerMode = (curAnalyzerMode) ? curAnalyzerMode : sono;
-    DBG("aP.cS.mode: " << aP.cS.mode);
     switch (aP.cS.mode) {
         case 1:
             curAnalyzerMode = spec;
@@ -185,7 +184,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
             break;
     }
 
-    curFftSize = fft4096;
+//    curFftSize = fft4096;
 
     addAndMakeVisible (panel);
     
@@ -382,11 +381,11 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     fft14_button.setClickingTogglesState (true);
     
     fft12_button.onClick = [this] {
-        aP.cS.fftOrder = curFftSize = fft4096; };
+        aP.cS.fftOrder = 12; };
     fft13_button.onClick = [this] {
-        aP.cS.fftOrder = curFftSize = fft8192; };
+        aP.cS.fftOrder = 13; };
     fft14_button.onClick = [this] {
-        aP.cS.fftOrder = curFftSize = fft16384; };
+        aP.cS.fftOrder = 14; };
     
     setSize (curW, curH);
 //    setOpaque (true);

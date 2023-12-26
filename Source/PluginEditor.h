@@ -159,6 +159,7 @@ AudioAnalyzerAudioProcessorEditor (AudioAnalyzerAudioProcessor&);
     juce::Image *spectrogramImage;
     
     enum { spec = 1, sono, wave } curAnalyzerMode;
+//    static enum { fft4096=12, fft8192=13, fft16384=14 } curFftSize;
 
     enum
     {
@@ -211,7 +212,6 @@ private:
         fftSizeWindow,
         overlapButtons
     };
-
 
     juce::TextButton specbutton;
     juce::TextButton sonobutton;

@@ -2,7 +2,8 @@
 
 <JUCERPROJECT id="i76ndY" name="AudioAnalyzer" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" displaySplashScreen="1" jucerFormatVersion="1"
-              companyName="rty65tt" pluginVST3Category="Analyzer" version="0.2.0">
+              companyName="rty65tt" pluginVST3Category="Analyzer" version="0.2.0"
+              pluginFormats="buildAU,buildLV2,buildStandalone,buildVST3">
   <MAINGROUP id="kxv9Ch" name="AudioAnalyzer">
     <GROUP id="{CC545A59-DA21-2373-9A4D-91E5828D6152}" name="Source">
       <FILE id="uqliMZ" name="settings.h" compile="0" resource="0" file="Source/settings.h"/>
@@ -36,8 +37,10 @@
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
-        <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer"/>
-        <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer"/>
+        <CONFIGURATION isDebug="1" name="Debug" targetName="AudioAnalyzer" macOSDeploymentTarget="10.13"
+                       osxCompatibility="10.13 SDK"/>
+        <CONFIGURATION isDebug="0" name="Release" targetName="AudioAnalyzer" macOSDeploymentTarget="10.13"
+                       osxCompatibility="10.13 SDK"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../../../../JUCE/modules"/>
