@@ -183,7 +183,10 @@ private:
     
     void drawSpectrogram(juce::Graphics &g);
     void drawNextLineOfSonogram(juce::Graphics &g);
-    
+
+#ifdef JUCE_OPENGL
+    juce::OpenGLContext     openGLContext;
+#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioAnalyzerAudioProcessorEditor)
     
@@ -221,15 +224,15 @@ private:
     
     juce::TextButton set_button;
     
-    juce::TextButton stereo_midside;
+//    juce::TextButton stereo_midside;
     juce::TextButton ch1Lbutton;
     juce::TextButton ch1Rbutton;
     juce::TextButton ch2Lbutton;
     juce::TextButton ch2Rbutton;
-    juce::TextButton ch1Mbutton;
-    juce::TextButton ch1Sbutton;
-    juce::TextButton ch2Mbutton;
-    juce::TextButton ch2Sbutton;
+ //   juce::TextButton ch1Mbutton;
+ //   juce::TextButton ch1Sbutton;
+ //   juce::TextButton ch2Mbutton;
+ //   juce::TextButton ch2Sbutton;
     
     bool menuBarHide  = false;
     bool menuChSwitch = true;
@@ -239,10 +242,10 @@ private:
     bool ch1R = true;
     bool ch2L = false;
     bool ch2R = false;
-    bool ch1M = true;
-    bool ch1S = true;
-    bool ch2M = false;
-    bool ch2S = false;
+ //   bool ch1M = true;
+ //   bool ch1S = true;
+ //   bool ch2M = false;
+ //   bool ch2S = false;
     
     SetSliderS1 gainSlider      {"GAIN",     " dB",  10,  20 };
     SetSliderS1 slopeSlider     {"SLOPE",    " dB",  90,  20 };
@@ -292,7 +295,7 @@ private:
 //    juce::ShapeButton       shbutton("ShapeButton", colorSB, colorSB, colorSB);
 //    juce::ToggleButton      togglebutton;
 
-    void createSonogramLine (juce::Path& destPath, const juce::Path& sourcePath);
+//    void createSonogramLine (juce::Path& destPath, const juce::Path& sourcePath);
 
 };
 

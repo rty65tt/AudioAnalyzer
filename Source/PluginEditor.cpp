@@ -391,14 +391,19 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
 //    setOpaque (true);
     setResizable (true, true);
     setResizeLimits (defW, defH, 7680, 4320);
-
-    startTimerHz (60);
+#ifdef JUCE_OPENGL
+    openGLContext.attachTo(*getTopLevelComponent());
+#endif
+    startTimerHz (120);
 }
 
 AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
 {
     setLookAndFeel (nullptr);
     removeMouseListener (this);
+#ifdef JUCE_OPENGL
+    openGLContext.detach();
+#endif
 }
 
 //==============================================================================
