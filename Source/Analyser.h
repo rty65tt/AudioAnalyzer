@@ -143,7 +143,7 @@ public:
             const float infinity    = cS->floor;
             
             y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
-                            infinity, 0.0f, bounds.getBottom(), bounds.getY() );
+                            infinity, 0.0f, bounds.getBottom(), bounds.getY()+20 );
 
             p.lineTo (x, y);
         }

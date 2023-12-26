@@ -66,7 +66,6 @@ public:
     juce::Path                    analyserPathCh1R;
     juce::Path                    analyserPathCh2L;
     juce::Path                    analyserPathCh2R;
-    
 
 private:
 
@@ -75,7 +74,6 @@ private:
     Analyser<float> inputAnalyserR1 { &cS };
     Analyser<float> inputAnalyserL2 { &cS };
     Analyser<float> inputAnalyserR2 { &cS };
-    
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioAnalyzerAudioProcessor)

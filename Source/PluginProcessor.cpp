@@ -157,12 +157,12 @@ void AudioAnalyzerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 //        buffer.clear (i, 0, buffer.getNumSamples());
 
     buffer.applyGain ( juce::Decibels::decibelsToGain( cS.gain ) );
-
+    
     if (getActiveEditor() != nullptr)
     {
         inputAnalyserL1.addAudioData (buffer, 0, 0);
         inputAnalyserR1.addAudioData (buffer, 1, 0);
-        if (getTotalNumInputChannels() >= 4) {
+        if (getTotalNumInputChannels() >= 4) { // fix VST3
             inputAnalyserL2.addAudioData (buffer, 2, 0);
             inputAnalyserR2.addAudioData (buffer, 3, 0);
         }
