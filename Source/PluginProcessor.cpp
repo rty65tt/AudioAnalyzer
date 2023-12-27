@@ -28,7 +28,6 @@ AudioAnalyzerAudioProcessor::AudioAnalyzerAudioProcessor()
 
 AudioAnalyzerAudioProcessor::~AudioAnalyzerAudioProcessor()
 {
-//    parameters.removeParameterListener("gain", this );
     inputAnalyserL1.stopThread (1000);
     inputAnalyserR1.stopThread (1000);
     inputAnalyserL2.stopThread (1000);
@@ -75,8 +74,9 @@ double AudioAnalyzerAudioProcessor::getTailLengthSeconds() const
 
 int AudioAnalyzerAudioProcessor::getNumPrograms()
 {
-    return 1;   // NB: some hosts don't cope very well if you tell them there are 0 programs,
-                // so this should be at least 1, even if you're not really implementing programs.
+    return 1;
+    // NB: some hosts don't cope very well if you tell them there are 0 programs,
+    // so this should be at least 1, even if you're not really implementing programs.
 }
 
 int AudioAnalyzerAudioProcessor::getCurrentProgram()
@@ -162,7 +162,7 @@ void AudioAnalyzerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
     {
         inputAnalyserL1.addAudioData (buffer, 0, 0);
         inputAnalyserR1.addAudioData (buffer, 1, 0);
-        if (getTotalNumInputChannels() >= 4) { // fix VST3
+        if (getTotalNumInputChannels() >= 4) { // fix for VST3
             inputAnalyserL2.addAudioData (buffer, 2, 0);
             inputAnalyserR2.addAudioData (buffer, 3, 0);
         }
@@ -252,8 +252,12 @@ void AudioAnalyzerAudioProcessor::createAnalyserPlot (const juce::Rectangle<int>
 {
     inputAnalyserL1.createPath (analyserPathCh1L, bounds.toFloat(), minFreq, 0);
     inputAnalyserR1.createPath (analyserPathCh1R, bounds.toFloat(), minFreq, 0);
-    if (cS.ch2L) { inputAnalyserL2.createPath (analyserPathCh2L, bounds.toFloat(), minFreq, 0); }
-    if (cS.ch2R) { inputAnalyserR2.createPath (analyserPathCh2R, bounds.toFloat(), minFreq, 0); }
+    
+    if (cS.ch2L)
+    { inputAnalyserL2.createPath (analyserPathCh2L, bounds.toFloat(), minFreq, 0); }
+    
+    if (cS.ch2R)
+    { inputAnalyserR2.createPath (analyserPathCh2R, bounds.toFloat(), minFreq, 0); }
 }
 
 bool AudioAnalyzerAudioProcessor::checkForNewAnalyserData()
