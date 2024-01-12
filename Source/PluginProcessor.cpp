@@ -6,9 +6,9 @@
   ==============================================================================
 */
 
-#include "Analyser.h"
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+//#include "Analyser.h"
 
 //==============================================================================
 AudioAnalyzerAudioProcessor::AudioAnalyzerAudioProcessor()
@@ -104,10 +104,14 @@ void AudioAnalyzerAudioProcessor::prepareToPlay (double newSampleRate, int newSa
     // initialisation that you need..
     sampleRate = newSampleRate;
 
-    inputAnalyserL1.setupAnalyser ( int (sampleRate), float (sampleRate) );
-    inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate) );
-    inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate) );
-    inputAnalyserR2.setupAnalyser ( int (sampleRate), float (sampleRate) );
+    SanalyserPathCh1L = &analyserPathCh1L;
+    SanalyserPathCh1R = &analyserPathCh1R;
+    SanalyserPathCh2L = &analyserPathCh2L;
+    SanalyserPathCh2R = &analyserPathCh2R;
+    inputAnalyserL1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1L );
+    inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1R );
+    inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2L );
+    inputAnalyserR2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2R );
 
 }
 
@@ -248,19 +252,24 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 //==============================================================================
 
-void AudioAnalyzerAudioProcessor::createAnalyserPlot (const juce::Rectangle<int> bounds, float minFreq)
+void AudioAnalyzerAudioProcessor::createAnalyserPlot ()
 {
-    inputAnalyserL1.createPath (analyserPathCh1L, bounds.toFloat(), minFreq, 0);
-    inputAnalyserR1.createPath (analyserPathCh1R, bounds.toFloat(), minFreq, 0);
+    inputAnalyserL1.createPath (analyserPathCh1L, 0);
+    inputAnalyserR1.createPath (analyserPathCh1R, 0);
     
     if (cS.ch2L)
-    { inputAnalyserL2.createPath (analyserPathCh2L, bounds.toFloat(), minFreq, 0); }
+    { inputAnalyserL2.createPath (analyserPathCh2L, 0); }
     
     if (cS.ch2R)
-    { inputAnalyserR2.createPath (analyserPathCh2R, bounds.toFloat(), minFreq, 0); }
+    { inputAnalyserR2.createPath (analyserPathCh2R, 0); }
 }
 
 bool AudioAnalyzerAudioProcessor::checkForNewAnalyserData()
 {
     return ( inputAnalyserL1.checkForNewData() || inputAnalyserR1.checkForNewData() );
+}
+
+void AudioAnalyzerAudioProcessor::drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b)
+{
+    inputAnalyserL1.drawSono(g, b);
 }

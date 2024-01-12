@@ -14,6 +14,14 @@
 
 //enum { spec = 1, sono, wave } curAnalyzerMode;
 
+static juce::Image *sonogramImage;
+static juce::Path  *SanalyserPathCh1L;
+static juce::Path  *SanalyserPathCh1R;
+static juce::Path  *SanalyserPathCh2L;
+static juce::Path  *SanalyserPathCh2R;
+
+//static juce::Rectangle<int>  plotFrame;
+
 struct DSETTINGS {
     
     int  fftOrder = 12;
@@ -22,9 +30,12 @@ struct DSETTINGS {
     juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;
     bool setNorm = false;
     
+    bool resize = false;
     int newW = 0;
     int newH = 0;
     int mode = 1;
+    
+    float minFreq = 10.0f;
     
     float gain          = 0.0f;
     float slope         = 3.0f;
@@ -51,6 +62,6 @@ struct DSETTINGS {
     bool showSettings = false;
     bool menuChSwitch = true;
     
+    bool readyCH = false;
 };
 
-//DSETTINGS* cursetup = &setup;

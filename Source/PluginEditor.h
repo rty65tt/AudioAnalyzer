@@ -10,6 +10,7 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
+//#include "Analyser.h"
 
 //==============================================================================
 class OtherLookAndFeel : public juce::LookAndFeel_V4
@@ -135,7 +136,7 @@ class AudioAnalyzerAudioProcessorEditor  : public juce::AudioProcessorEditor,
                                            private juce::Timer
 {
 public:
-    void extracted();
+//    void extracted();
     
 AudioAnalyzerAudioProcessorEditor (AudioAnalyzerAudioProcessor&);
 ~AudioAnalyzerAudioProcessorEditor() override;
@@ -156,7 +157,7 @@ AudioAnalyzerAudioProcessorEditor (AudioAnalyzerAudioProcessor&);
     
     float invLogScale(const float value, const float min, const float max);
        
-    juce::Image *spectrogramImage;
+//    juce::Image *sonogramImage;
     
     enum { spec = 1, sono, wave } curAnalyzerMode;
 //    static enum { fft4096=12, fft8192=13, fft16384=14 } curFftSize;
@@ -182,7 +183,7 @@ private:
     void hidePanel();
     
     void drawSpectrogram(juce::Graphics &g);
-    void drawNextLineOfSonogram(juce::Graphics &g);
+//    void drawNextLineOfSonogram(juce::Graphics &g);
 
 #ifdef JUCE_OPENGL
     juce::OpenGLContext     openGLContext;

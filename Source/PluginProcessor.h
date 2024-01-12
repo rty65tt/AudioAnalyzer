@@ -9,7 +9,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "settings.h"
+//#include "settings.h"
+#include "Analyser.h"
 
 //==============================================================================
 /**
@@ -55,9 +56,10 @@ public:
     void setStateInformation (const void* data, int sizeInBytes) override;
     
     //====================
-    void createAnalyserPlot (const juce::Rectangle<int> bounds, float minFreq);
+    void createAnalyserPlot ();
 
     bool checkForNewAnalyserData();
+    void drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b);
     
     DSETTINGS cS;
     

@@ -6,9 +6,9 @@
   ==============================================================================
 */
 
-#include "Analyser.h"
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+//#include "Analyser.h"
 
 //static float maxDB       = 24.0f;
 
@@ -167,7 +167,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     int curW = aP.cS.newW = (aP.cS.newW) ? aP.cS.newW : defW;
     int curH = aP.cS.newH = (aP.cS.newH) ? aP.cS.newH : defH;
 
-    spectrogramImage = new juce::Image(juce::Image::ARGB, curW, curH, true);
+    sonogramImage = new juce::Image(juce::Image::ARGB, curW, curH, true);
 
     setLookAndFeel (&otherLookAndFeel);
 
@@ -394,13 +394,14 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
 #ifdef JUCE_OPENGL
     openGLContext.attachTo(*getTopLevelComponent());
 #endif
-    startTimerHz (120);
+    startTimerHz (30);
 }
 
 AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
 {
     setLookAndFeel (nullptr);
     removeMouseListener (this);
+    sonogramImage->~Image();
 #ifdef JUCE_OPENGL
     openGLContext.detach();
 #endif
@@ -417,13 +418,8 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
             drawSpectrogram(g);
             break;
         case 2:
-            spectrogramImage->moveImageSection (0, 0, 0, 1,
-                                                spectrogramImage->getWidth(),
-                                                spectrogramImage->getHeight() - 1);
-            aP.createAnalyserPlot (plotFrame, 10);
-            drawNextLineOfSonogram(g);
-//            if (aP.cS.ch1R) { drawNextLineOfSonogram(g, aP.analyserPathCh1R, 0.33); }
-            g.drawImage (*spectrogramImage, getLocalBounds().toFloat());
+            if(!cS->resize) { aP.drawSonogram( g, getLocalBounds().toFloat() ); }
+//            g.drawImage (*sonogramImage, getLocalBounds().toFloat(), true);
             break;
         case wave:
             break;
@@ -434,16 +430,17 @@ void AudioAnalyzerAudioProcessorEditor::resized()
 {
     // This is generally where you'll want to lay out the positions of any
     // subcomponents in your editor..
+    aP.cS.resize = true;
     plotFrame = getLocalBounds();
-    int newW = aP.cS.newW = getWidth();
-    int newH = aP.cS.newH = getHeight();
+    aP.cS.newW = getWidth();
+    aP.cS.newH = getHeight();
     drawPanel();
 
-    spectrogramImage->~Image();
-    spectrogramImage = new juce::Image(juce::Image::ARGB, newW, newH, true);
-
-    showbutton.setBounds(getWidth()-30, 30, 30, 30);
+//    sonogramImage->~Image();
+//    if(sonogramImage != nullptr) {sonogramImage->~Image(); }
+//    sonogramImage = new juce::Image(juce::Image::ARGB, newW, newH, true);
     
+    showbutton.setBounds(getWidth()-30, 30, 30, 30);
 }
 
 // =============================
@@ -499,7 +496,7 @@ void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics &g) {
     const auto inColour2R = juce::Colour::fromRGBA(139, 139, 46, 205);
     
     float cR = aP.cS.lineCR;
-    aP.createAnalyserPlot (plotFrame, 10);
+    aP.createAnalyserPlot ();
     if (aP.cS.ch2R) { g.setColour (inColour2R);
         g.strokePath (aP.analyserPathCh2R.createPathWithRoundedCorners(cR), juce::PathStrokeType (2.0));
         }
@@ -516,75 +513,6 @@ void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics &g) {
     g.setColour (juce::Colours::black);
     g.drawRect (plotFrame.toFloat(), 3);
     g.drawRoundedRectangle (plotFrame.toFloat(), 15, 3);
-}
-
-void AudioAnalyzerAudioProcessorEditor::drawNextLineOfSonogram(juce::Graphics &g)
-{
-    int iHeight = spectrogramImage->getHeight() - 1;
-
-    juce::PathFlatteningIterator analyserPointL ( aP.analyserPathCh1L );
-    juce::PathFlatteningIterator analyserPointR ( aP.analyserPathCh1R );
-    
-    int x = 0.0f;
-    int xL1,yL1,xL2,yL2, xR1,yR1,xR2,yR2; ;
-    float levelL, levelR;
-    float bxL,byL, bxR, byR;
-    float lvlL, lvlR;
-    float colorL = juce::jmap( aP.cS.colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f );
-    float colorR = juce::jmap( aP.cS.colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f );
-    
-    while(analyserPointL.next())
-    {
-        analyserPointR.next();
-        
-        xL1 = analyserPointL.x1;
-        yL1 = analyserPointL.y1;
-        xL2 = analyserPointL.x2;
-        yL2 = analyserPointL.y2;
-        
-        xR1 = analyserPointR.x1;
-        yR1 = analyserPointR.y1;
-        xR2 = analyserPointR.x2;
-        yR2 = analyserPointR.y2;
-        
-        bxL = xL2-xL1;
-        byL = yL2-yL1;
-        
-        bxR = xR2-xR1;
-        byR = yR2-yR1;
-        
-        lvlL = yL1;
-        lvlR = yR1;
-
-        float lkoefL = byL / bxL;
-        float lkoefR = byR / bxR;
-        
-        juce::Colour bgL;
-        juce::Colour bgR;
-        
-        for (int i = 0; i < bxL; ++i) {
-            x++;
-
-            if (aP.cS.ch1L) {
-                levelL  = juce::jmap (lvlL, 0.0f, (float)iHeight, 1.0f, 0.0f);
-                bgL = juce::Colour::fromHSL(colorL, 1.0, levelL, levelL);
-            } else {
-                bgL = juce::Colours::black;
-            }
-            if (aP.cS.ch1R) {
-                levelR  = juce::jmap (lvlR, 0.0f, (float)iHeight, 1.0f, 0.0f);
-                bgR = juce::Colour::fromHSL(colorR, 1.0, levelR, levelR);
-            } else {
-                bgR = juce::Colours::black.withAlpha(0.0f);
-            }
-//            juce::Colour newC = bgL.interpolatedWith(bgR, 0.5);
-            juce::Colour newC = bgL.overlaidWith(bgR);
-            
-            spectrogramImage->setPixelAt (x, iHeight, newC);
-            lvlL = lvlL + lkoefL;
-            lvlR = lvlR + lkoefR;
-        }
-    }
 }
 
 float AudioAnalyzerAudioProcessorEditor::invLogScale(const float value, const float min, const float max)
