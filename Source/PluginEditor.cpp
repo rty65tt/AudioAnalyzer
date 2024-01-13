@@ -277,7 +277,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     showbutton.onClick = [this] { aP.cS.menuBarHide = false; repaintPanel(); };
     
     gainSlider.setParamFloat(-24.0f, 24.0f, defV.gain, 0.1f, aP.cS.gain);
-    slopeSlider.setParamFloat(-9.0f, 9.0f, defV.slope, 0.1f, aP.cS.slope);
+    slopeSlider.setParamFloat(0.0f, 6.0f, defV.slope, 0.1f, aP.cS.slope);
     floorSlider.setParamFloat(-120.0f, -30.0f, defV.floor, 10.0f, aP.cS.floor);
     crLineSlider.setParamFloat(0.0f, 30.0f, defV.lineCR, 5.0f, aP.cS.lineCR);
     colorLSlider.setParamFloat(0.0f, 360.0f, defV.colorSonoL, 1.0f, aP.cS.colorSonoL);
@@ -526,9 +526,9 @@ float AudioAnalyzerAudioProcessorEditor::invLogScale(const float value, const fl
 
 void AudioAnalyzerAudioProcessorEditor::timerCallback()
 {
-    if ( aP.checkForNewAnalyserData() ) {
+//    if ( aP.checkForNewAnalyserData() ) {
         repaint (plotFrame);
-    }
+//    }
 }
 
 void AudioAnalyzerAudioProcessorEditor::mouseEnter (const juce::MouseEvent& e)

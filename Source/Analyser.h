@@ -29,6 +29,7 @@ public:
 
     void addAudioData (const juce::AudioBuffer<Type>& buffer, int startChannel, int numChannels)
     {
+        
         cChannel = startChannel;
         if (abstractFifo.getFreeSpace() < buffer.getNumSamples())
             return;
@@ -37,12 +38,12 @@ public:
             winMet = cS->winMet;
             windowing.fillWindowingTables(size_t (fftSize), winMet);
         }
-
+        
         if (fftOrder != cS->fftOrder) {
             fftOrder = cS->fftOrder;
             fftSize  = 1 << fftOrder;
             averager.clear();
-
+            
             fftBuffer.setSize(1, fftSize * 2);
             averager.setSize(5, fftSize / 2);
             fft = juce::dsp::FFT(fftOrder);
@@ -99,14 +100,12 @@ public:
                 newDataAvailable = true;
                 
                 if ( cS->mode == 2 && cChannel < 2 ) {
-                    createPath (*sonogramLine, 0);
-                    if(cS->readyCH) {
-                        cS->readyCH = false;
-//                        DBG("readyCH: " << cChannel);
-//                        if(sonogramImage != nullptr) { DBG("Analyzer.h sonogramImage != nullptr ");  }
-//                        if(sonogramImage != nullptr) { drawNextLineOfSonogram(); }
+                    createPath (*sonogramLine);
+                    if(cChannel == 0 ) {cS->chL = true;} else {cS->chR = true;}
+                    if(cS->chL && cS->chR) {
+                        cS->chL = cS->chR = false;
                         drawNextLineOfSonogram();
-                    } else {cS->readyCH = true;}
+                    }
                 }
             }
 
@@ -116,10 +115,11 @@ public:
     }
     
     void drawNextLineOfSonogram()
-    {
+    {        
         if(cS->resize) {
             if(sonogramImage != nullptr) { sonogramImage->~Image(); }
             sonogramImage = new juce::Image(juce::Image::ARGB, cS->newW, cS->newH, true);
+//            sonogramImage->duplicateIfShared(); //?
             cS->resize = false;
         }
         int iHeight = sonogramImage->getHeight() - 1;
@@ -138,10 +138,9 @@ public:
         float lvlL, lvlR;
         float colorL = juce::jmap( cS->colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f );
         float colorR = juce::jmap( cS->colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f );
-        
-        while(analyserPointL.next())
+
+        while(analyserPointR.next() && analyserPointL.next())
         {
-            analyserPointR.next();
             xL1 = analyserPointL.x1;
             yL1 = analyserPointL.y1;
             xL2 = analyserPointL.x2;
@@ -182,7 +181,6 @@ public:
                 } else {
                     bgR = juce::Colours::black.withAlpha(0.0f);
                 }
-    //            juce::Colour newC = bgL.interpolatedWith(bgR, 0.5);
                 juce::Colour newC = bgL.overlaidWith(bgR);
                 
                 sonogramImage->setPixelAt (x, iHeight, newC);
@@ -191,17 +189,20 @@ public:
             }
         }
     }
+    
     void drawSono (juce::Graphics &g, const juce::Rectangle<float> bounds) {
-        g.drawImage (*sonogramImage, bounds );
+//        juce::Rectangle<float> b = bounds.withTop(20.0);
+        g.drawImage ( *sonogramImage, bounds );
     }
-    void createPath (juce::Path& p, int channel)
+    
+    void createPath (juce::Path& p)
     {
         p.clear();
         float minFreq = cS->minFreq;
         p.preallocateSpace (8 + averager.getNumSamples() * 3);
         
         juce::ScopedLock lockedForReading (pathCreationLock);
-        const auto* fftData = averager.getReadPointer (channel);
+        const auto* fftData = averager.getReadPointer (0);
         
         p.startNewSubPath (0.0f, cS->newH);
 
@@ -231,10 +232,9 @@ public:
                 x = ( width * freq / (maxFreq - minFreq) );
             }
             
-            const float infinity    = cS->floor;
+            const float infinity = cS->floor;
             y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
                             infinity, 0.0f, height, 20.f );
-
             p.lineTo (x, y);
         }
     }
@@ -254,6 +254,7 @@ private:
     juce::Path *sonogramLine;
     Type sampleRate {};
     int cChannel;
+    bool readyChFlag = false;
 
     DSETTINGS* cS;
     

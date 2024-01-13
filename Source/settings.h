@@ -12,8 +12,6 @@
 
 #include <JuceHeader.h>
 
-//enum { spec = 1, sono, wave } curAnalyzerMode;
-
 static juce::Image *sonogramImage;
 static juce::Path  *SanalyserPathCh1L;
 static juce::Path  *SanalyserPathCh1R;
@@ -63,5 +61,8 @@ struct DSETTINGS {
     bool menuChSwitch = true;
     
     bool readyCH = false;
+    bool chL = false;
+    bool chR = false;
+
 };
 

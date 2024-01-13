@@ -254,14 +254,14 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 void AudioAnalyzerAudioProcessor::createAnalyserPlot ()
 {
-    inputAnalyserL1.createPath (analyserPathCh1L, 0);
-    inputAnalyserR1.createPath (analyserPathCh1R, 0);
+    inputAnalyserL1.createPath (analyserPathCh1L);
+    inputAnalyserR1.createPath (analyserPathCh1R);
     
     if (cS.ch2L)
-    { inputAnalyserL2.createPath (analyserPathCh2L, 0); }
+    { inputAnalyserL2.createPath (analyserPathCh2L); }
     
     if (cS.ch2R)
-    { inputAnalyserR2.createPath (analyserPathCh2R, 0); }
+    { inputAnalyserR2.createPath (analyserPathCh2R); }
 }
 
 bool AudioAnalyzerAudioProcessor::checkForNewAnalyserData()
