@@ -573,8 +573,7 @@ void AudioAnalyzerAudioProcessorEditor::mouseMove (const juce::MouseEvent& e)
         
         juce::String freqText = (freq < 1000) ? juce::String(round(freq)) : juce::String(round((freq/1000)*10)/10) + "k";
         
-        
-       
+
         int xPos = (x > (width - (lW/2))) ? (width - lW) : e.x - (lW/2);
         xPos = (x < (lW/2)) ? 0 : xPos;
         
