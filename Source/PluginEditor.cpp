@@ -156,6 +156,7 @@ void AudioAnalyzerAudioProcessorEditor::hidePanel()
     settingsFrame.removeAllChildren();
     panel.removeAllChildren();
     frame.removeAllChildren();
+    panel.setBounds(getWidth(),0,1,1);
     showbutton.setVisible(true);
 }
 
@@ -185,6 +186,12 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     }
 
 //    curFftSize = fft4096;
+    
+    freqLabel.setBounds( 10, 0, 80, 30);
+    freqLabel.setFont (juce::Font (16.0f, juce::Font::bold));
+    freqLabel.setColour (juce::Label::textColourId, juce::Colours::black);
+    freqLabel.setColour (juce::Label::backgroundColourId, juce::Colours::grey);
+    addChildComponent (freqLabel);
 
     addAndMakeVisible (panel);
     
@@ -380,12 +387,9 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     fft13_button.setClickingTogglesState (true);
     fft14_button.setClickingTogglesState (true);
     
-    fft12_button.onClick = [this] {
-        aP.cS.fftOrder = 12; };
-    fft13_button.onClick = [this] {
-        aP.cS.fftOrder = 13; };
-    fft14_button.onClick = [this] {
-        aP.cS.fftOrder = 14; };
+    fft12_button.onClick = [this] { aP.cS.fftOrder = 12; };
+    fft13_button.onClick = [this] { aP.cS.fftOrder = 13; };
+    fft14_button.onClick = [this] { aP.cS.fftOrder = 14; };
     
     setSize (curW, curH);
 //    setOpaque (true);
@@ -515,6 +519,19 @@ void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics &g) {
     g.drawRoundedRectangle (plotFrame.toFloat(), 15, 3);
 }
 
+float AudioAnalyzerAudioProcessorEditor::logScale(const float value, const float min, const float max)
+{
+    if (value < min)
+        return min;
+    if (value > max)
+        return max;
+
+    const float b = std::log(max / min) / (max - min);
+    const float a = max / std::exp(max * b);
+
+    return a * std::exp(b * value);
+}
+
 float AudioAnalyzerAudioProcessorEditor::invLogScale(const float value, const float min, const float max)
 {
     if (value < min) return min;
@@ -531,12 +548,52 @@ void AudioAnalyzerAudioProcessorEditor::timerCallback()
 //    }
 }
 
+void AudioAnalyzerAudioProcessorEditor::mouseMove (const juce::MouseEvent& e)
+{
+    int lW = 60;
+    int lH = 30;
+    int x = e.x;
+    if (e.eventComponent != this) {
+        e.getEventRelativeTo(this); // no Work!!
+    }
+    
+    if ( e.eventComponent == this && e.y > lH ) {
+        
+        float width  = cS->newW;
+        //    float height = cS->newH;
+        float minFreq = cS->minFreq;
+        float maxFreq = cS->maxFreq;
+        //    float sampleRate = maxFreq * 2;
+        
+        float freq  = juce::jmap( (float)x, 0.0f, width, minFreq, maxFreq );
+        
+        if (!cS->setLiner) {
+            freq = logScale(freq, minFreq, maxFreq);
+        }
+        
+        juce::String freqText = (freq < 1000) ? juce::String(round(freq)) : juce::String(round((freq/1000)*10)/10) + "k";
+        
+        
+       
+        int xPos = (x > (width - (lW/2))) ? (width - lW) : e.x - (lW/2);
+        xPos = (x < (lW/2)) ? 0 : xPos;
+        
+        freqLabel.setBounds(xPos, 0, lW, lH);
+        freqLabel.setJustificationType (juce::Justification::centred);
+        freqLabel.setText(freqText, juce::dontSendNotification);
+    }
+}
+
 void AudioAnalyzerAudioProcessorEditor::mouseEnter (const juce::MouseEvent& e)
 {
     panel.setVisible(true);
+    if (cS->menuBarHide && cS->mode <= 2) {
+        freqLabel.setVisible(true);
+    }
 }
 
 void AudioAnalyzerAudioProcessorEditor::mouseExit (const juce::MouseEvent& e)
 {
     panel.setVisible(false);
+    freqLabel.setVisible(false);
 }

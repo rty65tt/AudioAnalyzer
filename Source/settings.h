@@ -34,6 +34,7 @@ struct DSETTINGS {
     int mode = 1;
     
     float minFreq = 10.0f;
+    float maxFreq = 24000.0f;
     
     float gain          = 0.0f;
     float slope         = 3.0f;

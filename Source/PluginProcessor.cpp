@@ -103,6 +103,7 @@ void AudioAnalyzerAudioProcessor::prepareToPlay (double newSampleRate, int newSa
     // Use this method as the place to do any pre-playback
     // initialisation that you need..
     sampleRate = newSampleRate;
+    cS.maxFreq = getSampleRate() * 0.5;
 
     SanalyserPathCh1L = &analyserPathCh1L;
     SanalyserPathCh1R = &analyserPathCh1R;

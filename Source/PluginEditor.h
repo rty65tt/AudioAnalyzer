@@ -152,9 +152,10 @@ AudioAnalyzerAudioProcessorEditor (AudioAnalyzerAudioProcessor&);
     
     void mouseEnter (const juce::MouseEvent& e) override;
     void mouseExit (const juce::MouseEvent& e) override;
-//    void mouseMove (const juce::MouseEvent& e) override;
+    void mouseMove (const juce::MouseEvent& e) override;
 //    void mouseDown (const juce::MouseEvent& e) override;
     
+    float logScale(const float value, const float min, const float max);
     float invLogScale(const float value, const float min, const float max);
        
 //    juce::Image *sonogramImage;
@@ -282,6 +283,8 @@ private:
     juce::TextButton fftWin3button {"BLACKMAN"};
     juce::TextButton fftWin4button {"BLACKMAN HARRIS"};
     juce::TextButton fftWin5button {"FlatTop"};
+    
+    juce::Label     freqLabel {"10 freq"};;
     
     DSETTINGS* cS = &aP.cS;
     DSETTINGS defV;
