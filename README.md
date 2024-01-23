@@ -1,5 +1,5 @@
 # AudioAnalyzer
-VST AU mac win audio analyzer (Spectrogram Sonogram) plugin (JUCE)
+VST AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE)
 
 
 ![screenshot1](spectrogram.png  "Spectrogram")
