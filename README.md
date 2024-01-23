@@ -1,5 +1,5 @@
 # AudioAnalyzer
-VST AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE)
+VST3 AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE)
 
 
 ![screenshot1](spectrogram.png  "Spectrogram")
@@ -12,9 +12,15 @@ VST AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE)
 
 
 
-## Linux Build
+## Linux Build (Arch Linux)
 
-cd Builds/LinuxMakefile
+sudo pacman -S base-devel juce
+
+Launch app "Projucer" and open "AudioAnalyzer.jucer" 
+
+Select exporter "Linux Makefile" and "File -> Save"
+
+cd (download path)/AudioAnalyzer/Builds/LinuxMakefile
 
 make Standalone CONFIG=Release
 
@@ -22,5 +28,5 @@ make VST3 CONFIG=Release
 
 make LV2 CONFIG=Release
 
-make clean
+make clean (not necessary)
 
