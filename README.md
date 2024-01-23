@@ -12,7 +12,7 @@ VST AU mac win audio analyzer (Spectrogram Sonogram) plugin (JUCE)
 
 
 
-## Linux Builds
+## Linux Build
 
 cd Builds/LinuxMakefile
 
