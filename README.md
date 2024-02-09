@@ -4,6 +4,7 @@ VST3 AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE
 ## Known Issues
 - Sometimes, but very rarely, crushing
 - Spectrogram have bad optimization. Use FFT Block Size 4096 and Overlap x2. In future may be fixing.
+- Sonorogram recommend use FFT Block Size 8192 and Overlap x16. 
 
 
 ![screenshot1](spectrogram.png  "Spectrogram")

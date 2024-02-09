@@ -77,7 +77,7 @@ public:
         g.setColour (juce::Colours::darkgrey);
         auto fillArea = getLocalBounds().toFloat();
         fillArea.removeFromTop(6.0);
-        g.setOpacity(0.80f);
+//        g.setOpacity(0.80f);
         g.fillRoundedRectangle(fillArea, 8.0f);
     }
 };
@@ -183,6 +183,7 @@ private:
     void showSetPanel();
     void hidePanel();
     
+    void drawFreqGrid(juce::Graphics &g, bool bg, bool fV, bool fL, bool vVL, int fColor);
     void drawSpectrogram(juce::Graphics &g);
 //    void drawNextLineOfSonogram(juce::Graphics &g);
 

@@ -118,7 +118,7 @@ public:
     {        
         if(cS->resize) {
             if(sonogramImage != nullptr) { sonogramImage->~Image(); }
-            sonogramImage = new juce::Image(juce::Image::ARGB, cS->newW, cS->newH, true);
+            sonogramImage = new juce::Image(juce::Image::ARGB, cS->newW, cS->newH-sonoTopLineHeight, true);
 //            sonogramImage->duplicateIfShared(); //?
             cS->resize = false;
         }
@@ -132,14 +132,15 @@ public:
         juce::PathFlatteningIterator analyserPointR ( *SanalyserPathCh1R );
         
         int x = 0.0f;
-        int xL1,yL1,xL2,yL2, xR1,yR1,xR2,yR2; ;
+        int xL1,yL1,xL2,yL2, xR1,yR1,xR2,yR2;
+
         float levelL, levelR;
         float bxL,byL, bxR, byR;
         float lvlL, lvlR;
         float colorL = juce::jmap( cS->colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f );
         float colorR = juce::jmap( cS->colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f );
 
-        while(analyserPointR.next() && analyserPointL.next())
+        do
         {
             xL1 = analyserPointL.x1;
             yL1 = analyserPointL.y1;
@@ -187,12 +188,12 @@ public:
                 lvlL = lvlL + lkoefL;
                 lvlR = lvlR + lkoefR;
             }
-        }
+        } while(analyserPointR.next() && analyserPointL.next());
     }
     
     void drawSono (juce::Graphics &g, const juce::Rectangle<float> bounds) {
-//        juce::Rectangle<float> b = bounds.withTop(20.0);
-        g.drawImage ( *sonogramImage, bounds );
+        juce::Rectangle<float> b = bounds.withTop(sonoTopLineHeight);
+        g.drawImage ( *sonogramImage, b );
     }
     
     void createPath (juce::Path& p)
@@ -219,7 +220,12 @@ public:
             float x, y;
             const float freq = (sampleRate * i) / fftSize;
 
-            if (freq < minFreq) { p.lineTo (0.0f, height); continue; };
+            const float infinity = cS->floor;
+            y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
+                            infinity, 0.0f, height, 20.f );
+            
+            
+            if (freq < minFreq) { p.lineTo (0.0f, y); continue; };
             if (freq > maxFreq) { p.lineTo (width, height); continue; };
 
             const float b = std::log(maxFreq / minFreq) / (maxFreq - minFreq);
@@ -232,7 +238,7 @@ public:
                 x = ( width * freq / (maxFreq - minFreq) );
             }
             
-            const float infinity = cS->floor;
+//            const float infinity = cS->floor;
             y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
                             infinity, 0.0f, height, 20.f );
             p.lineTo (x, y);
@@ -255,6 +261,8 @@ private:
     Type sampleRate {};
     int cChannel;
     bool readyChFlag = false;
+    
+    int sonoTopLineHeight = 20;
 
     DSETTINGS* cS;
     

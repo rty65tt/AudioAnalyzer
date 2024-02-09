@@ -201,6 +201,7 @@ void AudioAnalyzerAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     xml->setAttribute ("crline",     (double)    cS.lineCR);
     xml->setAttribute ("colorSonoL",     (double)    cS.colorSonoL);
     xml->setAttribute ("colorSonoR",     (double)    cS.colorSonoR);
+    xml->setAttribute ("fftOrder",      (int)         cS.fftOrder);
     xml->setAttribute ("overlap",      (int)         cS.overlap);
     xml->setAttribute ("ch1L",    (bool)       cS.ch1L);
     xml->setAttribute ("ch1R",    (bool)       cS.ch1R);
@@ -231,6 +232,7 @@ void AudioAnalyzerAudioProcessor::setStateInformation (const void* data, int siz
             cS.lineCR = (float) xmlState->getDoubleAttribute ("crline", 30.0);
             cS.colorSonoL = (float) xmlState->getDoubleAttribute ("colorSonoL", 330.0);
             cS.colorSonoR = (float) xmlState->getDoubleAttribute ("colorSonoR", 120.0);
+            cS.fftOrder = (int) xmlState->getIntAttribute ("fftOrder", 12);
             cS.overlap = (int) xmlState->getIntAttribute ("overlap", 2);
             cS.ch1L   = xmlState->getBoolAttribute("ch1L");
             cS.ch1R   = xmlState->getBoolAttribute("ch1R");

@@ -419,9 +419,11 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
     if (flagStart) { flagStart = false; return; } // pillar.crutch
     switch (aP.cS.mode) {
         case 1:
+            drawFreqGrid(g, true, true, true, true, 75);
             drawSpectrogram(g);
             break;
         case 2:
+            drawFreqGrid(g, false, true, false, false, 125);
             if(!cS->resize) { aP.drawSonogram( g, getLocalBounds().toFloat() ); }
 //            g.drawImage (*sonogramImage, getLocalBounds().toFloat(), true);
             break;
@@ -448,52 +450,63 @@ void AudioAnalyzerAudioProcessorEditor::resized()
 }
 
 // =============================
-void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics &g) {
-    
+void AudioAnalyzerAudioProcessorEditor::drawFreqGrid(juce::Graphics &g,
+                                                     bool bg,
+                                                     bool fV, bool fL,
+                                                     bool vVL, int fColor) {
     float width  = getLocalBounds().getWidth();
     float height = getLocalBounds().getHeight();
     
-    const auto gColor1 = juce::Colour::fromRGBA(12, 12, 13, 255);
-    const auto gColor2 = juce::Colour::fromRGBA(22, 22, 25, 255);
-    const auto gradBG = juce::ColourGradient(gColor1, width/2, height, gColor2, width/2, 0.0f, false);
-    g.setGradientFill(gradBG);
-    g.fillAll();
-    
+    if (bg) {
+        const auto gColor1 = juce::Colour::fromRGBA(12, 12, 13, 255);
+        const auto gColor2 = juce::Colour::fromRGBA(22, 22, 25, 255);
+        const auto gradBG = juce::ColourGradient(gColor1, width/2, height, gColor2, width/2, 0.0f, false);
+        g.setGradientFill(gradBG);
+        g.fillAll();
+    }
     plotFrame = getLocalBounds();
     
     const float max = aP.getSampleRate() / 2;
     
-    g.setColour (juce::Colour::fromRGBA(75, 75, 75, 255));
+    g.setColour (juce::Colour::fromRGBA(fColor, fColor, fColor, 255));
     
-    float x = 0.0f;
-    int k  = (cS->setLiner) ? 1000 : 10;
-    for (auto i = k; i < max; i=(i*10) ) {
-        float y = 0.0f;
-        for (auto f = i; f < (i*10); f=(f+i)) {
-            if (f > k && f < max) {
-                const float position = (cS->setLiner) ? f : invLogScale(f, 10, max);
-                x = width * position / max;
-                g.drawLine ({ round(x), height, round(x), 21.0f });
-                if ((x - y) > 30.0f) {
-                    auto freq = (f < 1000) ? f : (f / 1000);
-                    auto a = (f < 1000) ? juce::String (freq) : juce::String (freq) + "k";
-                    g.drawFittedText (a , x-5, 3, 20, 14, juce::Justification::left, 1);
+    if (fV) {
+        float x = 0.0f;
+        int k  = (cS->setLiner) ? 1000 : 10;
+        for (auto i = k; i < max; i=(i*10) ) {
+            float y = 0.0f;
+            for (auto f = i; f < (i*10); f=(f+i)) {
+                if (f > k && f < max) {
+                    const float position = (cS->setLiner) ? f : invLogScale(f, 10, max);
+                    x = width * position / max;
+                    if (fL) {g.drawLine ({ round(x), height, round(x), 21.0f });}
+                    if ((x - y) > 30.0f) {
+                        auto freq = (f < 1000) ? f : (f / 1000);
+                        auto a = (f < 1000) ? juce::String (freq) : juce::String (freq) + "k";
+                        g.drawFittedText (a , x-5, 3, 20, 14, juce::Justification::left, 1);
+                    }
+                    y = x;
                 }
-                y = x;
             }
         }
     }
     
-    auto maxDB = aP.cS.floor * (-1);
-    float s = height / maxDB * 10;
-    float y = 20.0f;
-    for (auto i = 0; i < maxDB; i = ( i + 10 ) ) {
-        auto a = juce::String (i) + "db";
-        g.drawFittedText (a , 5, y-7, 30, 14, juce::Justification::left, 1);
-        g.drawLine ({ 40.0f, round(y), width, round(y) });
-        y = y + s;
+    if (vVL) {
+        auto maxDB = aP.cS.floor * (-1);
+        float s = height / maxDB * 10;
+        float y = 20.0f;
+        for (auto i = 0; i < maxDB; i = ( i + 10 ) ) {
+            auto a = juce::String (i) + "db";
+            g.drawFittedText (a , 5, y-7, 30, 14, juce::Justification::left, 1);
+            g.drawLine ({ 40.0f, round(y), width, round(y) });
+            y = y + s;
+        }
     }
     
+}
+void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics &g) {
+    
+
     const auto inColour1L = juce::Colour::fromRGBA(75, 75, 175,  205);
     const auto inColour1R = juce::Colour::fromRGBA(46, 139, 87,  205);
     const auto inColour2L = juce::Colour::fromRGBA(175, 46, 35,  205);
