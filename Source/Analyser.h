@@ -239,8 +239,8 @@ public:
             }
             
 //            const float infinity = cS->floor;
-            y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
-                            infinity, 0.0f, height, 20.f );
+//            y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
+//                            infinity, 0.0f, height, 20.f );
             p.lineTo (x, y);
         }
     }
