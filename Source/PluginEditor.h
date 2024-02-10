@@ -77,7 +77,7 @@ public:
         g.setColour (juce::Colours::darkgrey);
         auto fillArea = getLocalBounds().toFloat();
         fillArea.removeFromTop(6.0);
-//        g.setOpacity(0.80f);
+        g.setOpacity(0.90f);
         g.fillRoundedRectangle(fillArea, 8.0f);
     }
 };
@@ -187,9 +187,9 @@ private:
     void drawSpectrogram(juce::Graphics &g);
 //    void drawNextLineOfSonogram(juce::Graphics &g);
 
-#ifdef JUCE_OPENGL
-    juce::OpenGLContext     openGLContext;
-#endif
+//#ifdef JUCE_OPENGL
+//    juce::OpenGLContext     openGLContext;
+//#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioAnalyzerAudioProcessorEditor)
     

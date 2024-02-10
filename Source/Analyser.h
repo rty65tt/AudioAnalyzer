@@ -39,8 +39,8 @@ public:
             windowing.fillWindowingTables(size_t (fftSize), winMet);
         }
         
-        if (fftOrder != cS->fftOrder) {
-            fftOrder = cS->fftOrder;
+        if (fftOrder != *cS->fftOrder) {
+            fftOrder = *cS->fftOrder;
             fftSize  = 1 << fftOrder;
             averager.clear();
             
@@ -86,7 +86,7 @@ public:
                 abstractFifo.prepareToRead (fftSize, start1, block1, start2, block2);
                 if (block1 > 0) fftBuffer.copyFrom (0, 0, audioFifo.getReadPointer (0, start1), block1);
                 if (block2 > 0) fftBuffer.copyFrom (0, block1, audioFifo.getReadPointer (0, start2), block2);
-                abstractFifo.finishedRead ((block1 + block2) / cS->overlap );
+                abstractFifo.finishedRead ((block1 + block2) / *cS->overlap );
 
                 windowing.multiplyWithWindowingTable (fftBuffer.getWritePointer (0), size_t (fft.getSize()));
                 fft.performFrequencyOnlyForwardTransform (fftBuffer.getWritePointer (0));
@@ -115,7 +115,10 @@ public:
     }
     
     void drawNextLineOfSonogram()
-    {        
+    {                
+        juce::Path::Iterator analyserPointL ( *SanalyserPathCh1L );
+        juce::Path::Iterator analyserPointR ( *SanalyserPathCh1R );
+        
         if(cS->resize) {
             if(sonogramImage != nullptr) { sonogramImage->~Image(); }
             sonogramImage = new juce::Image(juce::Image::ARGB, cS->newW, cS->newH-sonoTopLineHeight, true);
@@ -128,11 +131,9 @@ public:
                                             sonogramImage->getWidth(),
                                             iHeight);
         
-        juce::PathFlatteningIterator analyserPointL ( *SanalyserPathCh1L );
-        juce::PathFlatteningIterator analyserPointR ( *SanalyserPathCh1R );
-        
         int x = 0.0f;
-        int xL1,yL1,xL2,yL2, xR1,yR1,xR2,yR2;
+        //int xL1,yL1,xL2,yL2, xR1,yR1,xR2,yR2;
+        int xL1, yL1, xL2 = 0, yL2 = 0, xR1, yR1, xR2 = 0, yR2 = 0;
 
         float levelL, levelR;
         float bxL,byL, bxR, byR;
@@ -142,16 +143,17 @@ public:
 
         do
         {
-            xL1 = analyserPointL.x1;
-            yL1 = analyserPointL.y1;
-            xL2 = analyserPointL.x2;
-            yL2 = analyserPointL.y2;
-            
-            xR1 = analyserPointR.x1;
-            yR1 = analyserPointR.y1;
-            xR2 = analyserPointR.x2;
-            yR2 = analyserPointR.y2;
-            
+
+            xL1 = xL2;
+            yL1 = yL2;
+            xL2 = analyserPointL.x1;
+            yL2 = analyserPointL.y1;
+
+            xR1 = xR2;
+            yR1 = yR2;
+            xR2 = analyserPointR.x1;
+            yR2 = analyserPointR.y1;
+
             bxL = xL2-xL1;
             byL = yL2-yL1;
             
@@ -168,6 +170,7 @@ public:
             juce::Colour bgR;
             
             for (int i = 0; i < bxL; ++i) {
+
                 x++;
 
                 if (cS->ch1L) {
@@ -188,7 +191,7 @@ public:
                 lvlL = lvlL + lkoefL;
                 lvlR = lvlR + lkoefR;
             }
-        } while(analyserPointR.next() && analyserPointL.next());
+        } while( analyserPointR.next() && analyserPointL.next() );
     }
     
     void drawSono (juce::Graphics &g, const juce::Rectangle<float> bounds) {
@@ -223,7 +226,6 @@ public:
             const float infinity = cS->floor;
             y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
                             infinity, 0.0f, height, 20.f );
-            
             
             if (freq < minFreq) { p.lineTo (0.0f, y); continue; };
             if (freq > maxFreq) { p.lineTo (width, height); continue; };

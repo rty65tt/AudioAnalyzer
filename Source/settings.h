@@ -22,7 +22,9 @@ static juce::Path  *SanalyserPathCh2R;
 
 struct DSETTINGS {
     
-    int  fftOrder = 12;
+    int fftOrderSpec = 12;
+    int fftOrderSono = 13;
+    int* fftOrder = &fftOrderSono;
 //    int  fftSize = 1 << fftOrder;
     bool setLiner = false;
     juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;
@@ -31,7 +33,7 @@ struct DSETTINGS {
     bool resize = false;
     int newW = 0;
     int newH = 0;
-    int mode = 1;
+    int mode = 2;
     
     float minFreq = 10.0f;
     float maxFreq = 24000.0f;
@@ -42,8 +44,10 @@ struct DSETTINGS {
     float smooth        = 0.0f;
     float avengeing     = 0.0f; //ms
     float lineCR        = 30.0f;
-    int   overlap       = 2;
-    
+    int   overlapSpec = 2;
+    int   overlapSono = 16;
+    int*  overlap = &overlapSono;
+
     float colorSonoL        = 330.0f;
     float colorSonoR        = 60.0f;
     
@@ -58,7 +62,7 @@ struct DSETTINGS {
     bool ch2S = false;
     
     bool menuBarHide  = false;
-    bool showSettings = false;
+    bool showSettings = true;
     bool menuChSwitch = true;
     
     bool readyCH = false;

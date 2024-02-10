@@ -201,8 +201,10 @@ void AudioAnalyzerAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     xml->setAttribute ("crline",     (double)    cS.lineCR);
     xml->setAttribute ("colorSonoL",     (double)    cS.colorSonoL);
     xml->setAttribute ("colorSonoR",     (double)    cS.colorSonoR);
-    xml->setAttribute ("fftOrder",      (int)         cS.fftOrder);
-    xml->setAttribute ("overlap",      (int)         cS.overlap);
+    xml->setAttribute ("fftOrderSpec",      (int)         cS.fftOrderSpec);
+    xml->setAttribute ("fftOrderSono",      (int)         cS.fftOrderSono);
+    xml->setAttribute ("overlapSpec",       (int)         cS.overlapSpec);
+    xml->setAttribute ("overlapSono",       (int)         cS.overlapSono);
     xml->setAttribute ("ch1L",    (bool)       cS.ch1L);
     xml->setAttribute ("ch1R",    (bool)       cS.ch1R);
     xml->setAttribute ("ch2L",    (bool)       cS.ch2L);
@@ -232,8 +234,10 @@ void AudioAnalyzerAudioProcessor::setStateInformation (const void* data, int siz
             cS.lineCR = (float) xmlState->getDoubleAttribute ("crline", 30.0);
             cS.colorSonoL = (float) xmlState->getDoubleAttribute ("colorSonoL", 330.0);
             cS.colorSonoR = (float) xmlState->getDoubleAttribute ("colorSonoR", 120.0);
-            cS.fftOrder = (int) xmlState->getIntAttribute ("fftOrder", 12);
-            cS.overlap = (int) xmlState->getIntAttribute ("overlap", 2);
+            cS.fftOrderSpec = (int) xmlState->getIntAttribute ("fftOrderSpec", 12);
+            cS.fftOrderSono = (int)xmlState->getIntAttribute("fftOrderSono", 13);
+            cS.overlapSpec = (int) xmlState->getIntAttribute ("overlapSpec", 2);
+            cS.overlapSono = (int)xmlState->getIntAttribute("overlapSono", 16);
             cS.ch1L   = xmlState->getBoolAttribute("ch1L");
             cS.ch1R   = xmlState->getBoolAttribute("ch1R");
             cS.ch2L   = xmlState->getBoolAttribute("ch2L");

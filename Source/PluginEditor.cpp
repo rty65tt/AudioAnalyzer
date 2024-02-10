@@ -121,15 +121,17 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
             //** FFT Size GROUP ==========================
             settingsFrame.addAndMakeVisible(setFftGroup);
             
-            setFftGroup.addAndMakeVisible(fft12_button);
-            setFftGroup.addAndMakeVisible(fft13_button);
-            setFftGroup.addAndMakeVisible(fft14_button);
+            if (*aP.cS.fftOrder == 12) { fft12_button.setToggleState(true, juce::dontSendNotification); }
+            if (*aP.cS.fftOrder == 13) { fft13_button.setToggleState(true, juce::dontSendNotification); }
+            if (*aP.cS.fftOrder == 14) { fft14_button.setToggleState(true, juce::dontSendNotification); }
             
-            if (aP.cS.fftOrder == 12) { fft12_button.setToggleState(true, juce::dontSendNotification); }
-            if (aP.cS.fftOrder == 13) { fft13_button.setToggleState(true, juce::dontSendNotification); }
-            if (aP.cS.fftOrder == 14) { fft14_button.setToggleState(true, juce::dontSendNotification); }
-            
+            //** FFT Size GROUP ==========================
             settingsFrame.addAndMakeVisible(setOverlapGroup);
+            if (*aP.cS.overlap ==  2) { overlap2button.setToggleState(true, juce::dontSendNotification); }
+            if (*aP.cS.overlap ==  4) { overlap4button.setToggleState(true, juce::dontSendNotification); }
+            if (*aP.cS.overlap ==  8) { overlap8button.setToggleState(true, juce::dontSendNotification); }
+            if (*aP.cS.overlap == 16) { overlap16button.setToggleState(true, juce::dontSendNotification); }
+
         }
         
         if ( curAnalyzerMode == spec ) {
@@ -215,8 +217,18 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     if (curAnalyzerMode == spec) { specbutton.setToggleState(true, juce::dontSendNotification); }
     if (curAnalyzerMode == sono) { sonobutton.setToggleState(true, juce::dontSendNotification); }
 //    if (curAnalyzerMode == wave) { wavebutton.setToggleState(true, juce::dontSendNotification); }
-    specbutton.onClick = [this] { aP.cS.mode = curAnalyzerMode = spec; drawPanel(); };
-    sonobutton.onClick = [this] { aP.cS.mode = curAnalyzerMode = sono; drawPanel(); };
+    specbutton.onClick = [this] { 
+        aP.cS.mode = curAnalyzerMode = spec; 
+        aP.cS.fftOrder = &aP.cS.fftOrderSpec;
+        aP.cS.overlap  = &aP.cS.overlapSpec;
+        drawPanel(); 
+        };
+    sonobutton.onClick = [this] { 
+        aP.cS.mode = curAnalyzerMode = sono; 
+        aP.cS.fftOrder = &aP.cS.fftOrderSono;
+        aP.cS.overlap  = &aP.cS.overlapSono;
+        drawPanel(); 
+        };
 //    wavebutton.onClick = [this] { curAnalyzerMode = wave; showSetPanel(); };
     
     //** SETUP BUTTON =========================
@@ -273,7 +285,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
 //    stereo_midside.onClick = [this] {
 //        aP.cS.menuChSwitch = (aP.cS.menuChSwitch) ? false : true; repaintPanel(); };
     
-    // HEDE BUTTON
+    // HIDE BUTTON
     hidebutton.setBounds(680, 16, 30, 30);
     hidebutton.setButtonText(">");
     hidebutton.onClick = [this] { aP.cS.menuBarHide = true; hidePanel(); };
@@ -319,20 +331,15 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     overlap8button.setClickingTogglesState (true);
     overlap16button.setClickingTogglesState (true);
     
-    if (aP.cS.overlap  == 2)  { overlap2button.setToggleState(true, juce::dontSendNotification); }
-    if (aP.cS.overlap  == 4)  { overlap4button.setToggleState(true, juce::dontSendNotification); }
-    if (aP.cS.overlap  == 8)  { overlap8button.setToggleState(true, juce::dontSendNotification); }
-    if (aP.cS.overlap  == 16) { overlap16button.setToggleState(true, juce::dontSendNotification); }
-        
     setOverlapGroup.addAndMakeVisible(overlap2button);
     setOverlapGroup.addAndMakeVisible(overlap4button);
     setOverlapGroup.addAndMakeVisible(overlap8button);
     setOverlapGroup.addAndMakeVisible(overlap16button);
 
-    overlap2button.onClick  = [this] { aP.cS.overlap = 2; };
-    overlap4button.onClick  = [this] { aP.cS.overlap = 4; };
-    overlap8button.onClick  = [this] { aP.cS.overlap = 8; };
-    overlap16button.onClick = [this] { aP.cS.overlap = 16; };
+    overlap2button.onClick  = [this] { *aP.cS.overlap = 2; };
+    overlap4button.onClick  = [this] { *aP.cS.overlap = 4; };
+    overlap8button.onClick  = [this] { *aP.cS.overlap = 8; };
+    overlap16button.onClick = [this] { *aP.cS.overlap = 16; };
 
     //** WindowMethod GROUP ======================
     fftWin1button.setRadioGroupId (fftSizeWindow);
@@ -386,18 +393,22 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     fft12_button.setClickingTogglesState (true);
     fft13_button.setClickingTogglesState (true);
     fft14_button.setClickingTogglesState (true);
+
+    setFftGroup.addAndMakeVisible(fft12_button);
+    setFftGroup.addAndMakeVisible(fft13_button);
+    setFftGroup.addAndMakeVisible(fft14_button);
     
-    fft12_button.onClick = [this] { aP.cS.fftOrder = 12; };
-    fft13_button.onClick = [this] { aP.cS.fftOrder = 13; };
-    fft14_button.onClick = [this] { aP.cS.fftOrder = 14; };
+    fft12_button.onClick = [this] { *aP.cS.fftOrder = 12; };
+    fft13_button.onClick = [this] { *aP.cS.fftOrder = 13; };
+    fft14_button.onClick = [this] { *aP.cS.fftOrder = 14; };
     
     setSize (curW, curH);
 //    setOpaque (true);
     setResizable (true, true);
     setResizeLimits (defW, defH, 7680, 4320);
-#ifdef JUCE_OPENGL
-    openGLContext.attachTo(*getTopLevelComponent());
-#endif
+//#ifdef JUCE_OPENGL
+//    openGLContext.attachTo(*getTopLevelComponent());
+//#endif
     startTimerHz (30);
 }
 
@@ -406,9 +417,9 @@ AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
     setLookAndFeel (nullptr);
     removeMouseListener (this);
     sonogramImage->~Image();
-#ifdef JUCE_OPENGL
-    openGLContext.detach();
-#endif
+//#ifdef JUCE_OPENGL
+//    openGLContext.detach();
+//#endif
 }
 
 //==============================================================================
