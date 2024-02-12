@@ -58,8 +58,9 @@ public:
     //====================
     void createAnalyserPlot ();
 
-    bool checkForNewAnalyserData();
-    void drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b);
+    //bool checkForNewAnalyserData();
+    //void drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b);
+    juce::Image& getImgPtr();
     
     DSETTINGS cS;
     

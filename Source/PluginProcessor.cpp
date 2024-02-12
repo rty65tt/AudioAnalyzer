@@ -271,12 +271,17 @@ void AudioAnalyzerAudioProcessor::createAnalyserPlot ()
     { inputAnalyserR2.createPath (analyserPathCh2R); }
 }
 
-bool AudioAnalyzerAudioProcessor::checkForNewAnalyserData()
-{
-    return ( inputAnalyserL1.checkForNewData() || inputAnalyserR1.checkForNewData() );
-}
+//bool AudioAnalyzerAudioProcessor::checkForNewAnalyserData()
+//{
+//    return ( inputAnalyserL1.checkForNewData() || inputAnalyserR1.checkForNewData() );
+//}
 
-void AudioAnalyzerAudioProcessor::drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b)
+//void AudioAnalyzerAudioProcessor::drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b)
+//{
+//    inputAnalyserL1.drawSono(g, b);
+//}
+
+juce::Image& AudioAnalyzerAudioProcessor::getImgPtr()
 {
-    inputAnalyserL1.drawSono(g, b);
+    return inputAnalyserL1.getImgPtr();
 }

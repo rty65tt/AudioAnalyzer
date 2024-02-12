@@ -34,6 +34,8 @@ struct DSETTINGS {
     int newW = 0;
     int newH = 0;
     int mode = 2;
+
+    juce::Rectangle<float>  plotFrameSono;
     
     float minFreq = 10.0f;
     float maxFreq = 24000.0f;

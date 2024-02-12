@@ -170,7 +170,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnaly
     int curW = aP.cS.newW = (aP.cS.newW) ? aP.cS.newW : defW;
     int curH = aP.cS.newH = (aP.cS.newH) ? aP.cS.newH : defH;
 
-    sonogramImage = new juce::Image(juce::Image::ARGB, curW, curH, true);
+    //sonogramImage = new juce::Image(juce::Image::ARGB, curW, curH, true);
 
     setLookAndFeel (&otherLookAndFeel);
 
@@ -416,7 +416,7 @@ AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
 {
     setLookAndFeel (nullptr);
     removeMouseListener (this);
-    sonogramImage->~Image();
+    //sonogramImage->~Image();
 //#ifdef JUCE_OPENGL
 //    openGLContext.detach();
 //#endif
@@ -435,8 +435,10 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
             break;
         case 2:
             drawFreqGrid(g, false, true, false, false, 125);
-            if(!cS->resize) { aP.drawSonogram( g, getLocalBounds().toFloat() ); }
-//            g.drawImage (*sonogramImage, getLocalBounds().toFloat(), true);
+            if (!cS->resize) {
+                // aP.drawSonogram(g, getLocalBounds().toFloat());
+                g.drawImage ( aP.getImgPtr(), cS->plotFrameSono );
+            }
             break;
         case wave:
             break;
@@ -449,6 +451,7 @@ void AudioAnalyzerAudioProcessorEditor::resized()
     // subcomponents in your editor..
     aP.cS.resize = true;
     plotFrame = getLocalBounds();
+    cS->plotFrameSono = getLocalBounds().toFloat().withTop(20);
     aP.cS.newW = getWidth();
     aP.cS.newH = getHeight();
     drawPanel();
