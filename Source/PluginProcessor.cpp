@@ -105,14 +105,14 @@ void AudioAnalyzerAudioProcessor::prepareToPlay (double newSampleRate, int newSa
     sampleRate = newSampleRate;
     cS.maxFreq = getSampleRate() * 0.5;
 
-    SanalyserPathCh1L = &analyserPathCh1L;
+ /*   SanalyserPathCh1L = &analyserPathCh1L;
     SanalyserPathCh1R = &analyserPathCh1R;
     SanalyserPathCh2L = &analyserPathCh2L;
-    SanalyserPathCh2R = &analyserPathCh2R;
-    inputAnalyserL1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1L, &sImg );
-    inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1R, &sImg );
-    inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2L, &sImg );
-    inputAnalyserR2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2R, &sImg );
+    SanalyserPathCh2R = &analyserPathCh2R;*/
+    inputAnalyserL1.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
+    inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
+    inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
+    inputAnalyserR2.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
 
 }
 

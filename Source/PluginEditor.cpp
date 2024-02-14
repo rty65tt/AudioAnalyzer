@@ -437,7 +437,7 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
             drawFreqGrid(g, false, true, false, false, 125);
             //if (!cS->resize) {
                 // aP.drawSonogram(g, getLocalBounds().toFloat());
-                //g.drawImage ( aP.sImg.getImgPtr(), cS->plotFrameSono );
+                g.drawImage ( aP.sImg.getImgPtr(), cS->plotFrameSono );
             //}
             break;
         case wave:
@@ -454,6 +454,7 @@ void AudioAnalyzerAudioProcessorEditor::resized()
     cS->plotFrameSono = getLocalBounds().toFloat().withTop(20);
     aP.cS.newW = getWidth();
     aP.cS.newH = getHeight();
+    aP.sImg.setSizeImg(aP.cS.newW, aP.cS.newH);
     drawPanel();
 
 //    sonogramImage->~Image();
