@@ -109,10 +109,10 @@ void AudioAnalyzerAudioProcessor::prepareToPlay (double newSampleRate, int newSa
     SanalyserPathCh1R = &analyserPathCh1R;
     SanalyserPathCh2L = &analyserPathCh2L;
     SanalyserPathCh2R = &analyserPathCh2R;
-    inputAnalyserL1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1L );
-    inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1R );
-    inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2L );
-    inputAnalyserR2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2R );
+    inputAnalyserL1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1L, &sImg );
+    inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh1R, &sImg );
+    inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2L, &sImg );
+    inputAnalyserR2.setupAnalyser ( int (sampleRate), float (sampleRate), &analyserPathCh2R, &sImg );
 
 }
 
@@ -281,7 +281,3 @@ void AudioAnalyzerAudioProcessor::createAnalyserPlot ()
 //    inputAnalyserL1.drawSono(g, b);
 //}
 
-juce::Image& AudioAnalyzerAudioProcessor::getImgPtr()
-{
-    return inputAnalyserL1.getImgPtr();
-}

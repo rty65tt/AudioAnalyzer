@@ -12,6 +12,7 @@
 //#include "settings.h"
 #include "Analyser.h"
 
+
 //==============================================================================
 /**
 */
@@ -60,9 +61,11 @@ public:
 
     //bool checkForNewAnalyserData();
     //void drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b);
-    juce::Image& getImgPtr();
+    //juce::Image& getImgPtr();
     
     DSETTINGS cS;
+
+    SonoImage sImg;
     
     juce::Path                    analyserPathCh1L;
     juce::Path                    analyserPathCh1R;
