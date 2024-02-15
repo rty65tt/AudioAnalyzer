@@ -9,12 +9,11 @@
 */
 
 #pragma once
-
 #include <JuceHeader.h>
 
 class SonoImage
 {
-public:
+ public:
     SonoImage();
     ~SonoImage();
 
@@ -25,11 +24,12 @@ public:
 
     void setSizeImg(int w, int h);
 
-    void setAnalyserPath(int channel, juce::Path p);
+    void setAnalyserPath(int channel, juce::Path* p);
 
 private:
 
     void resizeImg();
+
     void drawNextLineOfSonogram();
 
     juce::Image *sonogramImage = nullptr;
@@ -39,14 +39,17 @@ private:
     bool resize = true;
     bool ready = false;
 
-    int iHeight;
+    int iHeight = iH - 1;
 
     bool ch1L = true;
     bool ch1R = true;
 
-    juce::Path aPathCh1L;
-    juce::Path aPathCh1R;
+    juce::Path* aPathCh1L;
+    juce::Path* aPathCh1R;
 
     float colorSonoL = 330.0f;
     float colorSonoR = 60.0f;
+
+    inline static int countInst = 0;
 };
+

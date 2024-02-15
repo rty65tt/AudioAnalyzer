@@ -12,20 +12,11 @@
 
 #include <JuceHeader.h>
 
-//static juce::Image *sonogramImage;
-//static juce::Path  *SanalyserPathCh1L;
-//static juce::Path  *SanalyserPathCh1R;
-//static juce::Path  *SanalyserPathCh2L;
-//static juce::Path  *SanalyserPathCh2R;
-
-//static juce::Rectangle<int>  plotFrame;
-
 struct DSETTINGS {
     
     int fftOrderSpec = 12;
-    int fftOrderSono = 13;
+    int fftOrderSono = 14;
     int* fftOrder = &fftOrderSono;
-//    int  fftSize = 1 << fftOrder;
     bool setLiner = false;
     juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;
     bool setNorm = false;
@@ -47,7 +38,7 @@ struct DSETTINGS {
     float avengeing     = 0.0f; //ms
     float lineCR        = 30.0f;
     int   overlapSpec = 2;
-    int   overlapSono = 16;
+    int   overlapSono = 2;
     int*  overlap = &overlapSono;
 
     float colorSonoL        = 330.0f;

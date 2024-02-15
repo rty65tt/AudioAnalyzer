@@ -10,16 +10,19 @@
 
 #include "SonoImageController.h"
 
-
-SonoImage::SonoImage() {
+SonoImage::SonoImage()
+{
 }
 
-SonoImage::~SonoImage() {
-    sonogramImage->~Image();
+SonoImage::~SonoImage()
+{
+    if (sonogramImage != nullptr) {
+        sonogramImage->~Image();
+    }
 }
 
 void SonoImage::drawSonogram(juce::Graphics& g, const juce::Rectangle<float> b) const {
-    if (!resize && sonogramImage->isValid()) {
+    if (!resize && sonogramImage != nullptr) {
         g.drawImage(*sonogramImage, b);
     }
 }
@@ -40,27 +43,33 @@ void SonoImage::resizeImg() {
     resize = false;
 }
 
-void SonoImage::setAnalyserPath(int channel, juce::Path p) {
+void SonoImage::setAnalyserPath(int channel, juce::Path* p) {
     if (channel == 0) { aPathCh1L = p; }
     if (channel == 1) { aPathCh1R = p; }
     if (ready) {
-        drawNextLineOfSonogram();
         ready = false;
+        drawNextLineOfSonogram();
     }
     else { ready = true; }
 }
 
 void SonoImage::drawNextLineOfSonogram()
 {
-    juce::Path::Iterator analyserPointR(aPathCh1R);
-    juce::Path::Iterator analyserPointL(aPathCh1L);
+    juce::Path::Iterator analyserPointL(*aPathCh1L);
+    juce::Path::Iterator analyserPointR(*aPathCh1R);
 
     if (resize) { resizeImg(); return; }
 
+    DBG("----------------------------");
+    DBG("drawNextLineOfSonogram:START");
+    countInst++;
+
+        DBG("drawNextLineOfSonogram:countInst: " << countInst);
+
     sonogramImage->moveImageSection(0, 0, 0, 1, iW, iHeight);
 
-    int x = 0.0f;
-    int xL1, yL1, xL2 = 0, yL2 = 0, xR1, yR1, xR2 = 0, yR2 = 0;
+    int x = 0;
+    float xL1, yL1, xL2 = 0.f, yL2 = 0.f, xR1, yR1, xR2 = 0.f, yR2 = 0.f;
 
     float levelL, levelR;
     float bxL, byL, bxR, byR;
@@ -116,10 +125,15 @@ void SonoImage::drawNextLineOfSonogram()
             juce::Colour newC = bgL.overlaidWith(bgR);
 
             sonogramImage->setPixelAt(x, iHeight, newC);
- 
+
             lvlL = lvlL + lkoefL;
             lvlR = lvlR + lkoefR;
         }
     } while (analyserPointR.next() && analyserPointL.next());
+
+    analyserPointL.~Iterator();
+    analyserPointR.~Iterator();
+    countInst--;
+    DBG("drawNextLineOfSonogram:END");
 }
 

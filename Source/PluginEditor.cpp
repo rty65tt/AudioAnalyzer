@@ -6,12 +6,12 @@
   ==============================================================================
 */
 
+#pragma once
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
-//#include "Analyser.h"
 
-//static float maxDB       = 24.0f;
-
+//==============================================================================
 void AudioAnalyzerAudioProcessorEditor::drawPanel() {
 
     if (aP.cS.menuBarHide) { hidePanel(); return; }
@@ -454,10 +454,6 @@ void AudioAnalyzerAudioProcessorEditor::resized()
     aP.sImg.setSizeImg(aP.cS.newW, aP.cS.newH);
     drawPanel();
 
-//    sonogramImage->~Image();
-//    if(sonogramImage != nullptr) {sonogramImage->~Image(); }
-//    sonogramImage = new juce::Image(juce::Image::ARGB, newW, newH, true);
-    
     showbutton.setBounds(getWidth()-30, 30, 30, 30);
 }
 

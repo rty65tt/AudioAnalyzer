@@ -11,8 +11,8 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "SonoImageController.h"
 #include "settings.h"
+#include "SonoImageController.h"
 
 //==============================================================================
 
@@ -65,12 +65,10 @@ public:
         abstractFifo.finishedWrite (block1 + block2);
         waitForData.signal();
     }
-
-    void setupAnalyser (int audioFifoSize, Type sampleRateToUse, SonoImage* sI)
+    void setupAnalyser(int audioFifoSize, Type sampleRateToUse, SonoImage* sI)
     {
         sonoImage = sI;
         sampleRate = sampleRateToUse;
-        //sonogramLine = iChPath;
         audioFifo.setSize (1, audioFifoSize);
         abstractFifo.setTotalSize (audioFifoSize);
         startThread ();
@@ -100,15 +98,11 @@ public:
                 if (++averagerPtr == averager.getNumChannels()) averagerPtr = 1;
 
                 //newDataAvailable = true;
-                
+
                 if ( cS->mode == 2 && cChannel < 2 ) {
+                    //juce::Path sonogramLine;
                     createPath (sonogramLine);
-                    sonoImage->setAnalyserPath(cChannel, sonogramLine);
-                    //if(cChannel == 0 ) {cS->chL = true;} else {cS->chR = true;}
-                    //if(cS->chL && cS->chR) {
-                    //    cS->chL = cS->chR = false;
-                    //    drawNextLineOfSonogram();
-                    //}
+                    sonoImage->setAnalyserPath(cChannel, &sonogramLine);
                 }
             }
 

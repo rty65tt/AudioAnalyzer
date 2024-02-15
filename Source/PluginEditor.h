@@ -119,8 +119,6 @@ public:
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SetSliderS1)
     
-//    AudioAnalyzerAudioProcessor& sPr;
-
     juce::GroupComponent    pframe;
     juce::Label             pLabel ;
     juce::Slider            pSlider;
@@ -130,35 +128,26 @@ private:
 
 //==============================================================================
 class AudioAnalyzerAudioProcessorEditor  : public juce::AudioProcessorEditor,
-//public juce::Slider::Listener,
-//public juce::ChangeListener,
                                            private juce::Timer
 {
 public:
-//    void extracted();
-    
-AudioAnalyzerAudioProcessorEditor (AudioAnalyzerAudioProcessor&);
-~AudioAnalyzerAudioProcessorEditor() override;
 
-    void extracted(juce::Graphics &g, float height, float width);
-    
-//==============================================================================
+    AudioAnalyzerAudioProcessorEditor (AudioAnalyzerAudioProcessor&);
+    ~AudioAnalyzerAudioProcessorEditor() override;
+
+    //==============================================================================
     void paint (juce::Graphics&) override;
     void resized() override;
-//    void changeListenerCallback (juce::ChangeBroadcaster* sender) override;
     
     void timerCallback() override;
     
     void mouseEnter (const juce::MouseEvent& e) override;
     void mouseExit (const juce::MouseEvent& e) override;
     void mouseMove (const juce::MouseEvent& e) override;
-//    void mouseDown (const juce::MouseEvent& e) override;
     
     float logScale(const float value, const float min, const float max);
     float invLogScale(const float value, const float min, const float max);
        
-//    juce::Image *sonogramImage;
-    
     enum { spec = 1, sono, wave } curAnalyzerMode;
 //    static enum { fft4096=12, fft8192=13, fft16384=14 } curFftSize;
 
@@ -184,11 +173,7 @@ private:
     
     void drawFreqGrid(juce::Graphics &g, bool bg, bool fV, bool fL, bool vVL, int fColor);
     void drawSpectrogram(juce::Graphics &g);
-//    void drawNextLineOfSonogram(juce::Graphics &g);
 
-//#ifdef JUCE_OPENGL
-//    juce::OpenGLContext     openGLContext;
-//#endif
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioAnalyzerAudioProcessorEditor)
     
@@ -197,7 +182,6 @@ private:
     juce::Rectangle<int>          plotFrame;
     juce::Path                    analyserPath;
 
-    
     juce::GroupComponent      frame;
     juce::ConcertinaPanel     panel;
     
@@ -205,7 +189,6 @@ private:
     juce::GroupComponent      setFftGroup;
     juce::GroupComponent      setOverlapGroup;
     juce::GroupComponent      setWinGroup;
-    
     
     SetBarMenu  setbarmenu;
     SetBarMenu  setFrameBG;
@@ -277,7 +260,6 @@ private:
 //    juce::dsp::WindowingFunction<float>::WindowingMethod curFftWindow;
 //    int winMet = juce::dsp::WindowingFunction<float>::hann;
     
-    
     juce::TextButton fftWin1button {"HANN"};
     juce::TextButton fftWin2button {"HAMMINMG"};
     juce::TextButton fftWin3button {"BLACKMAN"};
@@ -294,12 +276,5 @@ private:
     const juce::Colour color1L = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.5f, 1.0f);
     const juce::Colour color1R = juce::Colour::fromFloatRGBA(1.0f, 0.0f, 0.5f, 1.0f);
     
-//    juce::Button::Listener  button;
-//    juce::DrawableButton    drawbutton;
-//    juce::ShapeButton       shbutton("ShapeButton", colorSB, colorSB, colorSB);
-//    juce::ToggleButton      togglebutton;
-
-//    void createSonogramLine (juce::Path& destPath, const juce::Path& sourcePath);
-
 };
 

@@ -6,6 +6,8 @@
   ==============================================================================
 */
 
+#pragma once
+
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
@@ -104,10 +106,6 @@ void AudioAnalyzerAudioProcessor::prepareToPlay (double newSampleRate, int newSa
     sampleRate = newSampleRate;
     cS.maxFreq = getSampleRate() * 0.5;
 
- /*   SanalyserPathCh1L = &analyserPathCh1L;
-    SanalyserPathCh1R = &analyserPathCh1R;
-    SanalyserPathCh2L = &analyserPathCh2L;
-    SanalyserPathCh2R = &analyserPathCh2R;*/
     inputAnalyserL1.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
     inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
     inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
@@ -270,13 +268,4 @@ void AudioAnalyzerAudioProcessor::createAnalyserPlot ()
     { inputAnalyserR2.createPath (analyserPathCh2R); }
 }
 
-//bool AudioAnalyzerAudioProcessor::checkForNewAnalyserData()
-//{
-//    return ( inputAnalyserL1.checkForNewData() || inputAnalyserR1.checkForNewData() );
-//}
-
-//void AudioAnalyzerAudioProcessor::drawSonogram(juce::Graphics &g, const juce::Rectangle<float> b)
-//{
-//    inputAnalyserL1.drawSono(g, b);
-//}
 
