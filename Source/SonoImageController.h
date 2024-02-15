@@ -50,6 +50,9 @@ private:
     float colorSonoL = 330.0f;
     float colorSonoR = 60.0f;
 
+    bool chL = false;
+    bool chR = false;
+
     inline static int countInst = 0;
 };
 

@@ -100,7 +100,6 @@ public:
                 //newDataAvailable = true;
 
                 if ( cS->mode == 2 && cChannel < 2 ) {
-                    //juce::Path sonogramLine;
                     createPath (sonogramLine);
                     sonoImage->setAnalyserPath(cChannel, &sonogramLine);
                 }

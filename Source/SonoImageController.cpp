@@ -44,27 +44,25 @@ void SonoImage::resizeImg() {
 }
 
 void SonoImage::setAnalyserPath(int channel, juce::Path* p) {
-    if (channel == 0) { aPathCh1L = p; }
-    if (channel == 1) { aPathCh1R = p; }
-    if (ready) {
-        ready = false;
+    if (channel == 0) { aPathCh1L = p; chL = true; }
+    if (channel == 1) { aPathCh1R = p; chR = true; }
+    if (chL && chR) {
+        chL = chR = false;
         drawNextLineOfSonogram();
     }
-    else { ready = true; }
+    //else { ready = true; }
 }
 
 void SonoImage::drawNextLineOfSonogram()
 {
-    juce::Path::Iterator analyserPointL(*aPathCh1L);
-    juce::Path::Iterator analyserPointR(*aPathCh1R);
+    juce::Path::Iterator  analyserPointL(*aPathCh1L);
+    juce::Path::Iterator  analyserPointR(*aPathCh1R);
 
     if (resize) { resizeImg(); return; }
 
-    DBG("----------------------------");
-    DBG("drawNextLineOfSonogram:START");
     countInst++;
 
-        DBG("drawNextLineOfSonogram:countInst: " << countInst);
+    DBG("drawNextLineOfSonogram:countInst: " << countInst);
 
     sonogramImage->moveImageSection(0, 0, 0, 1, iW, iHeight);
 
@@ -134,6 +132,5 @@ void SonoImage::drawNextLineOfSonogram()
     analyserPointL.~Iterator();
     analyserPointR.~Iterator();
     countInst--;
-    DBG("drawNextLineOfSonogram:END");
 }
 

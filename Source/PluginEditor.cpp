@@ -453,7 +453,7 @@ void AudioAnalyzerAudioProcessorEditor::resized()
     aP.cS.newH = getHeight();
     aP.sImg.setSizeImg(aP.cS.newW, aP.cS.newH);
     drawPanel();
-
+    DBG("---------------------- Resize");
     showbutton.setBounds(getWidth()-30, 30, 30, 30);
 }
 
