@@ -38,7 +38,6 @@ void SonoImage::resizeImg() {
     sonogramImage = new juce::Image(juce::Image::ARGB, iW, iH, true);
     iHeight = iH - 1;
     resize = false;
-    //  sonogramImage->duplicateIfShared(); //?
 }
 
 void SonoImage::setAnalyserPath(int channel, juce::Path p) {
