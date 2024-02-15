@@ -10,7 +10,6 @@
             file="Source/SonoImageController.cpp"/>
       <FILE id="f2ZyRz" name="SonoImageController.h" compile="0" resource="0"
             file="Source/SonoImageController.h"/>
-      <FILE id="unktC5" name="SonoImage.h" compile="0" resource="0" file="Source/SonoImage.h"/>
       <FILE id="uqliMZ" name="settings.h" compile="0" resource="0" file="Source/settings.h"/>
       <FILE id="TS3bjz" name="Analyser.h" compile="0" resource="0" file="Source/Analyser.h"/>
       <FILE id="T9SJSD" name="PluginProcessor.cpp" compile="1" resource="0"

@@ -435,10 +435,7 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
             break;
         case 2:
             drawFreqGrid(g, false, true, false, false, 125);
-            //if (!cS->resize) {
-                // aP.drawSonogram(g, getLocalBounds().toFloat());
-                g.drawImage ( aP.sImg.getImgPtr(), cS->plotFrameSono );
-            //}
+            aP.sImg.drawSonogram(g, cS->plotFrameSono);
             break;
         case wave:
             break;

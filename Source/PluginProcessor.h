@@ -9,7 +9,6 @@
 #pragma once
 
 #include <JuceHeader.h>
-//#include "settings.h"
 #include "Analyser.h"
 
 

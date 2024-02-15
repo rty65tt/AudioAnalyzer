@@ -10,7 +10,6 @@
 
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
-//#include "Analyser.h"
 
 //==============================================================================
 class OtherLookAndFeel : public juce::LookAndFeel_V4

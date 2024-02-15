@@ -10,7 +10,6 @@
 
 #pragma once
 
-
 #include <JuceHeader.h>
 
 class SonoImage
@@ -19,29 +18,28 @@ public:
     SonoImage();
     ~SonoImage();
 
-    juce::Image& getImgPtr();
-
     void drawSonogram(juce::Graphics& g, const juce::Rectangle<float> b) const;
 
     void setColorCh1L(float c);
     void setColorCh1R(float c);
 
     void setSizeImg(int w, int h);
-    void resizeImg();
 
     void setAnalyserPath(int channel, juce::Path p);
 
+private:
+
+    void resizeImg();
     void drawNextLineOfSonogram();
 
-    juce::Image *sonogramImage;
-
-
-private:
+    juce::Image *sonogramImage = nullptr;
 
     int iW = 800;
     int iH = 350;
     bool resize = true;
     bool ready = false;
+
+    int iHeight;
 
     bool ch1L = true;
     bool ch1R = true;

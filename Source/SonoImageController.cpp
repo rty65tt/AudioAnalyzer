@@ -7,25 +7,21 @@
 
   ==============================================================================
 */
-#pragma once
-#include <JuceHeader.h>
+
 #include "SonoImageController.h"
 
 
 SonoImage::SonoImage() {
-    sonogramImage = new juce::Image(juce::Image::ARGB, 800, 350, true);
 }
 
 SonoImage::~SonoImage() {
     sonogramImage->~Image();
 }
 
-juce::Image& SonoImage::getImgPtr() {
-        return *sonogramImage;
-}
-
 void SonoImage::drawSonogram(juce::Graphics& g, const juce::Rectangle<float> b) const {
-    g.drawImage(*sonogramImage, b);
+    if (!resize && sonogramImage->isValid()) {
+        g.drawImage(*sonogramImage, b);
+    }
 }
 
 void SonoImage::setColorCh1L(float c) { colorSonoL = c; }
@@ -40,6 +36,7 @@ void SonoImage::setSizeImg(int w, int h) {
 void SonoImage::resizeImg() {
     if (sonogramImage != nullptr) { sonogramImage->~Image(); }
     sonogramImage = new juce::Image(juce::Image::ARGB, iW, iH, true);
+    iHeight = iH - 1;
     resize = false;
     //  sonogramImage->duplicateIfShared(); //?
 }
@@ -59,13 +56,9 @@ void SonoImage::drawNextLineOfSonogram()
     juce::Path::Iterator analyserPointR(aPathCh1R);
     juce::Path::Iterator analyserPointL(aPathCh1L);
 
-    if (resize) { resizeImg(); }
+    if (resize) { resizeImg(); return; }
 
-    int iHeight = sonogramImage->getHeight() - 1;
-
-    sonogramImage->moveImageSection(0, 0, 0, 1,
-        sonogramImage->getWidth(),
-        iHeight);
+    sonogramImage->moveImageSection(0, 0, 0, 1, iW, iHeight);
 
     int x = 0.0f;
     int xL1, yL1, xL2 = 0, yL2 = 0, xR1, yR1, xR2 = 0, yR2 = 0;
