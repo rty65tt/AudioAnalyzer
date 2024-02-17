@@ -24,11 +24,14 @@ SonoImage::~SonoImage()
 void SonoImage::drawSonogram(juce::Graphics& g, const juce::Rectangle<float> b) const {
     if (!resize && sonogramImage != nullptr) {
         g.drawImage(*sonogramImage, b);
+        //sonogramImage->duplicateIfShared() //?
+        //const juce::Rectangle<int> c(1, 0, iW, iHeight);
+        //g.drawImage(sonogramImage->getClippedImage(c), b);
     }
 }
 
-void SonoImage::setColorCh1L(float c) { colorSonoL = c; }
-void SonoImage::setColorCh1R(float c) { colorSonoR = c; }
+void SonoImage::setColorL(float c) { colorSonoL = c; }
+void SonoImage::setColorR(float c) { colorSonoR = c; }
 
 void SonoImage::setSizeImg(int w, int h) {
     iW = w;
@@ -38,7 +41,7 @@ void SonoImage::setSizeImg(int w, int h) {
 
 void SonoImage::resizeImg() {
     if (sonogramImage != nullptr) { sonogramImage->~Image(); }
-    sonogramImage = new juce::Image(juce::Image::ARGB, iW, iH, true);
+    sonogramImage = new juce::Image(juce::Image::RGB, iW, iH, true);
     iHeight = iH - 1;
     resize = false;
 }
@@ -50,21 +53,23 @@ void SonoImage::setAnalyserPath(int channel, juce::Path* p) {
         chL = chR = false;
         drawNextLineOfSonogram();
     }
-    //else { ready = true; }
 }
 
 void SonoImage::drawNextLineOfSonogram()
 {
-    juce::Path::Iterator  analyserPointL(*aPathCh1L);
-    juce::Path::Iterator  analyserPointR(*aPathCh1R);
-
     if (resize) { resizeImg(); return; }
 
     countInst++;
+    if(countInst > 1) { 
+        DBG("drawNextLineOfSonogram:countInst: " << countInst); 
+        countInst--;
+        return;
+    }
+    
+    juce::Path::Iterator  analyserPointL(*aPathCh1L);
+    juce::Path::Iterator  analyserPointR(*aPathCh1R);
 
-    DBG("drawNextLineOfSonogram:countInst: " << countInst);
-
-    sonogramImage->moveImageSection(0, 0, 0, 1, iW, iHeight);
+    /*sonogramImage->moveImageSection(0, 0, 0, 1, iW, iHeight);*/
 
     int x = 0;
     float xL1, yL1, xL2 = 0.f, yL2 = 0.f, xR1, yR1, xR2 = 0.f, yR2 = 0.f;
@@ -72,8 +77,10 @@ void SonoImage::drawNextLineOfSonogram()
     float levelL, levelR;
     float bxL, byL, bxR, byR;
     float lvlL, lvlR;
-    float colorL = juce::jmap(colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f);
-    float colorR = juce::jmap(colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f);
+    const float colorL = juce::jmap(colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f);
+    const float colorR = juce::jmap(colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f);
+
+    juce::Image sonoImg (juce::Image::RGB, iW, 1, true);
 
     do
     {
@@ -122,12 +129,18 @@ void SonoImage::drawNextLineOfSonogram()
             }
             juce::Colour newC = bgL.overlaidWith(bgR);
 
-            sonogramImage->setPixelAt(x, iHeight, newC);
+            sonoImg.setPixelAt(x, 0, newC);
 
             lvlL = lvlL + lkoefL;
             lvlR = lvlR + lkoefR;
         }
     } while (analyserPointR.next() && analyserPointL.next());
+
+    sonogramImage->moveImageSection(0, 0, 0, 1, iW, iHeight);
+    juce::Graphics g(*sonogramImage);
+    g.drawImage(sonoImg, 0, iHeight-1, iW, iHeight, 0, 0, iW, 1);
+
+    //sonoImg.~Image();
 
     analyserPointL.~Iterator();
     analyserPointR.~Iterator();

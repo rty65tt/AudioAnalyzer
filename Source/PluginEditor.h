@@ -276,5 +276,8 @@ private:
     const juce::Colour color1L = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.5f, 1.0f);
     const juce::Colour color1R = juce::Colour::fromFloatRGBA(1.0f, 0.0f, 0.5f, 1.0f);
     
+
+    juce::TextButton cur_version_button{ JucePlugin_VersionString };
+    juce::TextButton new_version_button{ JucePlugin_VersionString };
 };
 

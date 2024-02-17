@@ -36,10 +36,10 @@ void AudioAnalyzerAudioProcessorEditor::drawPanel() {
 
 //    frame.addAndMakeVisible(stereo_midside);
     
-    if (aP.cS.ch1L) { ch1Lbutton.setToggleState(true, juce::dontSendNotification); }
-    if (aP.cS.ch1R) { ch1Rbutton.setToggleState(true, juce::dontSendNotification); }
-    if (aP.cS.ch2L) { ch2Lbutton.setToggleState(true, juce::dontSendNotification); }
-    if (aP.cS.ch2R) { ch2Rbutton.setToggleState(true, juce::dontSendNotification); }
+    if (aP.sImg.ch1L) { ch1Lbutton.setToggleState(true, juce::dontSendNotification); }
+    if (aP.sImg.ch1R) { ch1Rbutton.setToggleState(true, juce::dontSendNotification); }
+    if (aP.sImg.ch2L) { ch2Lbutton.setToggleState(true, juce::dontSendNotification); }
+    if (aP.sImg.ch2R) { ch2Rbutton.setToggleState(true, juce::dontSendNotification); }
 //    if (aP.cS.ch1M) { ch1Mbutton.setToggleState(true, juce::dontSendNotification); }
 //    if (aP.cS.ch1S) { ch1Sbutton.setToggleState(true, juce::dontSendNotification); }
 //    if (aP.cS.ch2M) { specbutton.setToggleState(true, juce::dontSendNotification); }
@@ -163,253 +163,285 @@ void AudioAnalyzerAudioProcessorEditor::hidePanel()
 }
 
 //==============================================================================
-AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor (AudioAnalyzerAudioProcessor& p)
-: AudioProcessorEditor (&p),
-            aP (p)
+AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyzerAudioProcessor& p)
+    : AudioProcessorEditor(&p),
+    aP(p)
 {
     int curW = aP.cS.newW = (aP.cS.newW) ? aP.cS.newW : defW;
     int curH = aP.cS.newH = (aP.cS.newH) ? aP.cS.newH : defH;
 
     //sonogramImage = new juce::Image(juce::Image::ARGB, curW, curH, true);
 
-    setLookAndFeel (&otherLookAndFeel);
+    setLookAndFeel(&otherLookAndFeel);
 
-//    curAnalyzerMode = (curAnalyzerMode) ? curAnalyzerMode : sono;
+    //    curAnalyzerMode = (curAnalyzerMode) ? curAnalyzerMode : sono;
     switch (aP.cS.mode) {
-        case 1:
-            curAnalyzerMode = spec;
-            break;
-        case 2:
-            curAnalyzerMode = sono;
-            break;
-        default:
-            curAnalyzerMode = spec;
-            break;
+    case 1:
+        curAnalyzerMode = spec;
+        break;
+    case 2:
+        curAnalyzerMode = sono;
+        break;
+    default:
+        curAnalyzerMode = spec;
+        break;
     }
 
-//    curFftSize = fft4096;
-    
-    freqLabel.setBounds( 10, 0, 80, 30);
-    freqLabel.setFont (juce::Font (16.0f, juce::Font::bold));
-    freqLabel.setColour (juce::Label::textColourId, juce::Colours::black);
-    freqLabel.setColour (juce::Label::backgroundColourId, juce::Colours::grey);
-    addChildComponent (freqLabel);
+    //    curFftSize = fft4096;
 
-    addAndMakeVisible (panel);
-    
+    freqLabel.setBounds(10, 0, 80, 30);
+    freqLabel.setFont(juce::Font(16.0f, juce::Font::bold));
+    freqLabel.setColour(juce::Label::textColourId, juce::Colours::black);
+    freqLabel.setColour(juce::Label::backgroundColourId, juce::Colours::grey);
+    addChildComponent(freqLabel);
+
+    addAndMakeVisible(panel);
+
     addMouseListener(this, true);
-    
+
     specbutton.setButtonText("SPEC");
     sonobutton.setButtonText("SONO");
-//    wavebutton.setButtonText("WAVE");
-    
-    specbutton.setBounds( 10, 16, 80, 30);
-    sonobutton.setBounds( 95, 16, 80, 30);
-//    wavebutton.setBounds(180, 16, 80, 30);
-    
-    specbutton.setRadioGroupId (ModeButtons);
-    sonobutton.setRadioGroupId (ModeButtons);
-//    wavebutton.setRadioGroupId (ModeButtons);
-    
-    specbutton.setClickingTogglesState (true);
-    sonobutton.setClickingTogglesState (true);
-//    wavebutton.setClickingTogglesState (true);
+    //    wavebutton.setButtonText("WAVE");
+
+    specbutton.setBounds(10, 16, 80, 30);
+    sonobutton.setBounds(95, 16, 80, 30);
+    //    wavebutton.setBounds(180, 16, 80, 30);
+
+    specbutton.setRadioGroupId(ModeButtons);
+    sonobutton.setRadioGroupId(ModeButtons);
+    //    wavebutton.setRadioGroupId (ModeButtons);
+
+    specbutton.setClickingTogglesState(true);
+    sonobutton.setClickingTogglesState(true);
+    //    wavebutton.setClickingTogglesState (true);
     if (curAnalyzerMode == spec) { specbutton.setToggleState(true, juce::dontSendNotification); }
     if (curAnalyzerMode == sono) { sonobutton.setToggleState(true, juce::dontSendNotification); }
-//    if (curAnalyzerMode == wave) { wavebutton.setToggleState(true, juce::dontSendNotification); }
-    specbutton.onClick = [this] { 
-        aP.cS.mode = curAnalyzerMode = spec; 
+    //    if (curAnalyzerMode == wave) { wavebutton.setToggleState(true, juce::dontSendNotification); }
+    specbutton.onClick = [this] {
+        aP.cS.mode = curAnalyzerMode = spec;
         aP.cS.fftOrder = &aP.cS.fftOrderSpec;
-        aP.cS.overlap  = &aP.cS.overlapSpec;
-        drawPanel(); 
+        aP.cS.overlap = &aP.cS.overlapSpec;
+        drawPanel();
         };
-    sonobutton.onClick = [this] { 
-        aP.cS.mode = curAnalyzerMode = sono; 
+    sonobutton.onClick = [this] {
+        aP.cS.mode = curAnalyzerMode = sono;
         aP.cS.fftOrder = &aP.cS.fftOrderSono;
-        aP.cS.overlap  = &aP.cS.overlapSono;
-        drawPanel(); 
+        aP.cS.overlap = &aP.cS.overlapSono;
+        drawPanel();
         };
-//    wavebutton.onClick = [this] { curAnalyzerMode = wave; showSetPanel(); };
-    
-    //** SETUP BUTTON =========================
+    //    wavebutton.onClick = [this] { curAnalyzerMode = wave; showSetPanel(); };
+
+        //** SETUP BUTTON =========================
     set_button.setButtonText("SET");
     set_button.setBounds(360, 16, 60, 30);
-    set_button.setClickingTogglesState (true);
+    set_button.setClickingTogglesState(true);
     set_button.onClick = [this] { aP.cS.showSettings = (aP.cS.showSettings) ? false : true; repaintPanel(); };
-    
+
     //** STEREO MIDSIDE =======================
     ch1Lbutton.setButtonText("L1");
     ch1Rbutton.setButtonText("R1");
     ch2Lbutton.setButtonText("L2");
     ch2Rbutton.setButtonText("R2");
-    
-//    ch1Mbutton.setButtonText("M1");
-//    ch1Sbutton.setButtonText("S1");
-//    ch2Mbutton.setButtonText("M2");
-//    ch2Sbutton.setButtonText("S2");
-    
-//    stereo_midside.setBounds(425, 16, 90, 30);
+
+    //    ch1Mbutton.setButtonText("M1");
+    //    ch1Sbutton.setButtonText("S1");
+    //    ch2Mbutton.setButtonText("M2");
+    //    ch2Sbutton.setButtonText("S2");
+
+    //    stereo_midside.setBounds(425, 16, 90, 30);
     ch1Lbutton.setBounds(515, 16, 40, 30);
     ch1Rbutton.setBounds(555, 16, 40, 30);
     ch2Lbutton.setBounds(595, 16, 40, 30);
     ch2Rbutton.setBounds(635, 16, 40, 30);
-//    ch1Mbutton.setBounds(515, 16, 40, 30);
-//    ch1Sbutton.setBounds(555, 16, 40, 30);
-//    ch2Mbutton.setBounds(595, 16, 40, 30);
-//    ch2Sbutton.setBounds(635, 16, 40, 30);
-    
+    //    ch1Mbutton.setBounds(515, 16, 40, 30);
+    //    ch1Sbutton.setBounds(555, 16, 40, 30);
+    //    ch2Mbutton.setBounds(595, 16, 40, 30);
+    //    ch2Sbutton.setBounds(635, 16, 40, 30);
+
     ch1Lbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
     ch1Rbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
     ch2Lbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
     ch2Rbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
 
-//    ch1Mbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
-//    ch1Sbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
-//    ch2Mbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
-//    ch2Sbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
-    
-    ch1Lbutton.setClickingTogglesState (true);
-    ch1Rbutton.setClickingTogglesState (true);
-    ch2Lbutton.setClickingTogglesState (true);
-    ch2Rbutton.setClickingTogglesState (true);
-//    ch1Mbutton.setClickingTogglesState (true);
-//    ch1Sbutton.setClickingTogglesState (true);
-//    ch2Mbutton.setClickingTogglesState (true);
-//    ch2Sbutton.setClickingTogglesState (true);
+    //    ch1Mbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
+    //    ch1Sbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
+    //    ch2Mbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
+    //    ch2Sbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
 
-    ch1Lbutton.onClick = [this] { aP.cS.ch1L = (aP.cS.ch1L) ? false : true; };
-    ch1Rbutton.onClick = [this] { aP.cS.ch1R = (aP.cS.ch1R) ? false : true; };
-    ch2Lbutton.onClick = [this] { aP.cS.ch2L = (aP.cS.ch2L) ? false : true; };
-    ch2Rbutton.onClick = [this] { aP.cS.ch2R = (aP.cS.ch2R) ? false : true; };
-    
-//    stereo_midside.onClick = [this] {
-//        aP.cS.menuChSwitch = (aP.cS.menuChSwitch) ? false : true; repaintPanel(); };
-    
-    // HIDE BUTTON
+    ch1Lbutton.setClickingTogglesState(true);
+    ch1Rbutton.setClickingTogglesState(true);
+    ch2Lbutton.setClickingTogglesState(true);
+    ch2Rbutton.setClickingTogglesState(true);
+    //    ch1Mbutton.setClickingTogglesState (true);
+    //    ch1Sbutton.setClickingTogglesState (true);
+    //    ch2Mbutton.setClickingTogglesState (true);
+    //    ch2Sbutton.setClickingTogglesState (true);
+
+    ch1Lbutton.onClick = [this] { aP.sImg.ch1L = (aP.sImg.ch1L) ? false : true; };
+    ch1Rbutton.onClick = [this] { aP.sImg.ch1R = (aP.sImg.ch1R) ? false : true; };
+    ch2Lbutton.onClick = [this] { aP.sImg.ch2L = (aP.sImg.ch2L) ? false : true; };
+    ch2Rbutton.onClick = [this] { aP.sImg.ch2R = (aP.sImg.ch2R) ? false : true; };
+
+    //    stereo_midside.onClick = [this] {
+    //        aP.cS.menuChSwitch = (aP.cS.menuChSwitch) ? false : true; repaintPanel(); };
+
+        // HIDE BUTTON
     hidebutton.setBounds(680, 16, 30, 30);
     hidebutton.setButtonText(">");
     hidebutton.onClick = [this] { aP.cS.menuBarHide = true; hidePanel(); };
-    
-    showbutton.setBounds(getWidth()-30, 30, 30, 30);
+
+    showbutton.setBounds(getWidth() - 30, 30, 30, 30);
     showbutton.setButtonText("<");
     addChildComponent(showbutton);
     showbutton.onClick = [this] { aP.cS.menuBarHide = false; repaintPanel(); };
-    
+
     gainSlider.setParamFloat(-24.0f, 24.0f, defV.gain, 0.1f, aP.cS.gain);
     slopeSlider.setParamFloat(0.0f, 6.0f, defV.slope, 0.1f, aP.cS.slope);
     floorSlider.setParamFloat(-120.0f, -30.0f, defV.floor, 10.0f, aP.cS.floor);
-    crLineSlider.setParamFloat(0.0f, 30.0f, defV.lineCR, 5.0f, aP.cS.lineCR);
-    colorLSlider.setParamFloat(0.0f, 360.0f, defV.colorSonoL, 1.0f, aP.cS.colorSonoL);
-    colorRSlider.setParamFloat(0.0f, 360.0f, defV.colorSonoR, 1.0f, aP.cS.colorSonoR);
-    
+    crLineSlider.setParamFloat(0.0f, 30.0f, defV.lineCR, 5.0f, aP.sImg.lineCR);
+    colorLSlider.setParamFloat(0.0f, 360.0f, defV.colorSonoL, 1.0f, aP.sImg.colorSonoL);
+    colorRSlider.setParamFloat(0.0f, 360.0f, defV.colorSonoR, 1.0f, aP.sImg.colorSonoR);
+
     setlinerbutton.setBounds(260, 25, 60, 20);
-    setlinerbutton.setClickingTogglesState (true);
+    setlinerbutton.setClickingTogglesState(true);
     setlinerbutton.onClick = [this] {
         aP.cS.setLiner = (aP.cS.setLiner) ? false : true; };
-    
-//    setNormbutton.setBounds(260, 50, 60, 20);
-//    setNormbutton.setClickingTogglesState (true);
-//    setNormbutton.onClick = [this] {
-//        aP.cS.setNorm = (aP.cS.setNorm) ? false : true; };
-    
-    //** OVERLAP BUTTONS GROUP ==========================
-    overlap2button.setRadioGroupId  (overlapButtons);
-    overlap4button.setRadioGroupId  (overlapButtons);
-    overlap8button.setRadioGroupId  (overlapButtons);
-    overlap16button.setRadioGroupId (overlapButtons);
-    
+
+    //    setNormbutton.setBounds(260, 50, 60, 20);
+    //    setNormbutton.setClickingTogglesState (true);
+    //    setNormbutton.onClick = [this] {
+    //        aP.cS.setNorm = (aP.cS.setNorm) ? false : true; };
+
+        //** OVERLAP BUTTONS GROUP ==========================
+    overlap2button.setRadioGroupId(overlapButtons);
+    overlap4button.setRadioGroupId(overlapButtons);
+    overlap8button.setRadioGroupId(overlapButtons);
+    overlap16button.setRadioGroupId(overlapButtons);
+
     setOverlapGroup.setText("Overlap");
     setOverlapGroup.setBounds(280, 180, 242, 45);
-    
-    overlap2button.setBounds  (  8, 17, 50, 20);
-    overlap4button.setBounds  ( 60, 17, 50, 20);
-    overlap8button.setBounds  (112, 17, 60, 20);
-    overlap16button.setBounds (174, 17, 60, 20);
-    
-    overlap2button.setClickingTogglesState (true);
-    overlap4button.setClickingTogglesState (true);
-    overlap8button.setClickingTogglesState (true);
-    overlap16button.setClickingTogglesState (true);
-    
+
+    overlap2button.setBounds(8, 17, 50, 20);
+    overlap4button.setBounds(60, 17, 50, 20);
+    overlap8button.setBounds(112, 17, 60, 20);
+    overlap16button.setBounds(174, 17, 60, 20);
+
+    overlap2button.setClickingTogglesState(true);
+    overlap4button.setClickingTogglesState(true);
+    overlap8button.setClickingTogglesState(true);
+    overlap16button.setClickingTogglesState(true);
+
     setOverlapGroup.addAndMakeVisible(overlap2button);
     setOverlapGroup.addAndMakeVisible(overlap4button);
     setOverlapGroup.addAndMakeVisible(overlap8button);
     setOverlapGroup.addAndMakeVisible(overlap16button);
 
-    overlap2button.onClick  = [this] { *aP.cS.overlap = 2; };
-    overlap4button.onClick  = [this] { *aP.cS.overlap = 4; };
-    overlap8button.onClick  = [this] { *aP.cS.overlap = 8; };
+    overlap2button.onClick = [this] { *aP.cS.overlap = 2; };
+    overlap4button.onClick = [this] { *aP.cS.overlap = 4; };
+    overlap8button.onClick = [this] { *aP.cS.overlap = 8; };
     overlap16button.onClick = [this] { *aP.cS.overlap = 16; };
 
     //** WindowMethod GROUP ======================
-    fftWin1button.setRadioGroupId (fftSizeWindow);
-    fftWin2button.setRadioGroupId (fftSizeWindow);
-    fftWin3button.setRadioGroupId (fftSizeWindow);
-    fftWin4button.setRadioGroupId (fftSizeWindow);
-    fftWin5button.setRadioGroupId (fftSizeWindow);
-    
+    fftWin1button.setRadioGroupId(fftSizeWindow);
+    fftWin2button.setRadioGroupId(fftSizeWindow);
+    fftWin3button.setRadioGroupId(fftSizeWindow);
+    fftWin4button.setRadioGroupId(fftSizeWindow);
+    fftWin5button.setRadioGroupId(fftSizeWindow);
+
     setWinGroup.setText("FFT Window");
     setWinGroup.setBounds(10, 130, 526, 45);
-    
-    fftWin1button.setBounds(8,   17, 60, 20);
-    fftWin2button.setBounds(70,  17, 100, 20);
+
+    fftWin1button.setBounds(8, 17, 60, 20);
+    fftWin2button.setBounds(70, 17, 100, 20);
     fftWin3button.setBounds(172, 17, 100, 20);
     fftWin4button.setBounds(274, 17, 160, 20);
     fftWin5button.setBounds(436, 17, 80, 20);
-    
-    fftWin1button.setClickingTogglesState (true);
-    fftWin2button.setClickingTogglesState (true);
-    fftWin3button.setClickingTogglesState (true);
-    fftWin4button.setClickingTogglesState (true);
-    fftWin5button.setClickingTogglesState (true);
-    
+
+    fftWin1button.setClickingTogglesState(true);
+    fftWin2button.setClickingTogglesState(true);
+    fftWin3button.setClickingTogglesState(true);
+    fftWin4button.setClickingTogglesState(true);
+    fftWin5button.setClickingTogglesState(true);
+
     fftWin1button.onClick = [this] {
-         aP.cS.winMet = juce::dsp::WindowingFunction<float>::hann; };
-    
+        aP.cS.winMet = juce::dsp::WindowingFunction<float>::hann; };
+
     fftWin2button.onClick = [this] {
         aP.cS.winMet = juce::dsp::WindowingFunction<float>::hamming; };
-    
+
     fftWin3button.onClick = [this] {
         aP.cS.winMet = juce::dsp::WindowingFunction<float>::blackman; };
-    
+
     fftWin4button.onClick = [this] {
         aP.cS.winMet = juce::dsp::WindowingFunction<float>::blackmanHarris; };
-    
+
     fftWin5button.onClick = [this] {
         aP.cS.winMet = juce::dsp::WindowingFunction<float>::flatTop; };
-    
+
     //** FFT Size GROUP ==========================
-    fft12_button.setRadioGroupId (fftSizeButtons);
-    fft13_button.setRadioGroupId (fftSizeButtons);
-    fft14_button.setRadioGroupId (fftSizeButtons);
-    
+    fft12_button.setRadioGroupId(fftSizeButtons);
+    fft13_button.setRadioGroupId(fftSizeButtons);
+    fft14_button.setRadioGroupId(fftSizeButtons);
+
     setFftGroup.setText("FFT Block Size");
     setFftGroup.setBounds(10, 180, 182, 45);
-    
-    fft12_button.setBounds(8,   17, 50, 20);
-    fft13_button.setBounds(60,  17, 50, 20);
+
+    fft12_button.setBounds(8, 17, 50, 20);
+    fft13_button.setBounds(60, 17, 50, 20);
     fft14_button.setBounds(112, 17, 60, 20);
-    
-    fft12_button.setClickingTogglesState (true);
-    fft13_button.setClickingTogglesState (true);
-    fft14_button.setClickingTogglesState (true);
+
+    fft12_button.setClickingTogglesState(true);
+    fft13_button.setClickingTogglesState(true);
+    fft14_button.setClickingTogglesState(true);
 
     setFftGroup.addAndMakeVisible(fft12_button);
     setFftGroup.addAndMakeVisible(fft13_button);
     setFftGroup.addAndMakeVisible(fft14_button);
-    
+
     fft12_button.onClick = [this] { *aP.cS.fftOrder = 12; };
     fft13_button.onClick = [this] { *aP.cS.fftOrder = 13; };
     fft14_button.onClick = [this] { *aP.cS.fftOrder = 14; };
-    
-    setSize (curW, curH);
-//    setOpaque (true);
-    setResizable (true, true);
-    setResizeLimits (defW, defH, 7680, 4320);
-//#ifdef JUCE_OPENGL
-//    openGLContext.attachTo(*getTopLevelComponent());
-//#endif
-    startTimerHz (30);
+
+    setSize(curW, curH);
+    //    setOpaque (true);
+    setResizable(true, true);
+    setResizeLimits(defW, defH, 7680, 4320);
+    //#ifdef JUCE_OPENGL
+    //    openGLContext.attachTo(*getTopLevelComponent());
+    //#endif
+    startTimerHz(30);
+
+    juce::String new_ver;
+    juce::URL url("https://raw.githubusercontent.com/rty65tt/AudioAnalyzer/main/Source/version.h");
+    if (url.isWellFormed())
+    {
+        if (auto inputStream = url.createInputStream(juce::URL::InputStreamOptions(juce::URL::ParameterHandling::inAddress)
+            .withConnectionTimeoutMs(1000)
+            .withNumRedirectsToFollow(0)))
+        {
+            new_ver = url.readEntireTextStream();
+        }
+    }
+
+    juce::String c(JucePlugin_VersionString);
+    juce::String n("0.3.0");
+    juce::String cv("ver ");
+    cv.append(c, 10);
+    cur_version_button.setButtonText(cv);
+    cur_version_button.setBounds(580, 37, 120, 30);
+    settingsFrame.addAndMakeVisible(cur_version_button);
+
+    if (new_ver.compare(c)) {
+        juce::String nv("ver ");
+        nv.append(new_ver, 10);
+        new_version_button.setButtonText(nv);
+        new_version_button.setBounds(580, 72, 120, 30);
+        settingsFrame.addAndMakeVisible(new_version_button);
+        new_version_button.onClick = [this] {
+            juce::URL url2("https://github.com/rty65tt/AudioAnalyzer");
+            url2.launchInDefaultBrowser();
+         };
+    }
 }
 
 AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
@@ -453,7 +485,6 @@ void AudioAnalyzerAudioProcessorEditor::resized()
     aP.cS.newH = getHeight();
     aP.sImg.setSizeImg(aP.cS.newW, aP.cS.newH);
     drawPanel();
-    DBG("---------------------- Resize");
     showbutton.setBounds(getWidth()-30, 30, 30, 30);
 }
 
@@ -520,18 +551,18 @@ void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics &g) {
     const auto inColour2L = juce::Colour::fromRGBA(175, 46, 35,  205);
     const auto inColour2R = juce::Colour::fromRGBA(139, 139, 46, 205);
     
-    float cR = aP.cS.lineCR;
+    float cR = aP.sImg.lineCR;
     aP.createAnalyserPlot ();
-    if (aP.cS.ch2R) { g.setColour (inColour2R);
+    if (aP.sImg.ch2R) { g.setColour (inColour2R);
         g.strokePath (aP.analyserPathCh2R.createPathWithRoundedCorners(cR), juce::PathStrokeType (2.0));
         }
-    if (aP.cS.ch2L) { g.setColour (inColour2L);
+    if (aP.sImg.ch2L) { g.setColour (inColour2L);
         g.strokePath (aP.analyserPathCh2L.createPathWithRoundedCorners(cR), juce::PathStrokeType (2.0));
     }
-    if (aP.cS.ch1R) { g.setColour (inColour1R);
+    if (aP.sImg.ch1R) { g.setColour (inColour1R);
         g.strokePath (aP.analyserPathCh1R.createPathWithRoundedCorners(cR), juce::PathStrokeType (2.0));
     }
-    if (aP.cS.ch1L) { g.setColour (inColour1L);
+    if (aP.sImg.ch1L) { g.setColour (inColour1L);
         g.strokePath (aP.analyserPathCh1L.createPathWithRoundedCorners(cR), juce::PathStrokeType (2.0));
     }
     

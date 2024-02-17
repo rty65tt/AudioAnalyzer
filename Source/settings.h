@@ -45,14 +45,7 @@ struct DSETTINGS {
     float colorSonoR        = 60.0f;
     
     bool menuStereoMidSideSwitch = true;
-    bool ch1L = true;
-    bool ch1R = true;
-    bool ch2L = false;
-    bool ch2R = false;
-    bool ch1M = true;
-    bool ch1S = true;
-    bool ch2M = false;
-    bool ch2S = false;
+
     
     bool menuBarHide  = false;
     bool showSettings = true;

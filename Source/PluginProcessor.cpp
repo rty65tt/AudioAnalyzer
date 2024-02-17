@@ -11,18 +11,32 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+juce::AudioProcessor::BusesProperties AudioAnalyzerAudioProcessor::makeBusesProperties()
+{
+    BusesProperties bp;
+    bp.addBus(true, "Input", juce::AudioChannelSet::stereo(), true);
+    bp.addBus(false, "Output", juce::AudioChannelSet::stereo(), true);
+    if (!juce::JUCEApplicationBase::isStandaloneApp())
+    {
+        bp.addBus(true, "Sidechain", juce::AudioChannelSet::stereo(), true);
+    }
+    return bp;
+}
+
 //==============================================================================
 AudioAnalyzerAudioProcessor::AudioAnalyzerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     : AudioProcessor (BusesProperties()
-                     #if ! JucePlugin_IsMidiEffect
-                      #if ! JucePlugin_IsSynth
-                       .withInput  ("Input",  juce::AudioChannelSet::stereo(), true)
-                       .withInput  ("Input", juce::AudioChannelSet::stereo())
-                      #endif
-                       .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-                     #endif
-                       )
+     //: AudioProcessor (BusesProperties()
+     //                #if ! JucePlugin_IsMidiEffect
+     //                 #if ! JucePlugin_IsSynth
+     //                  .withInput  ("Input",     juce::AudioChannelSet::stereo(), true)
+     //                  .withInput  ("SideChain", juce::AudioChannelSet::stereo(), false)
+     //                 #endif
+     //                  .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
+     //                #endif
+     //                  )
+    : AudioProcessor(makeBusesProperties())
+
 #endif
 {
 }
@@ -126,26 +140,26 @@ void AudioAnalyzerAudioProcessor::releaseResources()
 #ifndef JucePlugin_PreferredChannelConfigurations
 bool AudioAnalyzerAudioProcessor::isBusesLayoutSupported (const BusesLayout& layouts) const
 {
-  #if JucePlugin_IsMidiEffect
-    juce::ignoreUnused (layouts);
-    return true;
-  #else
-    // This is the place where you check if the layout is supported.
-    // In this template code we only support mono or stereo.
-    // Some plugin hosts, such as certain GarageBand versions, will only
-    // load plugins that support stereo bus layouts.
-    if (layouts.getMainOutputChannelSet() != juce::AudioChannelSet::mono()
-     && layouts.getMainOutputChannelSet() != juce::AudioChannelSet::stereo())
+    const auto mono = juce::AudioChannelSet::mono();
+    const auto stereo = juce::AudioChannelSet::stereo();
+
+    const auto mainIn = layouts.getMainInputChannelSet();
+    const auto mainOut = layouts.getMainOutputChannelSet();
+
+    if (mainIn != mainOut)
         return false;
 
-    // This checks if the input layout matches the output layout
-   #if ! JucePlugin_IsSynth
-    if (layouts.getMainOutputChannelSet() != layouts.getMainInputChannelSet())
+    if (mainOut != stereo && mainOut != mono)
         return false;
-   #endif
 
+    if (wrapperType != wrapperType_Standalone)
+    {
+        const auto scIn = layouts.getChannelSet(true, 1);
+        if (!scIn.isDisabled())
+            if (scIn != stereo && scIn != mono)
+                return false;
+    }
     return true;
-  #endif
 }
 #endif
 
@@ -195,17 +209,17 @@ void AudioAnalyzerAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     xml->setAttribute ("newH",       (int)       cS.newH);
     xml->setAttribute ("menuBarHide",(bool)       cS.menuBarHide);
     xml->setAttribute ("gain",       (double)    cS.gain);
-    xml->setAttribute ("crline",     (double)    cS.lineCR);
+    xml->setAttribute ("crline",     (double)   sImg.lineCR);
     xml->setAttribute ("colorSonoL",     (double)    cS.colorSonoL);
     xml->setAttribute ("colorSonoR",     (double)    cS.colorSonoR);
     xml->setAttribute ("fftOrderSpec",      (int)         cS.fftOrderSpec);
     xml->setAttribute ("fftOrderSono",      (int)         cS.fftOrderSono);
     xml->setAttribute ("overlapSpec",       (int)         cS.overlapSpec);
     xml->setAttribute ("overlapSono",       (int)         cS.overlapSono);
-    xml->setAttribute ("ch1L",    (bool)       cS.ch1L);
-    xml->setAttribute ("ch1R",    (bool)       cS.ch1R);
-    xml->setAttribute ("ch2L",    (bool)       cS.ch2L);
-    xml->setAttribute ("ch2R",    (bool)       cS.ch2R);
+    xml->setAttribute ("ch1L",    (bool)    sImg.ch1L);
+    xml->setAttribute ("ch1R",    (bool)    sImg.ch1R);
+    xml->setAttribute ("ch2L",    (bool)    sImg.ch2L);
+    xml->setAttribute ("ch2R",    (bool)    sImg.ch2R);
 //    xml->setAttribute ("ch1M",    (bool)       cS.ch1M);
 //    xml->setAttribute ("ch1S",    (bool)       cS.ch1S);
 //    xml->setAttribute ("ch2M",    (bool)       cS.ch2M);
@@ -228,17 +242,17 @@ void AudioAnalyzerAudioProcessor::setStateInformation (const void* data, int siz
             cS.gain   = (float) xmlState->getDoubleAttribute ("gain", 1.0);
             cS.floor  = (float) xmlState->getDoubleAttribute ("floor", -60.0);
             cS.slope  = (float) xmlState->getDoubleAttribute ("slope", 3.0);
-            cS.lineCR = (float) xmlState->getDoubleAttribute ("crline", 30.0);
+            sImg.lineCR = (float) xmlState->getDoubleAttribute ("crline", 30.0);
             cS.colorSonoL = (float) xmlState->getDoubleAttribute ("colorSonoL", 330.0);
             cS.colorSonoR = (float) xmlState->getDoubleAttribute ("colorSonoR", 120.0);
             cS.fftOrderSpec = (int) xmlState->getIntAttribute ("fftOrderSpec", 12);
             cS.fftOrderSono = (int)xmlState->getIntAttribute("fftOrderSono", 13);
             cS.overlapSpec = (int) xmlState->getIntAttribute ("overlapSpec", 2);
             cS.overlapSono = (int)xmlState->getIntAttribute("overlapSono", 16);
-            cS.ch1L   = xmlState->getBoolAttribute("ch1L");
-            cS.ch1R   = xmlState->getBoolAttribute("ch1R");
-            cS.ch2L   = xmlState->getBoolAttribute("ch2L");
-            cS.ch2R   = xmlState->getBoolAttribute("ch2R");
+            sImg.ch1L   = xmlState->getBoolAttribute("ch1L");
+            sImg.ch1R   = xmlState->getBoolAttribute("ch1R");
+            sImg.ch2L   = xmlState->getBoolAttribute("ch2L");
+            sImg.ch2R   = xmlState->getBoolAttribute("ch2R");
 //            cS.ch1M   = xmlState->getBoolAttribute("ch1M");
 //            cS.ch1S   = xmlState->getBoolAttribute("ch1S");
 //            cS.ch2M   = xmlState->getBoolAttribute("ch2M");
@@ -261,10 +275,10 @@ void AudioAnalyzerAudioProcessor::createAnalyserPlot ()
     inputAnalyserL1.createPath (analyserPathCh1L);
     inputAnalyserR1.createPath (analyserPathCh1R);
     
-    if (cS.ch2L)
+    if (sImg.ch2L)
     { inputAnalyserL2.createPath (analyserPathCh2L); }
     
-    if (cS.ch2R)
+    if (sImg.ch2R)
     { inputAnalyserR2.createPath (analyserPathCh2R); }
 }
 

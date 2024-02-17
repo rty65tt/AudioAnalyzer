@@ -19,17 +19,30 @@ class SonoImage
 
     void drawSonogram(juce::Graphics& g, const juce::Rectangle<float> b) const;
 
-    void setColorCh1L(float c);
-    void setColorCh1R(float c);
+    void setColorL(float c);
+    void setColorR(float c);
 
     void setSizeImg(int w, int h);
 
     void setAnalyserPath(int channel, juce::Path* p);
 
+    float colorSonoL = 330.0f;
+    float colorSonoR = 60.0f;
+
+    bool ch1L = true;
+    bool ch1R = true;
+    bool ch2L = false;
+    bool ch2R = false;
+    //bool ch1M = true;
+    //bool ch1S = true; 
+    //bool ch2M = false;
+    //bool ch2S = false;
+
+    float lineCR = 30.0f;
+
 private:
 
     void resizeImg();
-
     void drawNextLineOfSonogram();
 
     juce::Image *sonogramImage = nullptr;
@@ -41,17 +54,11 @@ private:
 
     int iHeight = iH - 1;
 
-    bool ch1L = true;
-    bool ch1R = true;
+    bool chL = false;
+    bool chR = false;
 
     juce::Path* aPathCh1L;
     juce::Path* aPathCh1R;
-
-    float colorSonoL = 330.0f;
-    float colorSonoR = 60.0f;
-
-    bool chL = false;
-    bool chR = false;
 
     inline static int countInst = 0;
 };

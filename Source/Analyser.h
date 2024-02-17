@@ -28,13 +28,23 @@ public:
 
     ~Analyser() override = default;
 
+    void setupAnalyser(int audioFifoSize, Type sampleRateToUse, SonoImage* sI)
+    {
+        sonoImage = sI;
+        sampleRate = sampleRateToUse;
+        audioFifo.setSize(1, audioFifoSize);
+        abstractFifo.setTotalSize(audioFifoSize);
+        createFreqXCache();
+        startThread();
+    }
+
     void addAudioData (const juce::AudioBuffer<Type>& buffer, int startChannel, int numChannels)
     {
         
         cChannel = startChannel;
         if (abstractFifo.getFreeSpace() < buffer.getNumSamples())
             return;
-        
+
         if (winMet != cS->winMet) {
             winMet = cS->winMet;
             windowing.fillWindowingTables(size_t (fftSize), winMet);
@@ -49,6 +59,7 @@ public:
             averager.setSize(5, fftSize / 2);
             fft = juce::dsp::FFT(fftOrder);
             windowing.fillWindowingTables(size_t (fftSize), cS->winMet);
+            createFreqXCache();
         }
         
         int start1, block1, start2, block2;
@@ -64,14 +75,6 @@ public:
         }
         abstractFifo.finishedWrite (block1 + block2);
         waitForData.signal();
-    }
-    void setupAnalyser(int audioFifoSize, Type sampleRateToUse, SonoImage* sI)
-    {
-        sonoImage = sI;
-        sampleRate = sampleRateToUse;
-        audioFifo.setSize (1, audioFifoSize);
-        abstractFifo.setTotalSize (audioFifoSize);
-        startThread ();
     }
 
     void run() override
@@ -112,45 +115,32 @@ public:
     
     void createPath (juce::Path& p)
     {
+        reinit();
+
         p.clear();
-        float minFreq = cS->minFreq;
+        
         p.preallocateSpace (8 + averager.getNumSamples() * 3);
         
         juce::ScopedLock lockedForReading (pathCreationLock);
         const auto* fftData = averager.getReadPointer (0);
         
-        p.startNewSubPath (0.0f, cS->newH);
+        p.startNewSubPath (0.0f, height);
 
-        float width  = cS->newW;
-        float height = cS->newH;
-        const float maxFreq = sampleRate * 0.5f;
-        
         const float sumDb = (cS->slope * 12.0);
         const float xkoef = sumDb / width;
         float gain = 0.0f;
-        
         for (int i = 0; i < averager.getNumSamples(); ++i)
         {
-            float x, y;
-            const float freq = (sampleRate * i) / fftSize;
-
+            const float freq = freq_cache[i];
+            const float x = x_freq_cache[i];
             const float infinity = cS->floor;
-            y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
+            const float y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], 
+                            (infinity - gain) ) + gain,
                             infinity, 0.0f, height, 20.f );
             
             if (freq < minFreq) { p.lineTo (0.0f, y); continue; };
             if (freq > maxFreq) { p.lineTo (width, height); continue; };
-
-            const float b = std::log(maxFreq / minFreq) / (maxFreq - minFreq);
-            const float a = maxFreq / std::exp(maxFreq * b);
-            const float position = std::log(freq / a) / b;
-            x = (width * position / (maxFreq - minFreq));
             gain = x * xkoef;
-            
-            if (cS->setLiner) {
-                x = ( width * freq / (maxFreq - minFreq) );
-            }
-
             p.lineTo (x, y);
         }
     }
@@ -164,6 +154,54 @@ public:
 
 private:
 
+    void createFreqXCache()
+    {
+        if (x_freq_cache != nullptr) {
+            delete(freq_cache);
+            delete(x_freq_cache);
+        }
+
+        width = cS->newW;
+        height = cS->newH;
+        minFreq = cS->minFreq;
+        maxFreq = sampleRate * 0.5f;
+        scale = cS->setLiner;
+
+        const int cSmpls = averager.getNumSamples();
+
+        freq_cache = new float[cSmpls];
+        x_freq_cache = new float [cSmpls];
+
+        for (int i = 0; i < cSmpls; ++i) {
+            const float freq = (sampleRate * i) / fftSize;
+            const float b = std::log(maxFreq / minFreq) / (maxFreq - minFreq);
+            const float a = maxFreq / std::exp(maxFreq * b);
+            const float position = std::log(freq / a) / b;
+            float x = (width * position / (maxFreq - minFreq));
+            //gain = x * xkoef;
+
+            if (cS->setLiner) {
+                x = (width * freq / (maxFreq - minFreq));
+            }
+            freq_cache[i] = freq;
+            x_freq_cache[i] = x;
+        }
+    }
+
+    void reinit() {
+        if (width != cS->newW || height != cS->newH || scale != cS->setLiner || freq_cache == nullptr || x_freq_cache == nullptr) {
+            createFreqXCache();
+        }
+    }
+
+    float width;
+    float height;
+    float minFreq;
+    float maxFreq;
+    bool scale;
+
+    float* freq_cache = nullptr;
+    float* x_freq_cache = nullptr;
 
     juce::WaitableEvent waitForData;
     juce::CriticalSection pathCreationLock;

@@ -20,6 +20,7 @@ public:
     AudioAnalyzerAudioProcessor();
     ~AudioAnalyzerAudioProcessor() override;
 
+    juce::AudioProcessor::BusesProperties makeBusesProperties();
     //==============================================================================
     void prepareToPlay (double newSampleRate, int newSamplesPerBlock) override;
     void releaseResources() override;
