@@ -10,9 +10,7 @@
 
 #include "SonoImageController.h"
 
-SonoImage::SonoImage()
-{
-}
+SonoImage::SonoImage() {}
 
 SonoImage::~SonoImage()
 {
@@ -21,12 +19,11 @@ SonoImage::~SonoImage()
     }
 }
 
-void SonoImage::drawSonogram(juce::Graphics& g, const juce::Rectangle<float> b) const {
+void SonoImage::drawSonogram(juce::Graphics& g) const {
     if (!resize && sonogramImage != nullptr) {
-        g.drawImage(*sonogramImage, b);
         //sonogramImage->duplicateIfShared() //?
-        //const juce::Rectangle<int> c(1, 0, iW, iHeight);
-        //g.drawImage(sonogramImage->getClippedImage(c), b);
+        //g.drawImage(*sonogramImage, pastImgBound);
+        g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
     }
 }
 
@@ -35,14 +32,18 @@ void SonoImage::setColorR(float c) { colorSonoR = c; }
 
 void SonoImage::setSizeImg(int w, int h) {
     iW = w;
-    iH = h;
+    iH = h - scaleTopLineHeightInt;
     resize = true;
 }
 
 void SonoImage::resizeImg() {
     if (sonogramImage != nullptr) { sonogramImage->~Image(); }
-    sonogramImage = new juce::Image(juce::Image::RGB, iW, iH, true);
-    iHeight = iH - 1;
+    sonogramImage = new juce::Image(juce::Image::RGB, iW, iH+1, true);
+    copyImgBound.setWidth(iW);
+    copyImgBound.setHeight(iH);
+    pastImgBound.setWidth(float(iW));
+    pastImgBound.setHeight(float(iH));
+    pastImgBound.setTop(float(scaleTopLineHeightInt));
     resize = false;
 }
 
@@ -59,13 +60,6 @@ void SonoImage::drawNextLineOfSonogram()
 {
     if (resize) { resizeImg(); return; }
 
-    countInst++;
-    if(countInst > 1) { 
-        DBG("drawNextLineOfSonogram:countInst: " << countInst); 
-        countInst--;
-        return;
-    }
-    
     juce::Path::Iterator  analyserPointL(*aPathCh1L);
     juce::Path::Iterator  analyserPointR(*aPathCh1R);
 
@@ -74,9 +68,6 @@ void SonoImage::drawNextLineOfSonogram()
     int x = 0;
     float xL1, yL1, xL2 = 0.f, yL2 = 0.f, xR1, yR1, xR2 = 0.f, yR2 = 0.f;
 
-    float levelL, levelR;
-    float bxL, byL, bxR, byR;
-    float lvlL, lvlR;
     const float colorL = juce::jmap(colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f);
     const float colorR = juce::jmap(colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f);
 
@@ -94,56 +85,49 @@ void SonoImage::drawNextLineOfSonogram()
         xR2 = analyserPointR.x1;
         yR2 = analyserPointR.y1;
 
-        bxL = xL2 - xL1;
-        byL = yL2 - yL1;
+        const float bxL = xL2 - xL1;
+        const float byL = yL2 - yL1;
 
-        bxR = xR2 - xR1;
-        byR = yR2 - yR1;
+        const float bxR = xR2 - xR1;
+        const float byR = yR2 - yR1;
 
-        lvlL = yL1;
-        lvlR = yR1;
+        float lvlL = yL1;
+        float lvlR = yR1;
 
-        float lkoefL = byL / bxL;
-        float lkoefR = byR / bxR;
+        const float lkoefL = byL / bxL;
+        const float lkoefR = byR / bxR;
 
-        juce::Colour bgL;
-        juce::Colour bgR;
+        juce::Colour bgL = juce::Colours::black;
+        juce::Colour bgR = juce::Colours::transparentBlack;
 
         for (int i = 0; i < bxL; ++i) {
 
             x++;
 
-            if (ch1L) {
-                levelL = juce::jmap(lvlL, 0.0f, (float)iHeight, 1.0f, 0.0f);
-                bgL = juce::Colour::fromHSL(colorL, 1.0, levelL, levelL);
-            }
-            else {
-                bgL = juce::Colours::black;
-            }
-            if (ch1R) {
-                levelR = juce::jmap(lvlR, 0.0f, (float)iHeight, 1.0f, 0.0f);
-                bgR = juce::Colour::fromHSL(colorR, 1.0, levelR, levelR);
-            }
-            else {
-                bgR = juce::Colours::black.withAlpha(0.0f);
-            }
-            juce::Colour newC = bgL.overlaidWith(bgR);
+            if (ch1L) { bgL = juce::Colour::fromHSL(colorL, 1.0, lvlL, lvlL); }
+            if (ch1R) { bgR = juce::Colour::fromHSL(colorR, 1.0, lvlR, lvlR); }
 
-            sonoImg.setPixelAt(x, 0, newC);
+            //sonoImg.setPixelAt(x, 0, bgL.interpolatedWith(bgR, 0.5f));
+            sonoImg.setPixelAt(x, 0, bgL.overlaidWith(bgR));
 
-            lvlL = lvlL + lkoefL;
-            lvlR = lvlR + lkoefR;
+            lvlL += lkoefL;
+            lvlR += lkoefR;
         }
     } while (analyserPointR.next() && analyserPointL.next());
 
-    sonogramImage->moveImageSection(0, 0, 0, 1, iW, iHeight);
+    countThreads++;
+    if (countThreads > 1) {
+        DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
+        countThreads--;
+        return;
+    }
+
     juce::Graphics g(*sonogramImage);
-    g.drawImage(sonoImg, 0, iHeight-1, iW, iHeight, 0, 0, iW, 1);
+    sonogramImage->moveImageSection(0, 0, 0, 1, iW, iH);
+    g.drawImage(sonoImg, 0, iH, iW, iH+1, 0, 0, iW, 1);
 
-    //sonoImg.~Image();
-
-    analyserPointL.~Iterator();
-    analyserPointR.~Iterator();
-    countInst--;
+    //analyserPointL.~Iterator();
+    //analyserPointR.~Iterator();
+    countThreads--;
 }
 

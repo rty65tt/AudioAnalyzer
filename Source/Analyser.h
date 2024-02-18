@@ -20,7 +20,7 @@ template<typename Type>
 class Analyser : public juce::Thread
 {
 public:
-    Analyser(DSETTINGS *i) : juce::Thread ("AudioAnalyser")
+    Analyser(defSettings *i) : juce::Thread ("AudioAnalyser")
     {
         cS = i;
         averager.clear();
@@ -128,18 +128,20 @@ public:
 
         const float sumDb = (cS->slope * 12.0);
         const float xkoef = sumDb / width;
+        const float infinity = cS->floor;
         float gain = 0.0f;
+        const float hmin = (cS->mode == 2) ? 0.0 : height;
+        const float hmax = (cS->mode == 2) ? 1.0 : sonoImage->scaleTopLineHeightFloat;
         for (int i = 0; i < averager.getNumSamples(); ++i)
         {
             const float freq = freq_cache[i];
             const float x = x_freq_cache[i];
-            const float infinity = cS->floor;
             const float y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], 
                             (infinity - gain) ) + gain,
-                            infinity, 0.0f, height, 20.f );
+                            infinity, 0.0f, hmin, hmax );
             
             if (freq < minFreq) { p.lineTo (0.0f, y); continue; };
-            if (freq > maxFreq) { p.lineTo (width, height); continue; };
+            if (freq > maxFreq) { p.lineTo (width, hmin); continue; };
             gain = x * xkoef;
             p.lineTo (x, y);
         }
@@ -178,7 +180,6 @@ private:
             const float a = maxFreq / std::exp(maxFreq * b);
             const float position = std::log(freq / a) / b;
             float x = (width * position / (maxFreq - minFreq));
-            //gain = x * xkoef;
 
             if (cS->setLiner) {
                 x = (width * freq / (maxFreq - minFreq));
@@ -189,7 +190,7 @@ private:
     }
 
     void reinit() {
-        if (width != cS->newW || height != cS->newH || scale != cS->setLiner || freq_cache == nullptr || x_freq_cache == nullptr) {
+        if (width != cS->newW || height != cS->newH || scale != cS->setLiner) {
             createFreqXCache();
         }
     }
@@ -212,9 +213,7 @@ private:
     int cChannel;
     bool readyChFlag = false;
     
-    int sonoTopLineHeight = 20;
-
-    DSETTINGS* cS;
+    defSettings* cS;
     
     int fftOrder   = 12;
     int fftSize    = 1 << fftOrder;

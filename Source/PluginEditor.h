@@ -17,7 +17,9 @@ class OtherLookAndFeel : public juce::LookAndFeel_V4
 public:
     OtherLookAndFeel()
     {
-        setColour (juce::TextButton::textColourOffId, juce::Colours::black);
+        setColour (juce::TextButton::textColourOnId, juce::Colours::black);
+        //setColour (juce::TextButton::textColourOffId, juce::Colour::fromRGB(40,40,40));
+        setColour(juce::TextButton::textColourOffId, juce::Colours::darkgrey);
         setColour (juce::Label::textColourId, juce::Colours::black);
         setColour (juce::Slider::textBoxTextColourId, juce::Colours::black);
         setColour (juce::Slider::textBoxOutlineColourId, juce::Colours::transparentBlack);
@@ -29,7 +31,7 @@ public:
     }
     void drawButtonBackground (juce::Graphics& g, juce::Button& button, const  juce::Colour& backgroundColour, bool, bool isButtonDown) override
     {
-        g.setColour (juce::Colours::darkgrey);
+        g.setColour (juce::Colour::fromRGB(130,130,130));
         auto buttonArea = button.getLocalBounds().toFloat();
         g.fillRect(buttonArea);
     }
@@ -268,16 +270,15 @@ private:
     
     juce::Label     freqLabel {"10 freq"};;
     
-    DSETTINGS* cS = &aP.cS;
-    DSETTINGS defV;
+    defSettings* cS = &aP.cS;
+    defSettings defV;
     bool flagStart = true;
 
     const juce::Colour colorSB = juce::Colour::fromRGBA(75, 75, 175, 255);
     const juce::Colour color1L = juce::Colour::fromFloatRGBA(0.0f, 1.0f, 0.5f, 1.0f);
     const juce::Colour color1R = juce::Colour::fromFloatRGBA(1.0f, 0.0f, 0.5f, 1.0f);
     
-
-    juce::TextButton cur_version_button{ JucePlugin_VersionString };
-    juce::TextButton new_version_button{ JucePlugin_VersionString };
+    juce::Label         curVersionLabel;
+    juce::TextButton    urlVersionButton;
 };
 

@@ -207,9 +207,11 @@ void AudioAnalyzerAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     xml->setAttribute ("mode",       (int)       cS.mode);
     xml->setAttribute ("newW",       (int)       cS.newW);
     xml->setAttribute ("newH",       (int)       cS.newH);
-    xml->setAttribute ("menuBarHide",(bool)       cS.menuBarHide);
-    xml->setAttribute ("gain",       (double)    cS.gain);
-    xml->setAttribute ("crline",     (double)   sImg.lineCR);
+    xml->setAttribute ("menuBarHide",(bool)      cS.menuBarHide);
+    xml->setAttribute ("gain",      (double)     cS.gain);
+    xml->setAttribute ("floor",     (double)     cS.floor);
+    xml->setAttribute ("slope",     (double)     cS.slope);
+    xml->setAttribute ("crline",    (double)     sImg.lineCR);
     xml->setAttribute ("colorSonoL",     (double)    cS.colorSonoL);
     xml->setAttribute ("colorSonoR",     (double)    cS.colorSonoR);
     xml->setAttribute ("fftOrderSpec",      (int)         cS.fftOrderSpec);

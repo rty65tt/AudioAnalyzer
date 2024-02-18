@@ -57,14 +57,14 @@ public:
     //====================
     void createAnalyserPlot ();
     
-    DSETTINGS cS;
+    defSettings cS;
 
     SonoImage sImg;
     
-    juce::Path                    analyserPathCh1L;
-    juce::Path                    analyserPathCh1R;
-    juce::Path                    analyserPathCh2L;
-    juce::Path                    analyserPathCh2R;
+    juce::Path      analyserPathCh1L;
+    juce::Path      analyserPathCh1R;
+    juce::Path      analyserPathCh2L;
+    juce::Path      analyserPathCh2R;
 
 private:
 

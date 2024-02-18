@@ -12,10 +12,10 @@
 
 #include <JuceHeader.h>
 
-struct DSETTINGS {
+struct defSettings {
     
     int fftOrderSpec = 12;
-    int fftOrderSono = 14;
+    int fftOrderSono = 13;
     int* fftOrder = &fftOrderSono;
     bool setLiner = false;
     juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;
@@ -38,7 +38,7 @@ struct DSETTINGS {
     float avengeing     = 0.0f; //ms
     float lineCR        = 30.0f;
     int   overlapSpec = 2;
-    int   overlapSono = 2;
+    int   overlapSono = 16;
     int*  overlap = &overlapSono;
 
     float colorSonoL        = 330.0f;

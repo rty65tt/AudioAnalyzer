@@ -142,6 +142,9 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
             settingsFrame.addAndMakeVisible(colorLSlider);
             settingsFrame.addAndMakeVisible(colorRSlider);
         }
+
+        settingsFrame.addAndMakeVisible(curVersionLabel);
+        settingsFrame.addAndMakeVisible(urlVersionButton);
     }
 }
 void AudioAnalyzerAudioProcessorEditor::repaintPanel()
@@ -258,10 +261,10 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
     //    ch2Mbutton.setBounds(595, 16, 40, 30);
     //    ch2Sbutton.setBounds(635, 16, 40, 30);
 
-    ch1Lbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
-    ch1Rbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
-    ch2Lbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
-    ch2Rbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
+    ch1Lbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::darkgrey);
+    ch1Rbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::darkgrey);
+    ch2Lbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::darkgrey);
+    ch2Rbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::darkgrey);
 
     //    ch1Mbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
     //    ch1Sbutton.setColour(juce::TextButton::textColourOffId, juce::Colours::grey);
@@ -412,37 +415,49 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
     startTimerHz(30);
 
     juce::String new_ver;
-    juce::URL url("https://raw.githubusercontent.com/rty65tt/AudioAnalyzer/main/Source/version.h");
-    if (url.isWellFormed())
+    juce::URL ver_url("https://raw.githubusercontent.com/rty65tt/AudioAnalyzer/main/Source/version.h");
+    if (ver_url.isWellFormed())
     {
-        if (auto inputStream = url.createInputStream(juce::URL::InputStreamOptions(juce::URL::ParameterHandling::inAddress)
+        if (auto inputStream = ver_url.createInputStream(juce::URL::InputStreamOptions(juce::URL::ParameterHandling::inAddress)
             .withConnectionTimeoutMs(1000)
             .withNumRedirectsToFollow(0)))
         {
-            new_ver = url.readEntireTextStream();
+            new_ver = ver_url.readEntireTextStream();
         }
     }
+    juce::String nv_trim = new_ver.trim();
 
-    juce::String c(JucePlugin_VersionString);
-    juce::String n("0.3.0");
-    juce::String cv("ver ");
-    cv.append(c, 10);
-    cur_version_button.setButtonText(cv);
-    cur_version_button.setBounds(580, 37, 120, 30);
-    settingsFrame.addAndMakeVisible(cur_version_button);
+    juce::String version("ver ");
+    //version.append("0.3.0", 10);
+    version.append(JucePlugin_VersionString, 10);
 
-    if (new_ver.compare(c)) {
-        juce::String nv("ver ");
-        nv.append(new_ver, 10);
-        new_version_button.setButtonText(nv);
-        new_version_button.setBounds(580, 72, 120, 30);
-        settingsFrame.addAndMakeVisible(new_version_button);
-        new_version_button.onClick = [this] {
-            juce::URL url2("https://github.com/rty65tt/AudioAnalyzer");
-            url2.launchInDefaultBrowser();
-         };
+    curVersionLabel.setFont(juce::Font(14.0f, juce::Font::bold));
+    curVersionLabel.setColour(juce::Label::textColourId, 
+        juce::Colour::fromRGB(150, 150, 150)); 
+    curVersionLabel.setColour(juce::Label::backgroundColourId, juce::Colours::darkgrey);
+    curVersionLabel.setText(version, juce::dontSendNotification);
+
+    urlVersionButton.setButtonText("GITHUB");
+
+    urlVersionButton.setColour(juce::TextButton::textColourOffId, 
+        juce::Colour::fromRGB(0,0,180));
+    urlVersionButton.setColour(juce::TextButton::buttonOver,
+        juce::Colour::fromRGB(0, 0, 180));
+
+
+    if (nv_trim.compare(JucePlugin_VersionString)) {  // 0 if identical
+        urlVersionButton.setButtonText("UPDATE");
     }
+    urlVersionButton.onClick = [this] {
+        juce::URL url("https://github.com/rty65tt/AudioAnalyzer");
+        url.launchInDefaultBrowser();
+     };
+    
+    curVersionLabel.setBounds(620, 180, 80, 20);
+    urlVersionButton.setBounds(620, 200, 80, 20);
+
 }
+
 
 AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
 {
@@ -467,7 +482,7 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
             break;
         case 2:
             drawFreqGrid(g, false, true, false, false, 125);
-            aP.sImg.drawSonogram(g, cS->plotFrameSono);
+            aP.sImg.drawSonogram(g);
             break;
         case wave:
             break;
@@ -480,7 +495,6 @@ void AudioAnalyzerAudioProcessorEditor::resized()
     // subcomponents in your editor..
     aP.cS.resize = true;
     plotFrame = getLocalBounds();
-    cS->plotFrameSono = getLocalBounds().toFloat().withTop(20);
     aP.cS.newW = getWidth();
     aP.cS.newH = getHeight();
     aP.sImg.setSizeImg(aP.cS.newW, aP.cS.newH);
