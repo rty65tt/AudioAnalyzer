@@ -412,7 +412,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
     //#ifdef JUCE_OPENGL
     //    openGLContext.attachTo(*getTopLevelComponent());
     //#endif
-    startTimerHz(30);
+    startTimerHz(60);
 
     juce::String new_ver;
     juce::URL ver_url("https://raw.githubusercontent.com/rty65tt/AudioAnalyzer/main/Source/version.h");
@@ -506,9 +506,9 @@ void AudioAnalyzerAudioProcessorEditor::resized()
 void AudioAnalyzerAudioProcessorEditor::drawFreqGrid(juce::Graphics &g,
                                                      bool bg,
                                                      bool fV, bool fL,
-                                                     bool vVL, int fColor) {
-    float width  = getLocalBounds().getWidth();
-    float height = getLocalBounds().getHeight();
+                                                     bool vVL, juce::uint8 fColor) {
+    const float width  = getLocalBounds().getWidth();
+    const float height = getLocalBounds().getHeight();
     
     if (bg) {
         const auto gColor1 = juce::Colour::fromRGBA(12, 12, 13, 255);
@@ -640,10 +640,10 @@ void AudioAnalyzerAudioProcessorEditor::mouseMove (const juce::MouseEvent& e)
         juce::String freqText = (freq < 1000) ? juce::String(round(freq)) : juce::String(round((freq/1000)*10)/10) + "k";
         
 
-        int xPos = (x > (width - (lW/2))) ? (width - lW) : e.x - (lW/2);
+        float xPos = (x > (width - (lW/2))) ? (width - lW) : e.x - (lW/2);
         xPos = (x < (lW/2)) ? 0 : xPos;
         
-        freqLabel.setBounds(xPos, 0, lW, lH);
+        freqLabel.setBounds(int(xPos), 0, lW, lH);
         freqLabel.setJustificationType (juce::Justification::centred);
         freqLabel.setText(freqText, juce::dontSendNotification);
     }

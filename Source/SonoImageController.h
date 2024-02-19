@@ -17,7 +17,7 @@ public:
     SonoImage();
     ~SonoImage();
 
-    void drawSonogram(juce::Graphics& g) const;
+    void drawSonogram(juce::Graphics& g);
 
     void setColorL(float c);
     void setColorR(float c);
@@ -39,7 +39,7 @@ public:
     //bool ch2S = false;
 
     float lineCR = 30.0f;
-    const float scaleTopLineHeightInt = 20;
+    const int scaleTopLineHeightInt = 20;
     const float scaleTopLineHeightFloat = float(scaleTopLineHeightInt);
 
 private:
@@ -51,6 +51,7 @@ private:
 
     int iW = 800;
     int iH = 350 - scaleTopLineHeightInt;
+    int iB = iH + 2;
     juce::Rectangle<int>   copyImgBound { 0, 0, iW, iH };
     juce::Rectangle<float> pastImgBound {0.0f, scaleTopLineHeightFloat, float(iW), float(iH)};
 
@@ -62,6 +63,11 @@ private:
 
     juce::Path *aPathCh1L = nullptr;
     juce::Path *aPathCh1R = nullptr;
+
+    //juce::Graphics& gPtr;
+    //bool redraw = false;
+
+    inline static int curWrtLine = 0;
 
     inline static int countThreads = 0;
 };

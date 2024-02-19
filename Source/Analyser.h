@@ -118,20 +118,19 @@ public:
         reinit();
 
         p.clear();
-        
         p.preallocateSpace (8 + averager.getNumSamples() * 3);
-        
-        juce::ScopedLock lockedForReading (pathCreationLock);
-        const auto* fftData = averager.getReadPointer (0);
-        
         p.startNewSubPath (0.0f, height);
 
         const float sumDb = (cS->slope * 12.0);
         const float xkoef = sumDb / width;
         const float infinity = cS->floor;
         float gain = 0.0f;
-        const float hmin = (cS->mode == 2) ? 0.0 : height;
-        const float hmax = (cS->mode == 2) ? 1.0 : sonoImage->scaleTopLineHeightFloat;
+        const float hmin = (cS->mode == 2) ? 0.0f : height;
+        const float hmax = (cS->mode == 2) ? 1.0f : sonoImage->scaleTopLineHeightFloat;
+
+        juce::ScopedLock lockedForReading (pathCreationLock);
+        const auto* fftData = averager.getReadPointer (0);
+
         for (int i = 0; i < averager.getNumSamples(); ++i)
         {
             const float freq = freq_cache[i];

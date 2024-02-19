@@ -29,7 +29,7 @@ public:
     {
         return { juce::jmin (24.0f, (float) buttonHeight * 1.0f) };
     }
-    void drawButtonBackground (juce::Graphics& g, juce::Button& button, const  juce::Colour& backgroundColour, bool, bool isButtonDown) override
+    void drawButtonBackground (juce::Graphics& g, juce::Button& button, const juce::Colour& backgroundColour, bool, bool isButtonDown) override
     {
         g.setColour (juce::Colour::fromRGB(130,130,130));
         auto buttonArea = button.getLocalBounds().toFloat();
@@ -173,7 +173,7 @@ private:
     void showSetPanel();
     void hidePanel();
     
-    void drawFreqGrid(juce::Graphics &g, bool bg, bool fV, bool fL, bool vVL, int fColor);
+    void drawFreqGrid(juce::Graphics &g, bool bg, bool fV, bool fL, bool vVL, juce::uint8 fColor);
     void drawSpectrogram(juce::Graphics &g);
 
 
