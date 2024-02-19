@@ -49,8 +49,9 @@ private:
 
     juce::Image* sonogramImage = nullptr;
 
+    int height = 350;
     int iW = 800;
-    int iH = 350 - scaleTopLineHeightInt;
+    int iH = height - scaleTopLineHeightInt;
     int iB = iH + 2;
     juce::Rectangle<int>   copyImgBound { 0, 0, iW, iH };
     juce::Rectangle<float> pastImgBound {0.0f, scaleTopLineHeightFloat, float(iW), float(iH)};

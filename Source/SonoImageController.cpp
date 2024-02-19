@@ -24,26 +24,23 @@ void SonoImage::drawSonogram(juce::Graphics& g) {
         //sonogramImage->duplicateIfShared(); //?
         //g.drawImage(*sonogramImage, pastImgBound);
         //g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
-        DBG("curWrtLine: " << curWrtLine);
         if ( curWrtLine > 2 ) {
             copyImgBound.setY(0);
             copyImgBound.setHeight(curWrtLine - 1);
 
-            pastImgBound.setY(0.f);
-            pastImgBound.setHeight(curWrtLine - 1.f);
-
+            pastImgBound.setY(float(height-curWrtLine - 1));
+            pastImgBound.setHeight(float(height));
             g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
         }
 
-        if ((iB - curWrtLine) > 2) {
-            copyImgBound.setY(curWrtLine + 1);
-            copyImgBound.setHeight(iB);
+        //if ((iB - curWrtLine) > 2) {
+        //    copyImgBound.setY(curWrtLine + 1);
+        //    copyImgBound.setHeight(iB);
 
-            pastImgBound.setY(curWrtLine - 1.f);
-            pastImgBound.setHeight(float(iH));
-
-            g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
-        }
+        //    pastImgBound.setY(0.f + scaleTopLineHeightFloat);
+        //    pastImgBound.setHeight(curWrtLine - 1.f);
+        //    g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
+        //}
     }
 }
 
@@ -51,6 +48,7 @@ void SonoImage::setColorL(float c) { colorSonoL = c; }
 void SonoImage::setColorR(float c) { colorSonoR = c; }
 
 void SonoImage::setSizeImg(int w, int h) {
+    height = h;
     iW = w;
     iH = h - scaleTopLineHeightInt;
     iB = iH + 2;
