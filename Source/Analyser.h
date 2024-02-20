@@ -123,8 +123,9 @@ public:
         p.preallocateSpace (8 + averager.getNumSamples() * 3);
         p.startNewSubPath (0.0f, height);
 
-        const float sumDb = (cS->slope * 12.0);
-        const float xkoef = sumDb / width;
+        //const float sumDb = (cS->slope * 12.0);
+        //const float xkoef = sumDb / width;
+
         const float infinity = cS->floor;
         float gain = 0.0f;
         const float hmin = (cS->mode == 2) ? 0.0f : height;
@@ -140,10 +141,10 @@ public:
             const float y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], 
                             (infinity - gain) ) + gain,
                             infinity, 0.0f, hmin, hmax );
-            
             if (freq < minFreq) { p.lineTo (0.0f, y); continue; };
             if (freq > maxFreq) { p.lineTo (width, hmin); continue; };
-            gain = x * xkoef;
+            gain = gain_cache[i];
+            //gain = x * xkoef;
             p.lineTo (x, y);
         }
     }
@@ -162,6 +163,7 @@ private:
         if (x_freq_cache != nullptr) {
             delete(freq_cache);
             delete(x_freq_cache);
+            delete(gain_cache);
         }
 
         width = cS->newW;
@@ -172,8 +174,12 @@ private:
 
         const int cSmpls = averager.getNumSamples();
 
+        const float sumDb = (cS->slope * 12.0);
+        const float xkoef = sumDb / width;
+
         freq_cache = new float[cSmpls];
         x_freq_cache = new float [cSmpls];
+        gain_cache = new float[cSmpls];
 
         for (int i = 0; i < cSmpls; ++i) {
             const float freq = (sampleRate * i) / fftSize;
@@ -181,6 +187,7 @@ private:
             const float a = maxFreq / std::exp(maxFreq * b);
             const float position = std::log(freq / a) / b;
             float x = (width * position / (maxFreq - minFreq));
+            gain_cache[i] = x * xkoef;
 
             if (cS->setLiner) {
                 x = (width * freq / (maxFreq - minFreq));
@@ -191,7 +198,7 @@ private:
     }
 
     void reinit() {
-        if (width != cS->newW || height != cS->newH || scale != cS->setLiner) {
+        if (width != cS->newW || height != cS->newH || scale != cS->setLiner || slope != cS->slope ) {
             createFreqXCache();
         }
     }
@@ -200,10 +207,12 @@ private:
     float height;
     float minFreq;
     float maxFreq;
+    float slope;
     bool scale;
 
     float* freq_cache = nullptr;
     float* x_freq_cache = nullptr;
+    float* gain_cache = nullptr;
 
     juce::WaitableEvent waitForData;
     juce::CriticalSection pathCreationLock;

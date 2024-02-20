@@ -100,7 +100,6 @@ void SonoImage::drawNextLineOfSonogram()
     juce::Path::Iterator analyserPointL(*aPathCh1L);
     juce::Path::Iterator analyserPointR(*aPathCh1R);
 
-
     int x = 0;
     const int y = curWrtLine = (curWrtLine < iB) ? curWrtLine + 1 : 0;
     
