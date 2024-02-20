@@ -15,7 +15,7 @@
 struct defSettings {
     
     int fftOrderSpec = 12;
-    int fftOrderSono = 13;
+    int fftOrderSono = 12;
     int* fftOrder = &fftOrderSono;
     bool setLiner = false;
     juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;

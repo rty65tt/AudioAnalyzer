@@ -26,26 +26,29 @@ void SonoImage::drawSonogram(juce::Graphics& g) {
         //g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
         const int cwline = curWrtLine;
 
-        juce::Rectangle<int> c = { 0, 0, iW, iH };
-        juce::Rectangle<float> p = { 0.f, 20.f, float(iW), float(iH) };
-        g.drawImage(sonogramImage->getClippedImage(c), p);
-        return;
+        //juce::Rectangle<int> c = { 0, 0, iW, iH };
+        //juce::Rectangle<float> p = { 0.f, 20.f, float(iW), float(iH) };
+        //g.drawImage(sonogramImage->getClippedImage(c), p);
+        //return;
 
-        if (cwline > 2 ) {
-            copyImgBound.setY(0);
-            copyImgBound.setHeight(cwline - 2);
+        const int start1 = cwline < iH ? 0 : cwline - iH;
 
-            pastImgBound.setY(float(height - cwline + 2));
-            pastImgBound.setHeight(float(cwline - 2));
+        if (cwline) {
+            copyImgBound.setY(start1);
+            copyImgBound.setHeight(cwline);
+
+            pastImgBound.setY(float(height - cwline+start1));
+            pastImgBound.setHeight(float(cwline));
             g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
         }
 
-        if ((iB - cwline) > 2) {
-            copyImgBound.setY(cwline + 2);
-            copyImgBound.setHeight(iB - cwline);
+        if (!start1) {
+            const int h2 = iH - cwline;
+            copyImgBound.setY(cwline+4);
+            copyImgBound.setHeight(h2);
 
-            pastImgBound.setY(0.f + scaleTopLineHeightFloat);
-            pastImgBound.setHeight(float(iB - cwline));
+            pastImgBound.setY(scaleTopLineHeightFloat);
+            pastImgBound.setHeight(float(h2));
             g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
         }
     }
@@ -58,7 +61,7 @@ void SonoImage::setSizeImg(int w, int h) {
     height = h;
     iW = w;
     iH = h - scaleTopLineHeightInt;
-    iB = iH + 2;
+    iB = iH + 4;
     curWrtLine = 0;
     resize = true;
 }
@@ -87,20 +90,19 @@ void SonoImage::drawNextLineOfSonogram()
 {
     if (resize) { resizeImg(); return; }
 
-    //countThreads++;
-    //if (countThreads > 1) {
-    //    DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
-    //    countThreads--;
-    //    return;
-    //}
+    countThreads++;
+    if (countThreads > 1) {
+        DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
+        countThreads--;
+        return;
+    }
 
-    juce::Path::Iterator  analyserPointL(*aPathCh1L);
-    juce::Path::Iterator  analyserPointR(*aPathCh1R);
+    juce::Path::Iterator analyserPointL(*aPathCh1L);
+    juce::Path::Iterator analyserPointR(*aPathCh1R);
+
 
     int x = 0;
     const int y = curWrtLine = (curWrtLine < iB) ? curWrtLine + 1 : 0;
-    
-    //DBG("curWrtLine" << curWrtLine);
     
     float xL1, yL1, xL2 = 0.f, yL2 = 0.f, xR1, yR1, xR2 = 0.f, yR2 = 0.f;
 

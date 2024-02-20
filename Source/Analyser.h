@@ -118,6 +118,8 @@ public:
         reinit();
 
         p.clear();
+        //if (!p.isEmpty()) { return; }
+
         p.preallocateSpace (8 + averager.getNumSamples() * 3);
         p.startNewSubPath (0.0f, height);
 

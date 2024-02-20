@@ -248,7 +248,7 @@ void AudioAnalyzerAudioProcessor::setStateInformation (const void* data, int siz
             cS.colorSonoL = (float) xmlState->getDoubleAttribute ("colorSonoL", 330.0);
             cS.colorSonoR = (float) xmlState->getDoubleAttribute ("colorSonoR", 120.0);
             cS.fftOrderSpec = (int) xmlState->getIntAttribute ("fftOrderSpec", 12);
-            cS.fftOrderSono = (int)xmlState->getIntAttribute("fftOrderSono", 13);
+            cS.fftOrderSono = (int)xmlState->getIntAttribute("fftOrderSono", 12);
             cS.overlapSpec = (int) xmlState->getIntAttribute ("overlapSpec", 2);
             cS.overlapSono = (int)xmlState->getIntAttribute("overlapSono", 16);
             sImg.ch1L   = xmlState->getBoolAttribute("ch1L");
