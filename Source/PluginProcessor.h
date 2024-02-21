@@ -69,10 +69,10 @@ public:
 private:
 
     double sampleRate = 0;
-    Analyser<float> inputAnalyserL1 { &cS };
-    Analyser<float> inputAnalyserR1 { &cS };
-    Analyser<float> inputAnalyserL2 { &cS };
-    Analyser<float> inputAnalyserR2 { &cS };
+    Analyser<float> inputAnalyserL1 { &cS, "Analyser chL1"};
+    Analyser<float> inputAnalyserR1 { &cS, "Analyser chR1" };
+    Analyser<float> inputAnalyserL2 { &cS, "Analyser chL2" };
+    Analyser<float> inputAnalyserR2 { &cS, "Analyser chR2" };
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioAnalyzerAudioProcessor)

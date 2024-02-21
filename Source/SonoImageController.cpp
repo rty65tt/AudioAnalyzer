@@ -80,12 +80,18 @@ void SonoImage::resizeImg() {
 void SonoImage::setAnalyserPath(int channel, juce::Path* p) {
     if (channel == 0) { aPathCh1L = p; chL = true; }
     if (channel == 1) { aPathCh1R = p; chR = true; }
+    //if (chL && chR) {
+    //    chL = chR = false;
+    //    drawNextLineOfSonogram();
+    //}
+}
+
+void SonoImage::addLineSono() {
     if (chL && chR) {
         chL = chR = false;
         drawNextLineOfSonogram();
     }
 }
-
 void SonoImage::drawNextLineOfSonogram()
 {
     if (resize) { resizeImg(); return; }
@@ -93,13 +99,12 @@ void SonoImage::drawNextLineOfSonogram()
     countThreads++;
     if (countThreads > 1) {
         DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
-        countThreads--;
-        return;
+        //countThreads--;
+        //return;
     }
 
     juce::Path::Iterator analyserPointL(*aPathCh1L);
     juce::Path::Iterator analyserPointR(*aPathCh1R);
-
     int x = 0;
     const int y = curWrtLine = (curWrtLine < iB) ? curWrtLine + 1 : 0;
     
@@ -140,7 +145,6 @@ void SonoImage::drawNextLineOfSonogram()
         const float lkoefL = byL / bxL;
         const float lkoefR = byR / bxR;
 
-
         for (int i = 0; i < bxL; ++i) {
 
             if (ch1L) { bgL = juce::Colour::fromHSL(colorL, 1.0, lvlL, lvlL); }
@@ -154,11 +158,6 @@ void SonoImage::drawNextLineOfSonogram()
             x++;
         }
     } while (analyserPointR.next() && analyserPointL.next());
-
-
-    //sonogramImage->moveImageSection(0, 0, 0, 1, iW, iH);
-    //juce::Graphics g(*sonogramImage);
-    //g.drawImage(sonoImg, 0, iH, iW, iH+1, 0, 0, iW, 1);
 
     //analyserPointL.~Iterator();
     //analyserPointR.~Iterator();

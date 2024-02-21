@@ -20,7 +20,7 @@ template<typename Type>
 class Analyser : public juce::Thread
 {
 public:
-    Analyser(defSettings *i) : juce::Thread ("AudioAnalyser")
+    Analyser(defSettings *i, juce::String tName) : juce::Thread (tName)
     {
         cS = i;
         averager.clear();
@@ -28,9 +28,9 @@ public:
 
     ~Analyser() override = default;
 
-    void setupAnalyser(int audioFifoSize, Type sampleRateToUse, SonoImage* sI)
+    void setupAnalyser(int audioFifoSize, Type sampleRateToUse, SonoImage* sImg)
     {
-        sonoImage = sI;
+        sonoImage = sImg;
         sampleRate = sampleRateToUse;
         audioFifo.setSize(1, audioFifoSize);
         abstractFifo.setTotalSize(audioFifoSize);
@@ -40,10 +40,10 @@ public:
 
     void addAudioData (const juce::AudioBuffer<Type>& buffer, int startChannel, int numChannels)
     {
-        
+        //if (cS->mode == 2) { sonoImage->addLineSono(); }
+
         cChannel = startChannel;
-        if (abstractFifo.getFreeSpace() < buffer.getNumSamples())
-            return;
+        if (abstractFifo.getFreeSpace() < buffer.getNumSamples()) { return; }
 
         if (winMet != cS->winMet) {
             winMet = cS->winMet;
@@ -83,6 +83,7 @@ public:
         {
             if (abstractFifo.getNumReady() >= fft.getSize())
             {
+                //if (cS->mode == 2) { sonoImage->addLineSono(); }
                 fftBuffer.clear();
 
                 int start1, block1, start2, block2;
@@ -94,22 +95,24 @@ public:
                 windowing.multiplyWithWindowingTable (fftBuffer.getWritePointer (0), size_t (fft.getSize()));
                 fft.performFrequencyOnlyForwardTransform (fftBuffer.getWritePointer (0));
 
-                juce::ScopedLock lockedForWriting (pathCreationLock);
-                averager.addFrom (0, 0, averager.getReadPointer (averagerPtr), averager.getNumSamples(), -1.0f);
-                averager.copyFrom (averagerPtr, 0, fftBuffer.getReadPointer (0), averager.getNumSamples(), 1.0f / (averager.getNumSamples() * (averager.getNumChannels() - 1)));
-                averager.addFrom (0, 0, averager.getReadPointer (averagerPtr), averager.getNumSamples());
+                const juce::ScopedLock lockedForWriting(pathCreationLock);
+                averager.addFrom(0, 0, averager.getReadPointer(averagerPtr), averager.getNumSamples(), -1.0f);
+                averager.copyFrom(averagerPtr, 0, fftBuffer.getReadPointer(0), averager.getNumSamples(), 1.0f / (averager.getNumSamples() * (averager.getNumChannels() - 1)));
+                averager.addFrom(0, 0, averager.getReadPointer(averagerPtr), averager.getNumSamples());
                 if (++averagerPtr == averager.getNumChannels()) averagerPtr = 1;
-
+                
                 //newDataAvailable = true;
 
-                if ( cS->mode == 2 && cChannel < 2 ) {
+                if ( cS->mode == 2 && cChannel < 2) {
                     createPath (sonogramLine);
                     sonoImage->setAnalyserPath(cChannel, &sonogramLine);
+                    sonoImage->setAnalyserPath(cChannel, &sonogramLine);
+                    //DBG("RUN-> thread Name: " << getThreadName());
+                    sonoImage->addLineSono();
                 }
             }
 
-            if (abstractFifo.getNumReady() < fft.getSize())
-                waitForData.wait (100);
+            if (abstractFifo.getNumReady() < fft.getSize()) { waitForData.wait(100);  }
         }
     }
     
@@ -118,23 +121,23 @@ public:
         reinit();
 
         p.clear();
-        //if (!p.isEmpty()) { return; }
-
-        p.preallocateSpace (8 + averager.getNumSamples() * 3);
+        p.preallocateSpace (8 + cSmpls * 3);
         p.startNewSubPath (0.0f, height);
-
-        //const float sumDb = (cS->slope * 12.0);
-        //const float xkoef = sumDb / width;
+        //juce::Path tmpPath;
+        //tmpPath.preallocateSpace(8 + cSmpls * 3);
+        //tmpPath.startNewSubPath(0.0f, height);
+        //tmpPath.clear();
 
         const float infinity = cS->floor;
         float gain = 0.0f;
         const float hmin = (cS->mode == 2) ? 0.0f : height;
         const float hmax = (cS->mode == 2) ? 1.0f : sonoImage->scaleTopLineHeightFloat;
 
-        juce::ScopedLock lockedForReading (pathCreationLock);
+        const juce::ScopedLock lockedForReading (pathCreationLock);
         const auto* fftData = averager.getReadPointer (0);
-
-        for (int i = 0; i < averager.getNumSamples(); ++i)
+        //int sizeLine = 0;
+        int xo = 0;
+        for (int i = 0; i < cSmpls; ++i)
         {
             const float freq = freq_cache[i];
             const float x = x_freq_cache[i];
@@ -144,9 +147,12 @@ public:
             if (freq < minFreq) { p.lineTo (0.0f, y); continue; };
             if (freq > maxFreq) { p.lineTo (width, hmin); continue; };
             gain = gain_cache[i];
-            //gain = x * xkoef;
-            p.lineTo (x, y);
+
+            if (x != xo) { p.lineTo(x, y); }
+            xo = x;
         }
+        //p.swapWithPath(tmpPath);
+        //DBG("createPath: " << sizeLine);
     }
 
     //bool checkForNewData()
@@ -172,7 +178,7 @@ private:
         maxFreq = sampleRate * 0.5f;
         scale = cS->setLiner;
 
-        const int cSmpls = averager.getNumSamples();
+        cSmpls = averager.getNumSamples();
 
         const float sumDb = (cS->slope * 12.0);
         const float xkoef = sumDb / width;
@@ -193,7 +199,7 @@ private:
                 x = (width * freq / (maxFreq - minFreq));
             }
             freq_cache[i] = freq;
-            x_freq_cache[i] = x;
+            x_freq_cache[i] = int(round(x));
         }
     }
 
@@ -209,6 +215,7 @@ private:
     float maxFreq;
     float slope;
     bool scale;
+    int cSmpls;
 
     float* freq_cache = nullptr;
     float* x_freq_cache = nullptr;

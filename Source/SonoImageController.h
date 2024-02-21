@@ -25,6 +25,7 @@ public:
     void setSizeImg(int w, int h);
 
     void setAnalyserPath(int channel, juce::Path* p);
+    void SonoImage::addLineSono();
 
     float colorSonoL = 330.0f;
     float colorSonoR = 60.0f;
