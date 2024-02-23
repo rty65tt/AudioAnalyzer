@@ -151,7 +151,6 @@ public:
 
             if (freq < minFreqMinusOne) { continue; }
             if (freq > maxFreq)         { continue; }
-
             
             if (x != xo) {
                 

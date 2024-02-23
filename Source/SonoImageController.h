@@ -28,6 +28,7 @@ class LineData {
 public:
     LineData();
     ~LineData();
+    void cleanCache();
 
     sLineCache* genCacheData(const int s,
                             const float width,
@@ -41,7 +42,7 @@ public:
     sLineCache*         lineCache = nullptr;
     LineChannelData*    ldata = nullptr;
 private:
-    int  cWidth = 0;
+    float cWidth = 0;
     float cSlope = 0;
 };
 

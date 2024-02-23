@@ -15,6 +15,7 @@ SonoImage::SonoImage() {}
 SonoImage::~SonoImage()
 {
     if (sonogramImage != nullptr) {
+        DBG("~SonoImage()::sonogramImage->~Image()");
         sonogramImage->~Image();
     }
 }
@@ -97,8 +98,8 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
 {
     if (resize) { resizeImg(); return; }
 
-    countThreads++;
-    if (countThreads > 1) {
+    //countThreads++;
+    if (++countThreads > 1) {
         DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
         countThreads--;
         return;
@@ -145,19 +146,19 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
         const float lkoefL = byL / bxL;
         const float lkoefR = byR / bxR;
 
-        for (int i = 0; i < bxL; ++i) {
+        for (int i = 0; i < bxL; ++i) { // opimizat 
 
             if (ch1L) { bgL = juce::Colour::fromHSL(colorL, 1.0, lvlL, lvlL); }
             if (ch1R) { bgR = juce::Colour::fromHSL(colorR, 1.0, lvlR, lvlR); }
 
             //sonogramImage->setPixelAt(x, 0, bgL.interpolatedWith(bgR, 0.5f));
-            sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));
+            //sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));
 
             lvlL += lkoefL;
             lvlR += lkoefR;
             x++;
         }
-    }// while (analyserPointR.next() && analyserPointL.next());
+    }
 
     //analyserPointL.~Iterator();
     //analyserPointR.~Iterator();
@@ -166,6 +167,10 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
 
 LineData::LineData() {}
 LineData::~LineData() {
+    cleanCache();
+}
+void LineData::cleanCache() {
+    DBG("cleanCache() lineCache;");
     delete[] lineCache;
     delete[] ldata;
 }
@@ -179,8 +184,8 @@ sLineCache* LineData::genCacheData(   const int s,
 
     if (numSmpls != s || cWidth != width || cSlope != slope) {
         if (lineCache != nullptr) {
-            delete[] lineCache;
-            delete[] ldata;
+            DBG("Gen New Cache: cleanCache()");
+            cleanCache();
         }
         numSmpls = s;
         cWidth = width;
@@ -189,7 +194,7 @@ sLineCache* LineData::genCacheData(   const int s,
         ldata = new LineChannelData[numSmpls];
 
         DBG("Gen New Cache: numSmpls: " << numSmpls << " s: " << s << " width: " << width);
-        const float sumDb = (slope * 12.0);
+        const float sumDb = (slope * 12.0f);
         const float xkoef = sumDb / width;
         const float maxFreq = sampleRate * 0.5f;
 
