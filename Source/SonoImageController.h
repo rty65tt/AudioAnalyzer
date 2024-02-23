@@ -11,6 +11,39 @@
 #pragma once
 #include <JuceHeader.h>
 
+
+struct LineChannelData {
+    float x = 0.f;
+    float y = 0.f;
+};
+
+struct sLineCache {
+    float freq = 0.f;
+    float xcrd_lin = 0.f;
+    float xcrd_log = 0.f;
+    float slopeGain = 0.f;
+};
+
+class LineData {
+public:
+    LineData();
+    ~LineData();
+
+    sLineCache* genCacheData(const int s,
+                            const float width,
+                            const float slope,
+                            const float sampleRate,
+                            const int   fftSize,
+                            const float minFreq);
+
+    int  numSmpls = 0;
+    int cacheSize = 0;
+    sLineCache*         lineCache = nullptr;
+    LineChannelData*    ldata = nullptr;
+private:
+    int  cWidth = 0;
+};
+
 class SonoImage
 {
 public:
@@ -19,13 +52,15 @@ public:
 
     void drawSonogram(juce::Graphics& g);
 
-    void setColorL(float c);
-    void setColorR(float c);
+    void setColorL(const float c);
+    void setColorR(const float c);
 
-    void setSizeImg(int w, int h);
+    void setSizeImg(const int w, const int h);
 
-    void setAnalyserPath(int channel, juce::Path* p);
-    void SonoImage::addLineSono();
+    void setAnalyserPath(const int channel, LineChannelData* ldata);
+    void addLineSono(const int arrSize);
+
+    //LineChannelData* getLevelArrayPtr(const int channel, const bool reset);
 
     float colorSonoL = 330.0f;
     float colorSonoR = 60.0f;
@@ -43,10 +78,13 @@ public:
     const int scaleTopLineHeightInt = 20;
     const float scaleTopLineHeightFloat = float(scaleTopLineHeightInt);
 
+    LineChannelData* imgDataL = nullptr;
+    LineChannelData* imgDataR = nullptr;
+
 private:
 
     void resizeImg();
-    void drawNextLineOfSonogram();
+    void drawNextLineOfSonogram(const int arrWidth);
 
     juce::Image* sonogramImage = nullptr;
 
@@ -63,14 +101,10 @@ private:
     bool chL = false;
     bool chR = false;
 
-    juce::Path* aPathCh1L;
-    juce::Path* aPathCh1R;
+    int lineChBufSize = 0;
 
-    //juce::Graphics& gPtr;
-    //bool redraw = false;
+    inline static int curWrtLine = 0;/////////??????????
 
-    inline static int curWrtLine = 0;
-
-    inline static int countThreads = 0;
+    inline static int countThreads = 0; ////??????
 };
 

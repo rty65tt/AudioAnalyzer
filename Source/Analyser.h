@@ -34,7 +34,6 @@ public:
         sampleRate = sampleRateToUse;
         audioFifo.setSize(1, audioFifoSize);
         abstractFifo.setTotalSize(audioFifoSize);
-        createFreqXCache();
         startThread();
     }
 
@@ -59,7 +58,6 @@ public:
             averager.setSize(5, fftSize / 2);
             fft = juce::dsp::FFT(fftOrder);
             windowing.fillWindowingTables(size_t (fftSize), cS->winMet);
-            createFreqXCache();
         }
         
         int start1, block1, start2, block2;
@@ -105,10 +103,10 @@ public:
 
                 if ( cS->mode == 2 && cChannel < 2) {
                     createPath (sonogramLine);
-                    sonoImage->setAnalyserPath(cChannel, &sonogramLine);
-                    sonoImage->setAnalyserPath(cChannel, &sonogramLine);
+                    //sonoImage->setAnalyserPath(cChannel);
+                    sonoImage->setAnalyserPath(cChannel, ld.ldata);
                     //DBG("RUN-> thread Name: " << getThreadName());
-                    sonoImage->addLineSono();
+                    sonoImage->addLineSono(ld.cacheSize);
                 }
             }
 
@@ -118,41 +116,62 @@ public:
     
     void createPath (juce::Path& p)
     {
-        reinit();
+        lc = ld.genCacheData(averager.getNumSamples(),
+                        cS->newW,
+                        cS->slope,
+                        sampleRate,
+                        fftSize,
+                        cS->minFreq);
 
-        p.clear();
-        p.preallocateSpace (8 + cSmpls * 3);
-        p.startNewSubPath (0.0f, height);
-        //juce::Path tmpPath;
-        //tmpPath.preallocateSpace(8 + cSmpls * 3);
-        //tmpPath.startNewSubPath(0.0f, height);
-        //tmpPath.clear();
+        const bool sono = (cS->mode == 2) ? true : false;
+
+        if (!sono) {
+            p.clear();
+            p.preallocateSpace(8 + ld.numSmpls * 3);
+            p.startNewSubPath(0.0f, cS->newH);
+        }
 
         const float infinity = cS->floor;
-        float gain = 0.0f;
-        const float hmin = (cS->mode == 2) ? 0.0f : height;
-        const float hmax = (cS->mode == 2) ? 1.0f : sonoImage->scaleTopLineHeightFloat;
+        //float gain = 0.0f;
+        const float hmin = sono ? 0.0f : cS->newH;
+        const float hmax = sono ? 1.0f : sonoImage->scaleTopLineHeightFloat;
 
         const juce::ScopedLock lockedForReading (pathCreationLock);
         const auto* fftData = averager.getReadPointer (0);
-        //int sizeLine = 0;
-        int xo = 0;
-        for (int i = 0; i < cSmpls; ++i)
-        {
-            const float freq = freq_cache[i];
-            const float x = x_freq_cache[i];
-            const float y = juce::jmap ( juce::Decibels::gainToDecibels ( fftData[i], 
-                            (infinity - gain) ) + gain,
-                            infinity, 0.0f, hmin, hmax );
-            if (freq < minFreq) { p.lineTo (0.0f, y); continue; };
-            if (freq > maxFreq) { p.lineTo (width, hmin); continue; };
-            gain = gain_cache[i];
+        int sizeLine = 0;
+        float xo = 0.f;
 
-            if (x != xo) { p.lineTo(x, y); }
+        const float minFreqMinusOne = cS->minFreq - 1;
+        const float maxFreq = cS->maxFreq;
+
+        for (int i = 0; i < ld.numSmpls; ++i)
+        {
+            const float freq = lc[i].freq;
+            const float x = cS->setLiner ? lc[i].xcrd_lin : lc[i].xcrd_log;
+
+            if (freq < minFreqMinusOne) { continue; }
+            if (freq > maxFreq)         { continue; }
+
+            
+            if (x != xo) {
+                
+                const float gain = lc[i].slopeGain;
+                
+                const float y = juce::jmap ( 
+                    juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
+                            infinity, 0.0f, hmin, hmax );
+
+                if (sono)  {
+                    ld.ldata[sizeLine].x = x;
+                    ld.ldata[sizeLine].y = y;
+                }
+                else { p.lineTo(xo, y); }
+                sizeLine++;
+            }
             xo = x;
         }
-        //p.swapWithPath(tmpPath);
-        //DBG("createPath: " << sizeLine);
+        ld.cacheSize = sizeLine;
+        //DBG("createPath: " << sizeLine << " p.getLength: " << p.getLength());
     }
 
     //bool checkForNewData()
@@ -164,64 +183,10 @@ public:
 
 private:
 
-    void createFreqXCache()
-    {
-        if (x_freq_cache != nullptr) {
-            delete(freq_cache);
-            delete(x_freq_cache);
-            delete(gain_cache);
-        }
+    LineData ld;
+    sLineCache* lc = nullptr;
 
-        width = cS->newW;
-        height = cS->newH;
-        minFreq = cS->minFreq;
-        maxFreq = sampleRate * 0.5f;
-        scale = cS->setLiner;
-
-        cSmpls = averager.getNumSamples();
-
-        const float sumDb = (cS->slope * 12.0);
-        const float xkoef = sumDb / width;
-
-        freq_cache = new float[cSmpls];
-        x_freq_cache = new float [cSmpls];
-        gain_cache = new float[cSmpls];
-
-        for (int i = 0; i < cSmpls; ++i) {
-            const float freq = (sampleRate * i) / fftSize;
-            const float b = std::log(maxFreq / minFreq) / (maxFreq - minFreq);
-            const float a = maxFreq / std::exp(maxFreq * b);
-            const float position = std::log(freq / a) / b;
-            float x = (width * position / (maxFreq - minFreq));
-            gain_cache[i] = x * xkoef;
-
-            if (cS->setLiner) {
-                x = (width * freq / (maxFreq - minFreq));
-            }
-            freq_cache[i] = freq;
-            x_freq_cache[i] = int(round(x));
-        }
-    }
-
-    void reinit() {
-        if (width != cS->newW || height != cS->newH || scale != cS->setLiner || slope != cS->slope ) {
-            createFreqXCache();
-        }
-    }
-
-    float width;
-    float height;
-    float minFreq;
-    float maxFreq;
-    float slope;
-    bool scale;
-    int cSmpls;
-
-    float* freq_cache = nullptr;
-    float* x_freq_cache = nullptr;
-    float* gain_cache = nullptr;
-
-    juce::WaitableEvent waitForData;
+    juce::WaitableEvent   waitForData;
     juce::CriticalSection pathCreationLock;
 
     SonoImage* sonoImage;

@@ -57,6 +57,3 @@ struct defSettings {
 
 };
 
-//struct sonoBuffer {
-//
-//};

@@ -54,10 +54,10 @@ void SonoImage::drawSonogram(juce::Graphics& g) {
     }
 }
 
-void SonoImage::setColorL(float c) { colorSonoL = c; }
-void SonoImage::setColorR(float c) { colorSonoR = c; }
+void SonoImage::setColorL(const float c) { colorSonoL = c; }
+void SonoImage::setColorR(const float c) { colorSonoR = c; }
 
-void SonoImage::setSizeImg(int w, int h) {
+void SonoImage::setSizeImg(const int w, const int h) {
     height = h;
     iW = w;
     iH = h - scaleTopLineHeightInt;
@@ -77,38 +77,38 @@ void SonoImage::resizeImg() {
     resize = false;
 }
 
-void SonoImage::setAnalyserPath(int channel, juce::Path* p) {
-    if (channel == 0) { aPathCh1L = p; chL = true; }
-    if (channel == 1) { aPathCh1R = p; chR = true; }
+void SonoImage::setAnalyserPath(const int channel, LineChannelData* ldata) {
+    if (channel == 0) { chL = true; imgDataL = ldata; }
+    if (channel == 1) { chR = true; imgDataR = ldata; }
     //if (chL && chR) {
     //    chL = chR = false;
     //    drawNextLineOfSonogram();
     //}
 }
 
-void SonoImage::addLineSono() {
+void SonoImage::addLineSono(const int arrSize) {
     if (chL && chR) {
         chL = chR = false;
-        drawNextLineOfSonogram();
+        drawNextLineOfSonogram(arrSize);
     }
 }
-void SonoImage::drawNextLineOfSonogram()
+
+void SonoImage::drawNextLineOfSonogram(const int arrWidth)
 {
     if (resize) { resizeImg(); return; }
 
     countThreads++;
     if (countThreads > 1) {
         DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
-        //countThreads--;
-        //return;
+        countThreads--;
+        return;
     }
 
-    juce::Path::Iterator analyserPointL(*aPathCh1L);
-    juce::Path::Iterator analyserPointR(*aPathCh1R);
     int x = 0;
     const int y = curWrtLine = (curWrtLine < iB) ? curWrtLine + 1 : 0;
     
-    float xL1, yL1, xL2 = 0.f, yL2 = 0.f, xR1, yR1, xR2 = 0.f, yR2 = 0.f;
+    float xL1, yL1, xL2 = 0.f, yL2 = imgDataL[0].y;
+    float xR1, yR1, xR2 = 0.f, yR2 = imgDataR[0].y;
 
     const float colorL = juce::jmap(colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f);
     const float colorR = juce::jmap(colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f);
@@ -117,21 +117,21 @@ void SonoImage::drawNextLineOfSonogram()
     juce::Colour bgL = juce::Colours::black;
     juce::Colour bgR = juce::Colours::transparentBlack;
 
-    for (int f = 0; f < iW; ++f) {
-        sonogramImage->setPixelAt(f, y, juce::Colours::black);
-    }
+    //for (int f = 0; f < iW; ++f) {
+    //    sonogramImage->setPixelAt(f, y, juce::Colours::black);
+    //}
 
-    do
+    for(int a = 0; a++ < arrWidth; )
     {
         xL1 = xL2;
         yL1 = yL2;
-        xL2 = analyserPointL.x1;
-        yL2 = analyserPointL.y1;
+        xL2 = imgDataL[a].x;
+        yL2 = imgDataL[a].y;
 
         xR1 = xR2;
         yR1 = yR2;
-        xR2 = analyserPointR.x1;
-        yR2 = analyserPointR.y1;
+        xR2 = imgDataR[a].x;
+        yR2 = imgDataR[a].y;
 
         const float bxL = xL2 - xL1;
         const float byL = yL2 - yL1;
@@ -157,10 +157,58 @@ void SonoImage::drawNextLineOfSonogram()
             lvlR += lkoefR;
             x++;
         }
-    } while (analyserPointR.next() && analyserPointL.next());
+    }// while (analyserPointR.next() && analyserPointL.next());
 
     //analyserPointL.~Iterator();
     //analyserPointR.~Iterator();
     countThreads--;
+}
+
+LineData::LineData() {}
+LineData::~LineData() {
+    delete[] lineCache;
+    delete[] ldata;
+}
+
+sLineCache* LineData::genCacheData(   const int s,
+                            const float width,
+                            const float slope,
+                            const float sampleRate,
+                            const int   fftSize,
+                            const float minFreq) {
+
+    if (numSmpls != s || cWidth != width) {
+        if (lineCache != nullptr) {
+            delete[] lineCache;
+            delete[] ldata;
+        }
+        numSmpls = s;
+        cWidth = width;
+        lineCache = new sLineCache[numSmpls];
+        ldata = new LineChannelData[numSmpls];
+
+        DBG("Gen New Cache: numSmpls: " << numSmpls << " s: " << s << " width: " << width);
+        const float sumDb = (slope * 12.0);
+        const float xkoef = sumDb / width;
+        const float maxFreq = sampleRate * 0.5f;
+
+        for (int i = 0; i < numSmpls; ++i) {
+            const float freq = (sampleRate * i) / fftSize;
+            const float b = std::log(maxFreq / minFreq) / (maxFreq - minFreq);
+            const float a = maxFreq / std::exp(maxFreq * b);
+            const float position = std::log(freq / a) / b;
+
+            lineCache[i].freq = freq;
+            
+            float x = (width * position / (maxFreq - minFreq));
+            lineCache[i].xcrd_log = round(x);
+            lineCache[i].slopeGain = x * xkoef;
+
+            x = (width * freq / (maxFreq - minFreq));
+            lineCache[i].xcrd_lin = round(x);
+        }
+        lineCache[0].slopeGain = 0.f;
+    }
+    return lineCache;
 }
 
