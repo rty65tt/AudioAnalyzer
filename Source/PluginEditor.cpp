@@ -481,6 +481,7 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
             drawSpectrogram(g);
             break;
         case 2:
+
             drawFreqGrid(g, false, true, false, false, 125);
             aP.sImg.drawSonogram(g);
             break;

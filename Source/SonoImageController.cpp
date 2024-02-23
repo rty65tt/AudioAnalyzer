@@ -15,23 +15,14 @@ SonoImage::SonoImage() {}
 SonoImage::~SonoImage()
 {
     if (sonogramImage != nullptr) {
-        DBG("~SonoImage()::sonogramImage->~Image()");
         sonogramImage->~Image();
     }
 }
 
 void SonoImage::drawSonogram(juce::Graphics& g) {
     if (!resize && sonogramImage != nullptr) {
-        //sonogramImage->duplicateIfShared(); //?
-        //g.drawImage(*sonogramImage, pastImgBound);
-        //g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
+
         const int cwline = curWrtLine;
-
-        //juce::Rectangle<int> c = { 0, 0, iW, iH };
-        //juce::Rectangle<float> p = { 0.f, 20.f, float(iW), float(iH) };
-        //g.drawImage(sonogramImage->getClippedImage(c), p);
-        //return;
-
         const int start1 = cwline < iH ? 0 : cwline - iH;
 
         if (cwline) {
@@ -71,20 +62,13 @@ void SonoImage::resizeImg() {
     if (sonogramImage != nullptr) { sonogramImage->~Image(); }
     sonogramImage = new juce::Image(juce::Image::RGB, iW, iB, true);
     copyImgBound.setWidth(iW);
-    //copyImgBound.setHeight(iH);
     pastImgBound.setWidth(float(iW));
-    //pastImgBound.setHeight(float(iH));
-    //pastImgBound.setTop(float(scaleTopLineHeightInt));
     resize = false;
 }
 
 void SonoImage::setAnalyserPath(const int channel, LineChannelData* ldata) {
     if (channel == 0) { chL = true; imgDataL = ldata; }
     if (channel == 1) { chR = true; imgDataR = ldata; }
-    //if (chL && chR) {
-    //    chL = chR = false;
-    //    drawNextLineOfSonogram();
-    //}
 }
 
 void SonoImage::addLineSono(const int arrSize) {
@@ -97,13 +81,13 @@ void SonoImage::addLineSono(const int arrSize) {
 void SonoImage::drawNextLineOfSonogram(const int arrWidth)
 {
     if (resize) { resizeImg(); return; }
-
     //countThreads++;
     if (++countThreads > 1) {
         DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
         countThreads--;
         return;
     }
+
 
     int x = 0;
     const int y = curWrtLine = (curWrtLine < iB) ? curWrtLine + 1 : 0;
@@ -152,7 +136,7 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
             if (ch1R) { bgR = juce::Colour::fromHSL(colorR, 1.0, lvlR, lvlR); }
 
             //sonogramImage->setPixelAt(x, 0, bgL.interpolatedWith(bgR, 0.5f));
-            //sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));
+            sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));
 
             lvlL += lkoefL;
             lvlR += lkoefR;
@@ -170,7 +154,6 @@ LineData::~LineData() {
     cleanCache();
 }
 void LineData::cleanCache() {
-    DBG("cleanCache() lineCache;");
     delete[] lineCache;
     delete[] ldata;
 }
@@ -184,7 +167,6 @@ sLineCache* LineData::genCacheData(   const int s,
 
     if (numSmpls != s || cWidth != width || cSlope != slope) {
         if (lineCache != nullptr) {
-            DBG("Gen New Cache: cleanCache()");
             cleanCache();
         }
         numSmpls = s;
@@ -193,7 +175,6 @@ sLineCache* LineData::genCacheData(   const int s,
         lineCache = new sLineCache[numSmpls];
         ldata = new LineChannelData[numSmpls];
 
-        DBG("Gen New Cache: numSmpls: " << numSmpls << " s: " << s << " width: " << width);
         const float sumDb = (slope * 12.0f);
         const float xkoef = sumDb / width;
         const float maxFreq = sampleRate * 0.5f;

@@ -81,7 +81,6 @@ public:
         {
             if (abstractFifo.getNumReady() >= fft.getSize())
             {
-                //if (cS->mode == 2) { sonoImage->addLineSono(); }
                 fftBuffer.clear();
 
                 int start1, block1, start2, block2;
@@ -105,8 +104,10 @@ public:
                     createPath (sonogramLine);
                     //sonoImage->setAnalyserPath(cChannel);
                     sonoImage->setAnalyserPath(cChannel, ld.ldata);
-                    //DBG("RUN-> thread Name: " << getThreadName());
-                    sonoImage->addLineSono(ld.cacheSize);
+                    if (cChannel) {
+                    DBG("RUN-> thread Name: " << getThreadName());
+                        sonoImage->addLineSono(ld.cacheSize);
+                    }
                 }
             }
 
