@@ -177,13 +177,14 @@ sLineCache* LineData::genCacheData(   const int s,
                             const int   fftSize,
                             const float minFreq) {
 
-    if (numSmpls != s || cWidth != width) {
+    if (numSmpls != s || cWidth != width || cSlope != slope) {
         if (lineCache != nullptr) {
             delete[] lineCache;
             delete[] ldata;
         }
         numSmpls = s;
         cWidth = width;
+        cSlope = slope;
         lineCache = new sLineCache[numSmpls];
         ldata = new LineChannelData[numSmpls];
 

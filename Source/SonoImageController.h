@@ -42,6 +42,7 @@ public:
     LineChannelData*    ldata = nullptr;
 private:
     int  cWidth = 0;
+    float cSlope = 0;
 };
 
 class SonoImage
