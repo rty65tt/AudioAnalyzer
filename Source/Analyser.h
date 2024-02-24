@@ -39,8 +39,6 @@ public:
 
     void addAudioData (const juce::AudioBuffer<Type>& buffer, int startChannel, int numChannels)
     {
-        //if (cS->mode == 2) { sonoImage->addLineSono(); }
-
         cChannel = startChannel;
         if (abstractFifo.getFreeSpace() < buffer.getNumSamples()) { return; }
 
@@ -102,10 +100,8 @@ public:
 
                 if ( cS->mode == 2 && cChannel < 2) {
                     createPath (sonogramLine);
-                    //sonoImage->setAnalyserPath(cChannel);
                     sonoImage->setAnalyserPath(cChannel, ld.ldata);
                     if (cChannel) {
-                    DBG("RUN-> thread Name: " << getThreadName());
                         sonoImage->addLineSono(ld.cacheSize);
                     }
                 }
@@ -133,7 +129,6 @@ public:
         }
 
         const float infinity = cS->floor;
-        //float gain = 0.0f;
         const float hmin = sono ? 0.0f : cS->newH;
         const float hmax = sono ? 1.0f : sonoImage->scaleTopLineHeightFloat;
 
@@ -171,7 +166,6 @@ public:
             xo = x;
         }
         ld.cacheSize = sizeLine;
-        //DBG("createPath: " << sizeLine << " p.getLength: " << p.getLength());
     }
 
     //bool checkForNewData()

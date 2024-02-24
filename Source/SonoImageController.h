@@ -56,6 +56,7 @@ public:
 
     void setColorL(const float c);
     void setColorR(const float c);
+    void setSaturation(const float s);
 
     void setSizeImg(const int w, const int h);
 
@@ -66,6 +67,7 @@ public:
 
     float colorSonoL = 330.0f;
     float colorSonoR = 60.0f;
+    float saturatSono = 1.0f;
 
     bool ch1L = true;
     bool ch1R = true;

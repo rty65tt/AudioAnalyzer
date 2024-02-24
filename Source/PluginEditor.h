@@ -240,6 +240,7 @@ private:
     SetSliderS1 crLineSlider    {"CR LINE",  " dB", 350,  20 };
     SetSliderS1 colorLSlider    {"COLOR L", " Hue", 350,  20 };
     SetSliderS1 colorRSlider    {"COLOR R", " Hue", 430,  20 };
+    SetSliderS1 saturatSlider   {"SATUR",   " Sat", 510,  20 };
     
     juce::TextButton setlinerbutton      {"LINER"};
 //    juce::TextButton setNormbutton       {"NORM"};

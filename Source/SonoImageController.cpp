@@ -48,6 +48,7 @@ void SonoImage::drawSonogram(juce::Graphics& g) {
 
 void SonoImage::setColorL(const float c) { colorSonoL = c; }
 void SonoImage::setColorR(const float c) { colorSonoR = c; }
+void SonoImage::setSaturation(const float s) { saturatSono = s; }
 
 void SonoImage::setSizeImg(const int w, const int h) {
     height = h;
@@ -82,11 +83,11 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
 {
     if (resize) { resizeImg(); return; }
     //countThreads++;
-    if (++countThreads > 1) {
-        DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
-        countThreads--;
-        return;
-    }
+//    if (++countThreads > 1) {
+//        DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
+//        countThreads--;
+//        return;
+//    }
 
 
     int x = 0;
@@ -132,8 +133,8 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
 
         for (int i = 0; i < bxL; ++i) { // opimizat 
 
-            if (ch1L) { bgL = juce::Colour::fromHSL(colorL, 1.0, lvlL, lvlL); }
-            if (ch1R) { bgR = juce::Colour::fromHSL(colorR, 1.0, lvlR, lvlR); }
+            if (ch1L) { bgL = juce::Colour::fromHSL(colorL, saturatSono, lvlL, lvlL); }
+            if (ch1R) { bgR = juce::Colour::fromHSL(colorR, saturatSono, lvlR, lvlR); }
 
             //sonogramImage->setPixelAt(x, 0, bgL.interpolatedWith(bgR, 0.5f));
             sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));

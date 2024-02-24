@@ -141,6 +141,7 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
         if ( curAnalyzerMode == sono ) {
             settingsFrame.addAndMakeVisible(colorLSlider);
             settingsFrame.addAndMakeVisible(colorRSlider);
+            settingsFrame.addAndMakeVisible(saturatSlider);
         }
 
         settingsFrame.addAndMakeVisible(curVersionLabel);
@@ -304,6 +305,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
     crLineSlider.setParamFloat(0.0f, 30.0f, defV.lineCR, 5.0f, aP.sImg.lineCR);
     colorLSlider.setParamFloat(0.0f, 360.0f, defV.colorSonoL, 1.0f, aP.sImg.colorSonoL);
     colorRSlider.setParamFloat(0.0f, 360.0f, defV.colorSonoR, 1.0f, aP.sImg.colorSonoR);
+    saturatSlider.setParamFloat(0.0f, 1.0f, defV.saturatSono, 0.1f, aP.sImg.saturatSono);
 
     setlinerbutton.setBounds(260, 25, 60, 20);
     setlinerbutton.setClickingTogglesState(true);
@@ -414,18 +416,18 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
     //#endif
     startTimerHz(60);
 
-    juce::String new_ver;
-    juce::URL ver_url("https://raw.githubusercontent.com/rty65tt/AudioAnalyzer/main/Source/version.h");
-    if (ver_url.isWellFormed())
-    {
-        if (auto inputStream = ver_url.createInputStream(juce::URL::InputStreamOptions(juce::URL::ParameterHandling::inAddress)
-            .withConnectionTimeoutMs(1000)
-            .withNumRedirectsToFollow(0)))
-        {
-            new_ver = ver_url.readEntireTextStream();
-        }
-    }
-    juce::String nv_trim = new_ver.trim();
+//    juce::String new_ver;
+//    juce::URL ver_url("https://raw.githubusercontent.com/rty65tt/AudioAnalyzer/main/Source/version.h");
+//    if (ver_url.isWellFormed())
+//    {
+//        if (auto inputStream = ver_url.createInputStream(juce::URL::InputStreamOptions(juce::URL::ParameterHandling::inAddress)
+//            .withConnectionTimeoutMs(1000)
+//            .withNumRedirectsToFollow(0)))
+//        {
+//            new_ver = ver_url.readEntireTextStream();
+//        }
+//    }
+//    juce::String nv_trim = new_ver.trim();
 
     juce::String version("ver ");
     //version.append("0.3.0", 10);
@@ -445,9 +447,9 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
         juce::Colour::fromRGB(0, 0, 180));
 
 
-    if (nv_trim.compare(JucePlugin_VersionString)) {  // 0 if identical
-        urlVersionButton.setButtonText("UPDATE");
-    }
+//    if (nv_trim.compare(JucePlugin_VersionString)) {  // 0 if identical
+//        urlVersionButton.setButtonText("UPDATE");
+//    }
     urlVersionButton.onClick = [this] {
         juce::URL url("https://github.com/rty65tt/AudioAnalyzer");
         url.launchInDefaultBrowser();

@@ -43,6 +43,7 @@ struct defSettings {
 
     float colorSonoL        = 330.0f;
     float colorSonoR        = 60.0f;
+    float saturatSono        = 1.0f;
     
     bool menuStereoMidSideSwitch = true;
 

@@ -2,10 +2,11 @@
 
 <JUCERPROJECT id="i76ndY" name="AudioAnalyzer" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="rty65tt"
-              pluginVST3Category="Analyzer" version="0.2.7" pluginFormats="buildAU,buildLV2,buildStandalone,buildVST3"
-              lv2Uri="https://github.com/rty65tt/AudioAnalyzer">
+              pluginVST3Category="Analyzer" version="0.3.0" pluginFormats="buildAU,buildLV2,buildStandalone,buildVST3"
+              lv2Uri="https://github.com/rty65tt/AudioAnalyzer" displaySplashScreen="1">
   <MAINGROUP id="kxv9Ch" name="AudioAnalyzer">
     <GROUP id="{CC545A59-DA21-2373-9A4D-91E5828D6152}" name="Source">
+      <FILE id="KZsskT" name="version.h" compile="0" resource="0" file="Source/version.h"/>
       <FILE id="DTf44E" name="SonoImageController.cpp" compile="1" resource="0"
             file="Source/SonoImageController.cpp"/>
       <FILE id="f2ZyRz" name="SonoImageController.h" compile="0" resource="0"
