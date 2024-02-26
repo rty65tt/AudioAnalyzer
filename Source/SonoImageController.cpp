@@ -136,13 +136,15 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
             if (ch1L) { bgL = juce::Colour::fromHSL(colorL, saturatSono, lvlL, lvlL); }
             if (ch1R) { bgR = juce::Colour::fromHSL(colorR, saturatSono, lvlR, lvlR); }
 
-            //sonogramImage->setPixelAt(x, 0, bgL.interpolatedWith(bgR, 0.5f));
+            //sonogramImage->setPixelAt(x, y, bgL.interpolatedWith(bgR, 0.5f));
             sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));
 
             lvlL += lkoefL;
             lvlR += lkoefR;
             x++;
         }
+        //delete[] imgDataL;
+        //delete[] imgDataR;
     }
 
     //analyserPointL.~Iterator();
@@ -156,7 +158,7 @@ LineData::~LineData() {
 }
 void LineData::cleanCache() {
     delete[] lineCache;
-    delete[] ldata;
+    //delete[] ldata;
 }
 
 sLineCache* LineData::genCacheData(   const int s,
@@ -173,8 +175,8 @@ sLineCache* LineData::genCacheData(   const int s,
         numSmpls = s;
         cWidth = width;
         cSlope = slope;
-        lineCache = new sLineCache[numSmpls];
-        ldata = new LineChannelData[numSmpls];
+        lineCache   = new sLineCache[numSmpls];
+        ldata       = new LineChannelData[numSmpls];
 
         const float sumDb = (slope * 12.0f);
         const float xkoef = sumDb / width;

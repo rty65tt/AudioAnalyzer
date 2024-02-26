@@ -89,13 +89,13 @@ public:
 
                 windowing.multiplyWithWindowingTable (fftBuffer.getWritePointer (0), size_t (fft.getSize()));
                 fft.performFrequencyOnlyForwardTransform (fftBuffer.getWritePointer (0));
-
-                const juce::ScopedLock lockedForWriting(pathCreationLock);
-                averager.addFrom(0, 0, averager.getReadPointer(averagerPtr), averager.getNumSamples(), -1.0f);
-                averager.copyFrom(averagerPtr, 0, fftBuffer.getReadPointer(0), averager.getNumSamples(), 1.0f / (averager.getNumSamples() * (averager.getNumChannels() - 1)));
-                averager.addFrom(0, 0, averager.getReadPointer(averagerPtr), averager.getNumSamples());
-                if (++averagerPtr == averager.getNumChannels()) averagerPtr = 1;
-                
+                {
+                    const juce::ScopedLock lockedForWriting(pathCreationLock);
+                    averager.addFrom(0, 0, averager.getReadPointer(averagerPtr), averager.getNumSamples(), -1.0f);
+                    averager.copyFrom(averagerPtr, 0, fftBuffer.getReadPointer(0), averager.getNumSamples(), 1.0f / (averager.getNumSamples() * (averager.getNumChannels() - 1)));
+                    averager.addFrom(0, 0, averager.getReadPointer(averagerPtr), averager.getNumSamples());
+                    if (++averagerPtr == averager.getNumChannels()) averagerPtr = 1;
+                }
                 //newDataAvailable = true;
 
                 if ( cS->mode == 2 && cChannel < 2) {
@@ -136,10 +136,10 @@ public:
         const auto* fftData = averager.getReadPointer (0);
         int sizeLine = 0;
         float xo = 0.f;
+        //ld.ldata = new LineChannelData[ld.numSmpls];
 
         const float minFreqMinusOne = cS->minFreq - 1;
         const float maxFreq = cS->maxFreq;
-
         for (int i = 0; i < ld.numSmpls; ++i)
         {
             const float freq = lc[i].freq;
@@ -152,6 +152,7 @@ public:
                 
                 const float gain = lc[i].slopeGain;
                 
+                // need approxymator for y
                 const float y = juce::jmap ( 
                     juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
                             infinity, 0.0f, hmin, hmax );
