@@ -479,12 +479,12 @@ void AudioAnalyzerAudioProcessorEditor::paint (juce::Graphics& g)
     if (flagStart) { flagStart = false; return; } // pillar.crutch
     switch (aP.cS.mode) {
         case 1:
-            drawFreqGrid(g, true, true, true, true, 75);
+            drawFreqGrid(g, true, true, true, true, 75); // need optimazation
             drawSpectrogram(g);
             break;
         case 2:
 
-            drawFreqGrid(g, false, true, false, false, 125);
+            drawFreqGrid(g, false, true, false, false, 125); // need optimization
             aP.sImg.drawSonogram(g);
             break;
         case wave:

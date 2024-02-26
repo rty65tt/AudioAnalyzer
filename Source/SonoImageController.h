@@ -84,6 +84,7 @@ public:
 
     LineChannelData* imgDataL = nullptr;
     LineChannelData* imgDataR = nullptr;
+    //LineChannelData* ltmpdata    = nullptr;
 
 private:
 
