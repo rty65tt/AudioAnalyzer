@@ -3,7 +3,7 @@ VST3 AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE
 
 ## Known Issues
 - Sometimes, but very rarely, crushing
-- Use only one plugin instance. More instance glitching, crushing.
+- AU fail
 
 ![screenshot1](spectrogram.png  "Spectrogram")
 
@@ -33,3 +33,15 @@ make LV2 CONFIG=Release
 
 make clean (not necessary)
 
+## TODOList
+- [ ] remake sonogram color mixer
+- [ ] optimization draw grid and freq scale
+- [ ] optimization draw config menu
+- [ ] make settings for sonogram BG alfa
+- [ ] create setting for bg grid
+- [ ] remake routing channel for AU
+- [ ] add OpenGL support
+- [ ] create osciloscope
+- [ ] spectrum add mid/side setting
+- [ ] spectrum add AvgTime Max Freeze and Safe Load References
+- [ ] spectrum add freq/note view

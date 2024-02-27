@@ -61,7 +61,9 @@ public:
     void setSizeImg(const int w, const int h);
 
     void setAnalyserPath(const int channel, LineChannelData* ldata);
-    void addLineSono(const int arrSize);
+    void addLineSono(const int arrSize, const int ch);
+
+    int getCurLine();
 
     //LineChannelData* getLevelArrayPtr(const int channel, const bool reset);
 
@@ -84,19 +86,20 @@ public:
 
     LineChannelData* imgDataL = nullptr;
     LineChannelData* imgDataR = nullptr;
-    //LineChannelData* ltmpdata    = nullptr;
 
 private:
 
-    void resizeImg();
-    void drawNextLineOfSonogram(const int arrWidth);
+    juce::CriticalSection pathDrawLock;
 
-    juce::Image* sonogramImage = nullptr;
+    void resizeImg();
+    void drawNextLineOfSonogram(const int arrWidth, const int y);
 
     int height = 350;
     int iW = 800;
     int iH = height - scaleTopLineHeightInt;
     int iB = iH + 4;
+    juce::Image* sonogramImage = nullptr;
+
     juce::Rectangle<int>   copyImgBound { 0, 0, iW, iH };
     juce::Rectangle<float> pastImgBound {0.0f, scaleTopLineHeightFloat, float(iW), float(iH)};
 
@@ -108,8 +111,7 @@ private:
 
     int lineChBufSize = 0;
 
-    inline static int curWrtLine = 0;/////////??????????
+    int curWrtLine = 0;/////////??????????
 
-    inline static int countThreads = 0; ////??????
 };
 

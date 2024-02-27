@@ -101,9 +101,14 @@ public:
                 if ( cS->mode == 2 && cChannel < 2) {
                     createPath (sonogramLine);
                     sonoImage->setAnalyserPath(cChannel, ld.ldata);
-                    if (cChannel) {
-                        sonoImage->addLineSono(ld.cacheSize);
-                    }
+                    
+                    //const juce::ScopedLock lockedForDraw(pathDrawLock);
+                    //DBG("Analyzer: " << cChannel);
+                    sonoImage->addLineSono(ld.cacheSize, cChannel);
+                    //const int a = sonoImage->getCurLine();
+                    
+                    //if (cChannel) {
+                    //}
                 }
             }
 
@@ -136,7 +141,6 @@ public:
         const auto* fftData = averager.getReadPointer (0);
         int sizeLine = 0;
         float xo = 0.f;
-        //ld.ldata = new LineChannelData[ld.numSmpls];
 
         const float minFreqMinusOne = cS->minFreq - 1;
         const float maxFreq = cS->maxFreq;
@@ -183,7 +187,7 @@ private:
 
     juce::WaitableEvent   waitForData;
     juce::CriticalSection pathCreationLock;
-
+  
     SonoImage* sonoImage;
     juce::Path sonogramLine;
     Type sampleRate {};

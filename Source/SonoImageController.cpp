@@ -72,26 +72,28 @@ void SonoImage::setAnalyserPath(const int channel, LineChannelData* ldata) {
     if (channel == 1) { chR = true; imgDataR = ldata; }
 }
 
-void SonoImage::addLineSono(const int arrSize) {
+void SonoImage::addLineSono(const int arrSize, const int ch) {
     if (chL && chR) {
         chL = chR = false;
-        drawNextLineOfSonogram(arrSize);
+
+    const juce::ScopedLock lockedForDraw(pathDrawLock);
+        const int y = getCurLine();
+        DBG("SonoImage::addLineSono:ch " << ch << " Line: " << y);
+        drawNextLineOfSonogram(arrSize, y);
     }
 }
 
-void SonoImage::drawNextLineOfSonogram(const int arrWidth)
+int SonoImage::getCurLine() {
+    curWrtLine = (curWrtLine < iB) ? curWrtLine + 1 : 0;
+    return curWrtLine;
+}
+
+void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 {
     if (resize) { resizeImg(); return; }
-    //countThreads++;
-//    if (++countThreads > 1) {
-//        DBG("drawNextLineOfSonogram:countThreads: " << countThreads);
-//        countThreads--;
-//        return;
-//    }
-
 
     int x = 0;
-    const int y = curWrtLine = (curWrtLine < iB) ? curWrtLine + 1 : 0;
+    //const int y = getCurLine();
     
     float xL1, yL1, xL2 = 0.f, yL2 = imgDataL[0].y;
     float xR1, yR1, xR2 = 0.f, yR2 = imgDataR[0].y;
@@ -102,10 +104,6 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
     juce::Image sonoImg (juce::Image::RGB, iW, 1, true);
     juce::Colour bgL = juce::Colours::black;
     juce::Colour bgR = juce::Colours::transparentBlack;
-
-    //for (int f = 0; f < iW; ++f) {
-    //    sonogramImage->setPixelAt(f, y, juce::Colours::black);
-    //}
 
     for(int a = 0; a++ < arrWidth; )
     {
@@ -143,13 +141,7 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth)
             lvlR += lkoefR;
             x++;
         }
-        //delete[] imgDataL;
-        //delete[] imgDataR;
     }
-
-    //analyserPointL.~Iterator();
-    //analyserPointR.~Iterator();
-    countThreads--;
 }
 
 LineData::LineData() {}
@@ -158,7 +150,6 @@ LineData::~LineData() {
 }
 void LineData::cleanCache() {
     delete[] lineCache;
-    //delete[] ldata;
 }
 
 sLineCache* LineData::genCacheData(   const int s,
