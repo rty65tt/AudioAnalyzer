@@ -15,7 +15,7 @@ VST3 AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE
 
 ## macOS Build 
 
-For mac use dev version JUCE!
+For mac use 7.0.9 version JUCE!
 
 ## Linux Build (Arch Linux)
 
