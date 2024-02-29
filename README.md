@@ -19,7 +19,7 @@ For mac use 7.0.9 version JUCE!
 
 ## Linux Build (Arch Linux)
 
-sudo pacman -S base-devel juce
+sudo pacman -S base-devel webkit2gtk juce
 
 Launch app "Projucer" and open "AudioAnalyzer.jucer" 
 
