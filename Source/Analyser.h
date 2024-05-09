@@ -144,10 +144,14 @@ public:
 
         const float minFreqMinusOne = cS->minFreq - 1;
         const float maxFreq = cS->maxFreq;
+
+        //float *xcrd = cS->setLiner ? &lc[0].xcrd_lin : &lc[0].xcrd_log;
+
         for (int i = 0; i < ld.numSmpls; ++i)
         {
             const float freq = lc[i].freq;
             const float x = cS->setLiner ? lc[i].xcrd_lin : lc[i].xcrd_log;
+            //const float x = xcrd[i*4];
 
             if (freq < minFreqMinusOne) { continue; }
             if (freq > maxFreq)         { continue; }

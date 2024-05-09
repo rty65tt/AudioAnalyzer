@@ -36,3 +36,5 @@
 **/.DS_Store
 *.filtergraph
 **/.vs
+**/tools
+**/*hide.txt

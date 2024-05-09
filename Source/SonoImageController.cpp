@@ -78,7 +78,7 @@ void SonoImage::addLineSono(const int arrSize, const int ch) {
 
     const juce::ScopedLock lockedForDraw(pathDrawLock);
         const int y = getCurLine();
-        DBG("SonoImage::addLineSono:ch " << ch << " Line: " << y);
+        //DBG("SonoImage::addLineSono:ch " << ch << " Line: " << y);
         drawNextLineOfSonogram(arrSize, y);
     }
 }
