@@ -173,11 +173,14 @@ private:
     void showSetPanel();
     void hidePanel();
     
-    void drawFreqGrid(juce::Graphics &g, bool bg, bool fV, bool fL, bool vVL, juce::uint8 fColor);
+    void createFreqGrid();
+    void drawFreqGrid(juce::Graphics &g);
     void drawSpectrogram(juce::Graphics &g);
 
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioAnalyzerAudioProcessorEditor)
+
+    juce::Image* gridImage = nullptr;
     
     OtherLookAndFeel otherLookAndFeel;
     

@@ -140,41 +140,40 @@ public:
         const juce::ScopedLock lockedForReading (pathCreationLock);
         const auto* fftData = averager.getReadPointer (0);
         int sizeLine = 0;
-        float xo = 0.f;
 
         const float minFreqMinusOne = cS->minFreq - 1;
         const float maxFreq = cS->maxFreq;
 
-        //float *xcrd = cS->setLiner ? &lc[0].xcrd_lin : &lc[0].xcrd_log;
+        const int n = cS->setLiner ? ld.freqIndexSizeLin : ld.freqIndexSizeLog;
+        const FreqIndex* fi = cS->setLiner ? ld.freqIndexLin : ld.freqIndexLog;
+        const xCordCache* xcord = cS->setLiner ? ld.xcrdlin : ld.xcrdlog;
 
-        for (int i = 0; i < ld.numSmpls; ++i)
+        for (int i = 0; i < n; ++i)
         {
-            const float freq = lc[i].freq;
-            const float x = cS->setLiner ? lc[i].xcrd_lin : lc[i].xcrd_log;
-            //const float x = xcrd[i*4];
+            const int a = fi[i].v;
+            //const float freq = lc[a].freq;
+            const float gain = lc[a].slopeGain;
 
-            if (freq < minFreqMinusOne) { continue; }
-            if (freq > maxFreq)         { continue; }
-            
-            if (x != xo) {
-                
-                const float gain = lc[i].slopeGain;
-                
-                // need approxymator for y
-                const float y = juce::jmap ( 
-                    juce::Decibels::gainToDecibels ( fftData[i], (infinity - gain) ) + gain,
+            //if (freq < minFreqMinusOne) { continue; }
+            //if (freq > maxFreq)         { continue; }
+
+            //const float x = xcord[a].x;
+
+            // need approxymator for y
+            const float y = juce::jmap ( 
+                    juce::Decibels::gainToDecibels ( fftData[a], (infinity - gain) ) + gain,
                             infinity, 0.0f, hmin, hmax );
 
-                if (sono)  {
-                    ld.ldata[sizeLine].x = x;
-                    ld.ldata[sizeLine].y = y;
-                }
-                else { p.lineTo(xo, y); }
-                sizeLine++;
+            if (sono)  {
+                ld.ldata[i].x = xcord[a].x;
+                ld.ldata[i].y = y;
             }
-            xo = x;
+            else { 
+                p.lineTo(xcord[a].x, y);
+            }
         }
-        ld.cacheSize = sizeLine;
+
+        ld.cacheSize = n;
     }
 
     //bool checkForNewData()

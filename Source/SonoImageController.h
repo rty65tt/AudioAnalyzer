@@ -19,9 +19,16 @@ struct LineChannelData {
 
 struct sLineCache {
     float freq = 0.f;
-    float xcrd_lin = 0.f;
-    float xcrd_log = 0.f;
     float slopeGain = 0.f;
+};
+
+struct xCordCache {
+    float x = 0.f;
+};
+
+
+struct FreqIndex {
+    int v = 0;
 };
 
 class LineData {
@@ -37,10 +44,16 @@ public:
                             const int   fftSize,
                             const float minFreq);
 
-    int  numSmpls = 0;
+    int numSmpls = 0;
     int cacheSize = 0;
-    sLineCache*         lineCache = nullptr;
+    int freqIndexSizeLin = 0;
+    int freqIndexSizeLog = 0;
+    sLineCache* lineCache = nullptr;
+    xCordCache* xcrdlog = nullptr;
+    xCordCache* xcrdlin = nullptr;
     LineChannelData*    ldata = nullptr;
+    FreqIndex*          freqIndexLog = nullptr;
+    FreqIndex*          freqIndexLin = nullptr;
 private:
     float cWidth = 0;
     float cSlope = 0;
