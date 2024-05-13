@@ -139,10 +139,10 @@ public:
 
         const juce::ScopedLock lockedForReading (pathCreationLock);
         const auto* fftData = averager.getReadPointer (0);
-        int sizeLine = 0;
+        //int sizeLine = 0;
 
-        const float minFreqMinusOne = cS->minFreq - 1;
-        const float maxFreq = cS->maxFreq;
+        //const float minFreqMinusOne = cS->minFreq - 1;
+        //const float maxFreq = cS->maxFreq;
 
         const int n = cS->setLiner ? ld.freqIndexSizeLin : ld.freqIndexSizeLog;
         const FreqIndex* fi = cS->setLiner ? ld.freqIndexLin : ld.freqIndexLog;
@@ -159,9 +159,14 @@ public:
 
             //const float x = xcord[a].x;
 
+            float cc=0.f;
+            for (int c = a; c < fi[i+1].v; c++) {
+                cc = fftData[c] > cc ? fftData[c] : cc;
+            }
+
             // need approxymator for y
             const float y = juce::jmap ( 
-                    juce::Decibels::gainToDecibels ( fftData[a], (infinity - gain) ) + gain,
+                    juce::Decibels::gainToDecibels ( cc, (infinity - gain) ) + gain,
                             infinity, 0.0f, hmin, hmax );
 
             if (sono)  {

@@ -166,7 +166,6 @@ void AudioAnalyzerAudioProcessorEditor::repaintPanel()
 	panel.removeAllChildren();
 	drawPanel();
 }
-
 void AudioAnalyzerAudioProcessorEditor::hidePanel()
 {
 	settingsFrame.removeAllChildren();
@@ -487,15 +486,14 @@ AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
 void AudioAnalyzerAudioProcessorEditor::paint(juce::Graphics& g)
 {
 	g.fillAll(juce::Colours::black);
+	drawFreqGrid(g); // need optimazation
 
 	if (flagStart) { flagStart = false; return; } // pillar.crutch
 	switch (aP.cS.mode) {
 	case 1:
-		drawFreqGrid(g); // need optimazation
 		drawSpectrogram(g);
 		break;
 	case 2:
-		drawFreqGrid(g); // need optimization
 		aP.sImg.drawSonogram(g);
 		break;
 	case wave:
@@ -520,7 +518,7 @@ void AudioAnalyzerAudioProcessorEditor::resized()
 // =============================
 void AudioAnalyzerAudioProcessorEditor::createFreqGrid() {
 	const float width = getLocalBounds().getWidth();
-	const float height = getLocalBounds().getHeight();
+	const float height = aP.cS.mode == spec ? getLocalBounds().getHeight() : 20;
 
 	if (gridImage != nullptr) { gridImage->~Image(); }
 	gridImage = new juce::Image(juce::Image::RGB, width, height, true);
@@ -573,7 +571,6 @@ void AudioAnalyzerAudioProcessorEditor::createFreqGrid() {
 			y = y + s;
 		}
 	}
-
 }
 
 void AudioAnalyzerAudioProcessorEditor::drawFreqGrid(juce::Graphics& g) {

@@ -101,7 +101,7 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
     const float colorL = juce::jmap(colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f);
     const float colorR = juce::jmap(colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f);
 
-    juce::Image sonoImg (juce::Image::RGB, iW, 1, true);
+    //juce::Image sonoImg (juce::Image::RGB, iW, 1, true);
     juce::Colour bgL = juce::Colours::black;
     juce::Colour bgR = juce::Colours::transparentBlack;
 
