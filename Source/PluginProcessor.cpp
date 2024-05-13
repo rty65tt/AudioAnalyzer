@@ -172,8 +172,6 @@ void AudioAnalyzerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 //    for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
 //        buffer.clear (i, 0, buffer.getNumSamples());
 
-    buffer.applyGain ( juce::Decibels::decibelsToGain( cS.gain ) );
-    
     if (getActiveEditor() != nullptr)
     {
         inputAnalyserL1.addAudioData (buffer, 0, 0);

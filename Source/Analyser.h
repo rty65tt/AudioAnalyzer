@@ -87,6 +87,8 @@ public:
                 if (block2 > 0) fftBuffer.copyFrom (0, block1, audioFifo.getReadPointer (0, start2), block2);
                 abstractFifo.finishedRead ((block1 + block2) / *cS->overlap );
 
+                fftBuffer.applyGain(juce::Decibels::decibelsToGain(cS->gain));
+
                 windowing.multiplyWithWindowingTable (fftBuffer.getWritePointer (0), size_t (fft.getSize()));
                 fft.performFrequencyOnlyForwardTransform (fftBuffer.getWritePointer (0));
                 {

@@ -485,7 +485,7 @@ AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
 //==============================================================================
 void AudioAnalyzerAudioProcessorEditor::paint(juce::Graphics& g)
 {
-	g.fillAll(juce::Colours::black);
+	//g.fillAll(juce::Colours::black);
 	drawFreqGrid(g); // need optimazation
 
 	if (flagStart) { flagStart = false; return; } // pillar.crutch
