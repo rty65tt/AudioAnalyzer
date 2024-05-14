@@ -80,6 +80,7 @@ public:
 
     //LineChannelData* getLevelArrayPtr(const int channel, const bool reset);
 
+    int sonoColorRender = 0;
     float colorSonoL = 330.0f;
     float colorSonoR = 60.0f;
     float saturatSono = 1.0f;
@@ -112,6 +113,7 @@ private:
     int iH = height - scaleTopLineHeightInt;
     int iB = iH + 4;
     juce::Image* sonogramImage = nullptr;
+    
 
     juce::Rectangle<int>   copyImgBound { 0, 0, iW, iH };
     juce::Rectangle<float> pastImgBound {0.0f, scaleTopLineHeightFloat, float(iW), float(iH)};

@@ -92,57 +92,114 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 {
 	if (resize) { resizeImg(); return; }
 
-	//int x = 0;
-	//const int y = getCurLine();
-
-	float xL1, yL1, xL2 = 0.f, yL2 = imgDataL[0].y;
-	float xR1, yR1, xR2 = 0.f, yR2 = imgDataR[0].y;
-
 	const float colorL = juce::jmap(colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f);
 	const float colorR = juce::jmap(colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f);
-	const float mono = juce::jmap(colorSonoR, 0.0f, 360.0f, 0.0f, 1.0f);
 
-	//juce::Image sonoImg (juce::Image::RGB, iW, 1, true);
 	juce::Colour bgL = juce::Colours::black;
 	juce::Colour bgR = juce::Colours::transparentBlack;
 
+	juce::Colour(*MyCallback)(const float l, const float r) = nullptr;
+	switch (sonoColorRender) {
+	case 1:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			return juce::Colour::fromFloatRGBA(l, r, l * r, 1.f);
+			};
+		break;
+	case 2:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			return juce::Colour::fromFloatRGBA(l, (l * r), r, 1.f);
+			};
+		break;
+	case 3:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			return juce::Colour::fromFloatRGBA((l * r), l, r, 1.f);
+			};
+		break;
+	case 4:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			return juce::Colour::fromFloatRGBA(l, l, r, 1.f);
+			};
+		break;
+	case 5:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			return juce::Colour::fromFloatRGBA(l * l, r * r, l * r, 1.f);
+			};
+		break;
+	case 6:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			const float s = l * r;
+			return juce::Colour::fromFloatRGBA(l, r, s * s * s, 1.f);
+			};
+		break;
+	case 7:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			const float s = l > r ? l - r : r - l;
+			const float m = l > r ? l - s : r - s;
+			return juce::Colour::fromFloatRGBA(m, 0.f, s, 1.f);
+			};
+		break;
+	case 8:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			const float s = l > r ? l - r : r - l;
+			const float m = l > r ? l - s : r - s;
+			return juce::Colour::fromFloatRGBA(m, s, s, 1.f);
+			};
+		break;
+	case 9:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			const float v = l * r;
+			const float s = l > r ? l - r : r - l;
+			const float m = l > r ? l - s : r - s;
+			return juce::Colour::fromFloatRGBA(m, v, s, 1.f);
+			};
+		break;
+	case 10:
+		MyCallback = [](const float l, const float r)->juce::Colour {
+			const float s = l > r ? l - r : r - l;
+			const float m = l > r ? l - s : r - s;
+			return juce::Colour::fromFloatRGBA(m, m, s, 1.f);
+			};
+		break;
+	}
+
+	float x1, x2 = 0.f;
+	float yL1, yR1, yL2 = imgDataL[0].y, yR2 = imgDataR[0].y;
+
+
 	for (int a = 0; a++ < arrWidth; )
 	{
-		xL1 = xL2;
+		x1 = x2;
+		x2 = imgDataL[a].x;
+
 		yL1 = yL2;
-		xL2 = imgDataL[a].x;
 		yL2 = imgDataL[a].y;
 
-		xR1 = xR2;
 		yR1 = yR2;
-		xR2 = imgDataR[a].x;
 		yR2 = imgDataR[a].y;
 
-		const float bxL = xL2 - xL1;
-		const float byL = yL2 - yL1;
+		const float bx = x2 - x1;
 
-		const float bxR = xR2 - xR1;
+		const float byL = yL2 - yL1;
 		const float byR = yR2 - yR1;
 
 		float lvlL = yL1;
 		float lvlR = yR1;
 
-		const float lkoefL = byL / bxL;
-		const float lkoefR = byR / bxR;
+		const float lkoefL = byL / bx;
+		const float lkoefR = byR / bx;
+		for (int x = 0; x < bx; x++) { // opimizat 
+			if (MyCallback) {
+				sonogramImage->setPixelAt(x1 + x, y, MyCallback(lvlL, lvlR));
+			}
+			else {
+				bgL = juce::Colour::fromHSL(colorL, SonoImage::saturatSono, lvlL, lvlL);
+				bgR = juce::Colour::fromHSL(colorR, SonoImage::saturatSono, lvlR, lvlR);
+				//sonogramImage->setPixelAt(x, y, bgL.interpolatedWith(bgR, 0.5f));
+				sonogramImage->setPixelAt(x1 + x, y, bgL.overlaidWith(bgR));
+			}
 
-		while (xL1++ < xL2) { // opimizat 
-
-			if (ch1L) { bgL = juce::Colour::fromHSL(colorL, saturatSono, lvlL, lvlL); }
-			if (ch1R) { bgR = juce::Colour::fromHSL(colorR, saturatSono, lvlR, lvlR); }
-
-
-			//sonogramImage->setPixelAt(x, y, bgL.interpolatedWith(bgR, 0.5f));
-			sonogramImage->setPixelAt(xL1, y, bgL.overlaidWith(bgR));
-
-
-			lvlL += lkoefL;
-			lvlR += lkoefR;
-			//xL1++;
+			lvlL = yL1 + (lkoefL * x);
+			lvlR = yR1 + (lkoefR * x);
 		}
 	}
 }

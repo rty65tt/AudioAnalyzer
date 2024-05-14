@@ -194,6 +194,7 @@ private:
     juce::GroupComponent      setFftGroup;
     juce::GroupComponent      setOverlapGroup;
     juce::GroupComponent      setWinGroup;
+    juce::GroupComponent      setSonoColorRenderGroup;
     
     SetBarMenu  setbarmenu;
     SetBarMenu  setFrameBG;
@@ -203,6 +204,7 @@ private:
         ModeButtons = 1001,
         fftSizeButtons,
         fftSizeWindow,
+        colorRenderSwitch,
         overlapButtons
     };
 
@@ -271,7 +273,19 @@ private:
     juce::TextButton fftWin3button {"BLACKMAN"};
     juce::TextButton fftWin4button {"BLACKMAN HARRIS"};
     juce::TextButton fftWin5button {"FlatTop"};
-    
+
+    juce::TextButton colortheme00{ "CUSTOM" };
+    juce::TextButton colortheme01{ "LRV" };
+    juce::TextButton colortheme02{ "LVR" };
+    juce::TextButton colortheme03{ "VLR" };
+    juce::TextButton colortheme04{ "LLR" };
+    juce::TextButton colortheme05{ "***" };
+    juce::TextButton colortheme06{ "LR*" };
+    juce::TextButton colortheme07{ "M-S" };
+    juce::TextButton colortheme08{ "MSS" };
+    juce::TextButton colortheme09{ "MVS" };
+    juce::TextButton colortheme10{ "MMS" };
+
     juce::Label     freqLabel {"10 freq"};;
     
     defSettings* cS = &aP.cS;
