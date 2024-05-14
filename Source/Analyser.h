@@ -99,6 +99,7 @@ public:
                     if (++averagerPtr == averager.getNumChannels()) averagerPtr = 1;
                 }
                 //newDataAvailable = true;
+                
 
                 if ( cS->mode == 2 && cChannel < 2) {
                     createPath (sonogramLine);
@@ -140,11 +141,8 @@ public:
         const float hmax = sono ? 1.0f : sonoImage->scaleTopLineHeightFloat;
 
         const juce::ScopedLock lockedForReading (pathCreationLock);
+        if (!cS->channels[cChannel]) { averager.clear(); }
         const auto* fftData = averager.getReadPointer (0);
-        //int sizeLine = 0;
-
-        //const float minFreqMinusOne = cS->minFreq - 1;
-        //const float maxFreq = cS->maxFreq;
 
         const int n = cS->setLiner ? ld.freqIndexSizeLin : ld.freqIndexSizeLog;
         const FreqIndex* fi = cS->setLiner ? ld.freqIndexLin : ld.freqIndexLog;
@@ -153,20 +151,14 @@ public:
         for (int i = 0; i < n; ++i)
         {
             const int a = fi[i].v;
-            //const float freq = lc[a].freq;
+
             const float gain = lc[a].slopeGain;
-
-            //if (freq < minFreqMinusOne) { continue; }
-            //if (freq > maxFreq)         { continue; }
-
-            //const float x = xcord[a].x;
 
             float cc=0.f;
             for (int c = a; c < fi[i+1].v; c++) {
                 cc = fftData[c] > cc ? fftData[c] : cc;
             }
 
-            // need approxymator for y
             const float y = juce::jmap ( 
                     juce::Decibels::gainToDecibels ( cc, (infinity - gain) ) + gain,
                             infinity, 0.0f, hmin, hmax );

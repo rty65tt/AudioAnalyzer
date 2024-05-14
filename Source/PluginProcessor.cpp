@@ -217,14 +217,15 @@ void AudioAnalyzerAudioProcessor::getStateInformation (juce::MemoryBlock& destDa
     xml->setAttribute ("fftOrderSono",      (int)         cS.fftOrderSono);
     xml->setAttribute ("overlapSpec",       (int)         cS.overlapSpec);
     xml->setAttribute ("overlapSono",       (int)         cS.overlapSono);
-    xml->setAttribute ("ch1L",    (bool)    sImg.ch1L);
-    xml->setAttribute ("ch1R",    (bool)    sImg.ch1R);
-    xml->setAttribute ("ch2L",    (bool)    sImg.ch2L);
-    xml->setAttribute ("ch2R",    (bool)    sImg.ch2R);
-//    xml->setAttribute ("ch1M",    (bool)       cS.ch1M);
-//    xml->setAttribute ("ch1S",    (bool)       cS.ch1S);
-//    xml->setAttribute ("ch2M",    (bool)       cS.ch2M);
-//    xml->setAttribute ("ch2S",    (bool)       cS.ch2S);
+    xml->setAttribute("sonoColorRender", (int)            sImg.sonoColorRender);
+    //xml->setAttribute ("ch1L",    (bool)    sImg.ch1L);
+    //xml->setAttribute ("ch1R",    (bool)    sImg.ch1R);
+    //xml->setAttribute ("ch2L",    (bool)    sImg.ch2L);
+    //xml->setAttribute ("ch2R",    (bool)    sImg.ch2R);
+    //xml->setAttribute ("ch1M",    (bool)       cS.ch1M);
+    //xml->setAttribute ("ch1S",    (bool)       cS.ch1S);
+    //xml->setAttribute ("ch2M",    (bool)       cS.ch2M);
+    //xml->setAttribute ("ch2S",    (bool)       cS.ch2S);
     copyXmlToBinary (*xml, destData);
 }
 
@@ -251,14 +252,15 @@ void AudioAnalyzerAudioProcessor::setStateInformation (const void* data, int siz
             cS.fftOrderSono = (int)xmlState->getIntAttribute("fftOrderSono", 12);
             cS.overlapSpec = (int) xmlState->getIntAttribute ("overlapSpec", 2);
             cS.overlapSono = (int)xmlState->getIntAttribute("overlapSono", 16);
-            sImg.ch1L   = xmlState->getBoolAttribute("ch1L");
-            sImg.ch1R   = xmlState->getBoolAttribute("ch1R");
-            sImg.ch2L   = xmlState->getBoolAttribute("ch2L");
-            sImg.ch2R   = xmlState->getBoolAttribute("ch2R");
-//            cS.ch1M   = xmlState->getBoolAttribute("ch1M");
-//            cS.ch1S   = xmlState->getBoolAttribute("ch1S");
-//            cS.ch2M   = xmlState->getBoolAttribute("ch2M");
-//            cS.ch2S   = xmlState->getBoolAttribute("ch2S");
+            sImg.sonoColorRender = (int)xmlState->getIntAttribute("sonoColorRender", 0);
+            //sImg.ch1L   = xmlState->getBoolAttribute("ch1L");
+            //sImg.ch1R   = xmlState->getBoolAttribute("ch1R");
+            //sImg.ch2L   = xmlState->getBoolAttribute("ch2L");
+            //sImg.ch2R   = xmlState->getBoolAttribute("ch2R");
+            //cS.ch1M   = xmlState->getBoolAttribute("ch1M");
+            //cS.ch1S   = xmlState->getBoolAttribute("ch1S");
+            //cS.ch2M   = xmlState->getBoolAttribute("ch2M");
+            //cS.ch2S   = xmlState->getBoolAttribute("ch2S");
         }
     }
 }

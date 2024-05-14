@@ -135,13 +135,27 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 			if (*aP.cS.fftOrder == 13) { fft13_button.setToggleState(true, juce::dontSendNotification); }
 			if (*aP.cS.fftOrder == 14) { fft14_button.setToggleState(true, juce::dontSendNotification); }
 
-			//** FFT Size GROUP ==========================
+			//** FFT overlap GROUP ==========================
 			settingsFrame.addAndMakeVisible(setOverlapGroup);
 			if (*aP.cS.overlap == 2) { overlap2button.setToggleState(true, juce::dontSendNotification); }
 			if (*aP.cS.overlap == 4) { overlap4button.setToggleState(true, juce::dontSendNotification); }
 			if (*aP.cS.overlap == 8) { overlap8button.setToggleState(true, juce::dontSendNotification); }
 			if (*aP.cS.overlap == 16) { overlap16button.setToggleState(true, juce::dontSendNotification); }
 
+			//** Color Render GROUP ==========================
+			settingsFrame.addAndMakeVisible(setSonoColorRenderGroup);
+
+			if (aP.sImg.sonoColorRender == 0) { colortheme00.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 1) { colortheme01.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 2) { colortheme02.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 4) { colortheme04.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 5) { colortheme05.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 3) { colortheme03.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 6) { colortheme06.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 7) { colortheme07.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 8) { colortheme08.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 9) { colortheme09.setToggleState(true, juce::dontSendNotification); }
+			if (aP.sImg.sonoColorRender == 10) { colortheme10.setToggleState(true, juce::dontSendNotification); }
 		}
 
 		if (curAnalyzerMode == spec) {
@@ -292,10 +306,10 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
 	//    ch2Mbutton.setClickingTogglesState (true);
 	//    ch2Sbutton.setClickingTogglesState (true);
 
-	ch1Lbutton.onClick = [this] { aP.sImg.ch1L = (aP.sImg.ch1L) ? false : true; };
-	ch1Rbutton.onClick = [this] { aP.sImg.ch1R = (aP.sImg.ch1R) ? false : true; };
-	ch2Lbutton.onClick = [this] { aP.sImg.ch2L = (aP.sImg.ch2L) ? false : true; };
-	ch2Rbutton.onClick = [this] { aP.sImg.ch2R = (aP.sImg.ch2R) ? false : true; };
+	ch1Lbutton.onClick = [this] { aP.cS.channels[0] = (aP.cS.channels[0]) ? false : true; };
+	ch1Rbutton.onClick = [this] { aP.cS.channels[1] = (aP.cS.channels[1]) ? false : true; };
+	ch2Lbutton.onClick = [this] { aP.cS.channels[2] = (aP.cS.channels[2]) ? false : true; };
+	ch2Rbutton.onClick = [this] { aP.cS.channels[3] = (aP.cS.channels[3]) ? false : true; };
 
 	//    stereo_midside.onClick = [this] {
 	//        aP.cS.menuChSwitch = (aP.cS.menuChSwitch) ? false : true; repaintPanel(); };
@@ -417,6 +431,70 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
 	fft12_button.onClick = [this] { *aP.cS.fftOrder = 12; };
 	fft13_button.onClick = [this] { *aP.cS.fftOrder = 13; };
 	fft14_button.onClick = [this] { *aP.cS.fftOrder = 14; };
+
+	//** Color Render GROUP ==========================
+	colortheme00.setRadioGroupId(colorRenderSwitch);
+	colortheme01.setRadioGroupId(colorRenderSwitch);
+	colortheme02.setRadioGroupId(colorRenderSwitch);
+	colortheme03.setRadioGroupId(colorRenderSwitch);
+	colortheme04.setRadioGroupId(colorRenderSwitch);
+	colortheme05.setRadioGroupId(colorRenderSwitch);
+	colortheme06.setRadioGroupId(colorRenderSwitch);
+	colortheme07.setRadioGroupId(colorRenderSwitch);
+	colortheme08.setRadioGroupId(colorRenderSwitch);
+	colortheme09.setRadioGroupId(colorRenderSwitch);
+	colortheme10.setRadioGroupId(colorRenderSwitch);
+
+	setSonoColorRenderGroup.setText("Color Presets");
+	setSonoColorRenderGroup.setBounds(590, 20, 118, 154);
+
+	colortheme00.setBounds(8, 17, 102, 20);
+	colortheme01.setBounds(8, 39, 50, 20);
+	colortheme02.setBounds(8, 61, 50, 20);
+	colortheme03.setBounds(8, 83, 50, 20);
+	colortheme04.setBounds(8, 105, 50, 20);
+	colortheme05.setBounds(8, 127, 50, 20);
+	colortheme06.setBounds(60, 39, 50, 20);
+	colortheme07.setBounds(60, 61, 50, 20);
+	colortheme08.setBounds(60, 83, 50, 20);
+	colortheme09.setBounds(60, 105, 50, 20);
+	colortheme10.setBounds(60, 127, 50, 20);
+
+	colortheme00.setClickingTogglesState(true);
+	colortheme01.setClickingTogglesState(true);
+	colortheme02.setClickingTogglesState(true);
+	colortheme03.setClickingTogglesState(true);
+	colortheme04.setClickingTogglesState(true);
+	colortheme05.setClickingTogglesState(true);
+	colortheme06.setClickingTogglesState(true);
+	colortheme07.setClickingTogglesState(true);
+	colortheme08.setClickingTogglesState(true);
+	colortheme09.setClickingTogglesState(true);
+	colortheme10.setClickingTogglesState(true);
+
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme00);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme01);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme02);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme03);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme04);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme05);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme06);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme07);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme08);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme09);
+	setSonoColorRenderGroup.addAndMakeVisible(colortheme10);
+
+	colortheme00.onClick = [this] { aP.sImg.sonoColorRender = 0; };
+	colortheme01.onClick = [this] { aP.sImg.sonoColorRender = 1; };
+	colortheme02.onClick = [this] { aP.sImg.sonoColorRender = 2; };
+	colortheme03.onClick = [this] { aP.sImg.sonoColorRender = 3; };
+	colortheme04.onClick = [this] { aP.sImg.sonoColorRender = 4; };
+	colortheme05.onClick = [this] { aP.sImg.sonoColorRender = 5; };
+	colortheme06.onClick = [this] { aP.sImg.sonoColorRender = 6; };
+	colortheme07.onClick = [this] { aP.sImg.sonoColorRender = 7; };
+	colortheme08.onClick = [this] { aP.sImg.sonoColorRender = 8; };
+	colortheme09.onClick = [this] { aP.sImg.sonoColorRender = 9; };
+	colortheme10.onClick = [this] { aP.sImg.sonoColorRender = 10; };
 
 	setSize(curW, curH);
 	//    setOpaque (true);

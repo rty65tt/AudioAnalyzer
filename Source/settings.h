@@ -15,7 +15,7 @@
 struct defSettings {
     
     int fftOrderSpec = 12;
-    int fftOrderSono = 12;
+    int fftOrderSono = 13;
     int* fftOrder = &fftOrderSono;
     bool setLiner = false;
     juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;
@@ -41,6 +41,8 @@ struct defSettings {
     int   overlapSono = 16;
     int*  overlap = &overlapSono;
 
+    int sonoColorRender = 0;
+
     float colorSonoL        = 330.0f;
     float colorSonoR        = 60.0f;
     float saturatSono        = 1.0f;
@@ -55,6 +57,12 @@ struct defSettings {
     bool readyCH = false;
     bool chL = false;
     bool chR = false;
+
+    int channels[4] = { 1,1,0,0 };
+    bool ch1L = true;
+    bool ch1R = true;
+    bool ch2L = false;
+    bool ch2R = false;
 
 };
 
