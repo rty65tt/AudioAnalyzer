@@ -174,7 +174,7 @@ private:
     void hidePanel();
     
     void createFreqGrid();
-    void drawFreqGrid(juce::Graphics &g);
+    void drawFreqGrid(juce::Graphics &g) const;
     void drawSpectrogram(juce::Graphics &g);
 
 

@@ -142,6 +142,17 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 			if (*aP.cS.overlap == 8) { overlap8button.setToggleState(true, juce::dontSendNotification); }
 			if (*aP.cS.overlap == 16) { overlap16button.setToggleState(true, juce::dontSendNotification); }
 
+		}
+
+		if (curAnalyzerMode == spec) {
+			settingsFrame.addAndMakeVisible(crLineSlider);
+		}
+
+		if (curAnalyzerMode == sono) {
+			settingsFrame.addAndMakeVisible(colorLSlider);
+			settingsFrame.addAndMakeVisible(colorRSlider);
+			settingsFrame.addAndMakeVisible(saturatSlider);
+
 			//** Color Render GROUP ==========================
 			settingsFrame.addAndMakeVisible(setSonoColorRenderGroup);
 
@@ -156,16 +167,6 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 			if (aP.sImg.sonoColorRender == 8) { colortheme08.setToggleState(true, juce::dontSendNotification); }
 			if (aP.sImg.sonoColorRender == 9) { colortheme09.setToggleState(true, juce::dontSendNotification); }
 			if (aP.sImg.sonoColorRender == 10) { colortheme10.setToggleState(true, juce::dontSendNotification); }
-		}
-
-		if (curAnalyzerMode == spec) {
-			settingsFrame.addAndMakeVisible(crLineSlider);
-		}
-
-		if (curAnalyzerMode == sono) {
-			settingsFrame.addAndMakeVisible(colorLSlider);
-			settingsFrame.addAndMakeVisible(colorRSlider);
-			settingsFrame.addAndMakeVisible(saturatSlider);
 		}
 
 		settingsFrame.addAndMakeVisible(curVersionLabel);
@@ -566,6 +567,7 @@ void AudioAnalyzerAudioProcessorEditor::paint(juce::Graphics& g)
 	//g.fillAll(juce::Colours::black);
 	drawFreqGrid(g); // need optimazation
 
+
 	if (flagStart) { flagStart = false; return; } // pillar.crutch
 	switch (aP.cS.mode) {
 	case 1:
@@ -651,7 +653,7 @@ void AudioAnalyzerAudioProcessorEditor::createFreqGrid() {
 	}
 }
 
-void AudioAnalyzerAudioProcessorEditor::drawFreqGrid(juce::Graphics& g) {
+void AudioAnalyzerAudioProcessorEditor::drawFreqGrid(juce::Graphics& g) const {
 	g.drawImageAt(*gridImage, 0, 0, false);
 
 }
@@ -742,7 +744,7 @@ void AudioAnalyzerAudioProcessorEditor::mouseMove(const juce::MouseEvent& e)
 		juce::String freqText = (freq < 1000) ? juce::String(round(freq)) : juce::String(round((freq / 1000) * 10) / 10) + "k";
 
 
-		float xPos = (x > (width - (lW / 2))) ? (width - lW) : e.x - (lW / 2);
+		float xPos = (x >(width - (lW / static_cast<float>(2)))) ? (width - lW) : e.x - (lW / static_cast<float>(2));
 		xPos = (x < (lW / 2)) ? 0 : xPos;
 
 		freqLabel.setBounds(int(xPos), 0, lW, lH);

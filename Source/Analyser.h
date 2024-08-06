@@ -94,6 +94,8 @@ public:
 					fftBuffer.applyGain(juce::Decibels::decibelsToGain(cS->gain));
 				}
 
+				//fftBuffer.applyGain(juce::Decibels::decibelsToGain(cS->gain - (cS->slope * 7)));
+
 				windowing.multiplyWithWindowingTable(fftBuffer.getWritePointer(0), size_t(fft.getSize()));
 				fft.performFrequencyOnlyForwardTransform(fftBuffer.getWritePointer(0));
 				{
@@ -107,7 +109,6 @@ public:
 
 
 				if (cS->mode == 2 && cChannel < 2) {
-
 					createPath(sonogramLine);
 
 					sonoImage->setAnalyserPath(cChannel, ld.ldata);
