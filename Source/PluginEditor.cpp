@@ -142,6 +142,17 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 			if (*aP.cS.overlap == 8) { overlap8button.setToggleState(true, juce::dontSendNotification); }
 			if (*aP.cS.overlap == 16) { overlap16button.setToggleState(true, juce::dontSendNotification); }
 
+		}
+
+		if (curAnalyzerMode == spec) {
+			settingsFrame.addAndMakeVisible(crLineSlider);
+		}
+
+		if (curAnalyzerMode == sono) {
+			settingsFrame.addAndMakeVisible(colorLSlider);
+			settingsFrame.addAndMakeVisible(colorRSlider);
+			settingsFrame.addAndMakeVisible(saturatSlider);
+
 			//** Color Render GROUP ==========================
 			settingsFrame.addAndMakeVisible(setSonoColorRenderGroup);
 
@@ -156,16 +167,6 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 			if (aP.sImg.sonoColorRender == 8) { colortheme08.setToggleState(true, juce::dontSendNotification); }
 			if (aP.sImg.sonoColorRender == 9) { colortheme09.setToggleState(true, juce::dontSendNotification); }
 			if (aP.sImg.sonoColorRender == 10) { colortheme10.setToggleState(true, juce::dontSendNotification); }
-		}
-
-		if (curAnalyzerMode == spec) {
-			settingsFrame.addAndMakeVisible(crLineSlider);
-		}
-
-		if (curAnalyzerMode == sono) {
-			settingsFrame.addAndMakeVisible(colorLSlider);
-			settingsFrame.addAndMakeVisible(colorRSlider);
-			settingsFrame.addAndMakeVisible(saturatSlider);
 		}
 
 		settingsFrame.addAndMakeVisible(curVersionLabel);
@@ -565,6 +566,7 @@ void AudioAnalyzerAudioProcessorEditor::paint(juce::Graphics& g)
 {
 	//g.fillAll(juce::Colours::black);
 	drawFreqGrid(g); // need optimazation
+
 
 	if (flagStart) { flagStart = false; return; } // pillar.crutch
 	switch (aP.cS.mode) {

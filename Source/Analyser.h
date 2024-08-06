@@ -107,7 +107,6 @@ public:
 
 
 				if (cS->mode == 2 && cChannel < 2) {
-
 					createPath(sonogramLine);
 
 					sonoImage->setAnalyserPath(cChannel, ld.ldata);

@@ -1,5 +1,5 @@
 # AudioAnalyzer
-VST3 AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE)
+VST3 AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (use JUCE ver 7.0.12 !!!)
 
 ## Known Issues
 - Sometimes, but very rarely, crushing
@@ -16,6 +16,7 @@ VST3 AU LV2 Mac Windows Linux audio analyzer (Spectrogram Sonogram) plugin (JUCE
 ## macOS Build 
 
 For mac use 7.0.9 version JUCE!
+
 
 ## Linux Build (Arch Linux)
 
@@ -36,10 +37,8 @@ make LV2 CONFIG=Release
 make clean (not necessary)
 
 ## TODOList
-- [ ] remake sonogram color mixer
 - [ ] optimization draw grid and freq scale
 - [ ] optimization draw config menu
-- [ ] make settings for sonogram BG alfa
 - [ ] create setting for bg grid
 - [ ] remake routing channel for AU
 - [ ] add OpenGL support
