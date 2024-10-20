@@ -41,7 +41,6 @@ make clean (not necessary)
 ```
 
 ## TODOList
-- [ ] optimization draw grid and freq scale
 - [ ] optimization draw config menu
 - [ ] create setting for bg grid
 - [ ] remake routing channel for AU
