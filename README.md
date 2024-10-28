@@ -35,7 +35,7 @@ make LV2 CONFIG=Release
 
 make clean (not necessary)
 ```
-Set audio buffer size <= 512
+Set audio buffer in you audio server size <= 512
 
 
 
