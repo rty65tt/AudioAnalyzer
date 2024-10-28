@@ -18,13 +18,13 @@ For mac use 7.0.9 version JUCE!
 
 
 ## Linux Build (Arch Linux)
-
+```
 sudo pacman -S base-devel webkit2gtk juce
-
+```
 Launch app "Projucer" and open "AudioAnalyzer.jucer" 
 
 Select exporter "Linux Makefile" and "File -> Save"
-
+```
 cd (download path)/AudioAnalyzer/Builds/LinuxMakefile
 
 make Standalone CONFIG=Release
@@ -34,7 +34,7 @@ make VST3 CONFIG=Release
 make LV2 CONFIG=Release
 
 make clean (not necessary)
-
+```
 Set audio buffer size <= 512
 
 
