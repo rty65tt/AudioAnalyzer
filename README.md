@@ -35,6 +35,10 @@ make LV2 CONFIG=Release
 
 make clean (not necessary)
 
+Set audio buffer size <= 512
+
+
+
 ## TODOList
 - [ ] optimization draw config menu
 - [ ] create setting for bg grid

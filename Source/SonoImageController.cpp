@@ -235,8 +235,8 @@ sLineCache* LineData::genCacheData(const int s,
 		xcrdlog = new xCordCache[numSmpls];
 		xcrdlin = new xCordCache[numSmpls];
 		ldata = new LineChannelData[numSmpls];
-		freqIndexLog = new FreqIndex[cWidth * 2];
-		freqIndexLin = new FreqIndex[cWidth * 2];
+		freqIndexLog = new FreqIndex[int(cWidth) * 2];
+		freqIndexLin = new FreqIndex[int(cWidth) * 2];
 
 		const float sumDb = (slope * 12.0f);
 		const float xkoef = sumDb / width;
