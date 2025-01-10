@@ -12,18 +12,25 @@
 
 #include <JuceHeader.h>
 
-struct defSettings {
+struct DefaultPreferences {
     
+    float sampleRate = 48000;
+
     int fftOrderSpec = 12;
     int fftOrderSono = 13;
     int* fftOrder = &fftOrderSono;
+    int fftSize = 1 << *fftOrder;
+    int numSamples = fftSize / 2;
+    
     bool setLiner = false;
     juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;
     bool setNorm = false;
     
+    int width = 800;
+    int height = 350;
     bool resize = false;
-    int newW = 0;
-    int newH = 0;
+    int newW = width;
+    int newH = height;
     int mode = 2;
 
     juce::Rectangle<float>  plotFrameSono;
@@ -49,7 +56,6 @@ struct defSettings {
     
     bool menuStereoMidSideSwitch = true;
 
-    
     bool menuBarHide  = false;
     bool showSettings = true;
     bool menuChSwitch = true;
@@ -63,7 +69,6 @@ struct defSettings {
     bool ch1R = true;
     bool ch2L = false;
     bool ch2R = false;
-
 };
 
 

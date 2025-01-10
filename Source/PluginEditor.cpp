@@ -16,10 +16,10 @@ void AudioAnalyzerAudioProcessorEditor::drawPanel() {
 
 	if (aP.cS.menuBarHide) { hidePanel(); return; }
 
-	panel.setBounds((aP.cS.newW / 2) - (defW / 2), 0, defW, defH);
+	panel.setBounds((aP.cS.newW / 2) - (defW / 2), 0, defW, defH-52);
 
 	frame.setTextLabelPosition(juce::Justification::centred);
-	juce::Rectangle barBounds = { 40, 22, 720, 58 };
+	juce::Rectangle barBounds = { 40, 0, 720, 58 };
 	frame.setBounds(barBounds);
 
 	setbarmenu.setBounds(barBounds);
@@ -75,7 +75,7 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 	if (aP.cS.showSettings) {
 		settingsFrame.removeAllChildren();
 		settingsFrame.setTextLabelPosition(juce::Justification::centred);
-		juce::Rectangle barBounds = { 40, 80, 720, 240 };
+		juce::Rectangle barBounds = { 40, 56, 720, 240 };
 		settingsFrame.setBounds(barBounds);
 		setFrameBG.setBounds(barBounds);
 		panel.addAndMakeVisible(setFrameBG);
@@ -148,12 +148,12 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 			settingsFrame.addAndMakeVisible(crLineSlider);
 		}
 
+		//** Color Render GROUP ==========================
 		if (curAnalyzerMode == sono) {
 			settingsFrame.addAndMakeVisible(colorLSlider);
 			settingsFrame.addAndMakeVisible(colorRSlider);
 			settingsFrame.addAndMakeVisible(saturatSlider);
-
-			//** Color Render GROUP ==========================
+			hideColorSliders();
 			settingsFrame.addAndMakeVisible(setSonoColorRenderGroup);
 
 			if (aP.sImg.sonoColorRender == 0) { colortheme00.setToggleState(true, juce::dontSendNotification); }
@@ -173,49 +173,7 @@ void AudioAnalyzerAudioProcessorEditor::showSetPanel()
 		settingsFrame.addAndMakeVisible(urlVersionButton);
 	}
 }
-void AudioAnalyzerAudioProcessorEditor::repaintPanel()
-{
-	showbutton.setVisible(false);
-	settingsFrame.removeAllChildren();
-	frame.removeAllChildren();
-	panel.removeAllChildren();
-	drawPanel();
-}
-void AudioAnalyzerAudioProcessorEditor::hidePanel()
-{
-	settingsFrame.removeAllChildren();
-	panel.removeAllChildren();
-	frame.removeAllChildren();
-	panel.setBounds(getWidth(), 0, 1, 1);
-	showbutton.setVisible(true);
-}
-
-//==============================================================================
-AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyzerAudioProcessor& p)
-	: AudioProcessorEditor(&p),
-	aP(p)
-{
-	int curW = aP.cS.newW = (aP.cS.newW) ? aP.cS.newW : defW;
-	int curH = aP.cS.newH = (aP.cS.newH) ? aP.cS.newH : defH;
-
-	//sonogramImage = new juce::Image(juce::Image::ARGB, curW, curH, true);
-
-	setLookAndFeel(&otherLookAndFeel);
-
-	//    curAnalyzerMode = (curAnalyzerMode) ? curAnalyzerMode : sono;
-	switch (aP.cS.mode) {
-	case 1:
-		curAnalyzerMode = spec;
-		break;
-	case 2:
-		curAnalyzerMode = sono;
-		break;
-	default:
-		curAnalyzerMode = spec;
-		break;
-	}
-
-	//    curFftSize = fft4096;
+void AudioAnalyzerAudioProcessorEditor::PanelInit(){
 
 	freqLabel.setBounds(10, 0, 80, 30);
 	freqLabel.setFont(juce::Font(16.0f, juce::Font::bold));
@@ -338,12 +296,8 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
 	setlinerbutton.onClick = [this] {
 		aP.cS.setLiner = (aP.cS.setLiner) ? false : true; createFreqGrid(); };
 
-	//    setNormbutton.setBounds(260, 50, 60, 20);
-	//    setNormbutton.setClickingTogglesState (true);
-	//    setNormbutton.onClick = [this] {
-	//        aP.cS.setNorm = (aP.cS.setNorm) ? false : true; };
 
-		//** OVERLAP BUTTONS GROUP ==========================
+	//** OVERLAP BUTTONS GROUP ==========================
 	overlap2button.setRadioGroupId(overlapButtons);
 	overlap4button.setRadioGroupId(overlapButtons);
 	overlap8button.setRadioGroupId(overlapButtons);
@@ -485,26 +439,19 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
 	setSonoColorRenderGroup.addAndMakeVisible(colortheme09);
 	setSonoColorRenderGroup.addAndMakeVisible(colortheme10);
 
-	colortheme00.onClick = [this] { aP.sImg.sonoColorRender = 0; };
-	colortheme01.onClick = [this] { aP.sImg.sonoColorRender = 1; };
-	colortheme02.onClick = [this] { aP.sImg.sonoColorRender = 2; };
-	colortheme03.onClick = [this] { aP.sImg.sonoColorRender = 3; };
-	colortheme04.onClick = [this] { aP.sImg.sonoColorRender = 4; };
-	colortheme05.onClick = [this] { aP.sImg.sonoColorRender = 5; };
-	colortheme06.onClick = [this] { aP.sImg.sonoColorRender = 6; };
-	colortheme07.onClick = [this] { aP.sImg.sonoColorRender = 7; };
-	colortheme08.onClick = [this] { aP.sImg.sonoColorRender = 8; };
-	colortheme09.onClick = [this] { aP.sImg.sonoColorRender = 9; };
-	colortheme10.onClick = [this] { aP.sImg.sonoColorRender = 10; };
+	colortheme00.onClick = [this] { aP.sImg.sonoColorRender = 0; hideColorSliders(); };
+	colortheme01.onClick = [this] { aP.sImg.sonoColorRender = 1; hideColorSliders(); };
+	colortheme02.onClick = [this] { aP.sImg.sonoColorRender = 2; hideColorSliders(); };
+	colortheme03.onClick = [this] { aP.sImg.sonoColorRender = 3; hideColorSliders(); };
+	colortheme04.onClick = [this] { aP.sImg.sonoColorRender = 4; hideColorSliders(); };
+	colortheme05.onClick = [this] { aP.sImg.sonoColorRender = 5; hideColorSliders(); };
+	colortheme06.onClick = [this] { aP.sImg.sonoColorRender = 6; hideColorSliders(); };
+	colortheme07.onClick = [this] { aP.sImg.sonoColorRender = 7; hideColorSliders(); };
+	colortheme08.onClick = [this] { aP.sImg.sonoColorRender = 8; hideColorSliders(); };
+	colortheme09.onClick = [this] { aP.sImg.sonoColorRender = 9; hideColorSliders(); };
+	colortheme10.onClick = [this] { aP.sImg.sonoColorRender = 10;hideColorSliders(); };
 
-	setSize(curW, curH);
-	//    setOpaque (true);
-	setResizable(true, true);
-	setResizeLimits(defW, defH, 7680, 4320);
-	//#ifdef JUCE_OPENGL
-	//    openGLContext.attachTo(*getTopLevelComponent());
-	//#endif
-	startTimerHz(30);
+
 
 	//    juce::String new_ver;
 	//    juce::URL ver_url("https://raw.githubusercontent.com/rty65tt/AudioAnalyzer/main/Source/version.h");
@@ -549,6 +496,65 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
 	urlVersionButton.setBounds(620, 200, 80, 20);
 
 }
+void AudioAnalyzerAudioProcessorEditor::repaintPanel()
+{
+	showbutton.setVisible(false);
+	settingsFrame.removeAllChildren();
+	frame.removeAllChildren();
+	panel.removeAllChildren();
+	drawPanel();
+}
+void AudioAnalyzerAudioProcessorEditor::hidePanel()
+{
+	settingsFrame.removeAllChildren();
+	panel.removeAllChildren();
+	frame.removeAllChildren();
+	panel.setBounds(getWidth(), 0, 1, 1);
+	showbutton.setVisible(true);
+}
+void AudioAnalyzerAudioProcessorEditor::hideColorSliders() {
+	const bool a = (aP.sImg.sonoColorRender == 0) ? true : false;
+	colorLSlider.setVisible(a);
+	colorRSlider.setVisible(a);
+	saturatSlider.setVisible(a);
+}
+//==============================================================================
+AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyzerAudioProcessor& p)
+	: AudioProcessorEditor(&p)
+	, aP(p)
+{
+	int curW = aP.cS.newW = (aP.cS.newW) ? aP.cS.newW : defW;
+	int curH = aP.cS.newH = (aP.cS.newH) ? aP.cS.newH : defH;
+
+	//sonogramImage = new juce::Image(juce::Image::ARGB, curW, curH, true);
+
+	setLookAndFeel(&otherLookAndFeel);
+
+	//    curAnalyzerMode = (curAnalyzerMode) ? curAnalyzerMode : sono;
+	switch (aP.cS.mode) {
+	case 1:
+		curAnalyzerMode = spec;
+		break;
+	case 2:
+		curAnalyzerMode = sono;
+		break;
+	default:
+		curAnalyzerMode = spec;
+		break;
+	}
+
+	PanelInit();
+
+	setSize(curW, curH);
+	//    setOpaque (true);
+	setResizable(true, true);
+	setResizeLimits(defW, defH, 7680, 4320);
+	//#ifdef JUCE_OPENGL
+	//    openGLContext.attachTo(*getTopLevelComponent());
+	//#endif
+	startTimerHz(60);
+
+}
 
 
 AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
@@ -556,9 +562,7 @@ AudioAnalyzerAudioProcessorEditor::~AudioAnalyzerAudioProcessorEditor()
 	setLookAndFeel(nullptr);
 	removeMouseListener(this);
 	//sonogramImage->~Image();
-//#ifdef JUCE_OPENGL
-//    openGLContext.detach();
-//#endif
+
 }
 
 //==============================================================================
@@ -591,6 +595,7 @@ void AudioAnalyzerAudioProcessorEditor::resized()
 	aP.cS.newH = getHeight();
 	aP.sImg.setSizeImg(aP.cS.newW, aP.cS.newH);
 	createFreqGrid();
+	aP.cacheMngr->regen();
 	drawPanel();
 	showbutton.setBounds(getWidth() - 30, 30, 30, 30);
 }
@@ -603,7 +608,7 @@ void AudioAnalyzerAudioProcessorEditor::createFreqGrid() {
 	if (gridImage != nullptr) { gridImage->~Image(); }
 	gridImage = new juce::Image(juce::Image::RGB, width, height, true);
 
-	DBG("reDraw Freq Grid: ");
+	//DBG("reDraw Freq Grid: ");
 	juce::Graphics gi(*gridImage);
 
 	if (aP.cS.mode == spec) {
@@ -659,7 +664,6 @@ void AudioAnalyzerAudioProcessorEditor::drawFreqGrid(juce::Graphics& g) const {
 }
 void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics& g) {
 
-
 	const auto inColour1L = juce::Colour::fromRGBA(75, 75, 175, 205);
 	const auto inColour1R = juce::Colour::fromRGBA(46, 139, 87, 205);
 	const auto inColour2L = juce::Colour::fromRGBA(175, 46, 35, 205);
@@ -667,6 +671,7 @@ void AudioAnalyzerAudioProcessorEditor::drawSpectrogram(juce::Graphics& g) {
 
 	float cR = aP.sImg.lineCR;
 	aP.createAnalyserPlot();
+
 	if (aP.sImg.ch2R) {
 		g.setColour(inColour2R);
 		g.strokePath(aP.analyserPathCh2R.createPathWithRoundedCorners(cR), juce::PathStrokeType(2.0));
@@ -720,20 +725,21 @@ void AudioAnalyzerAudioProcessorEditor::timerCallback()
 
 void AudioAnalyzerAudioProcessorEditor::mouseMove(const juce::MouseEvent& e)
 {
-	int lW = 60;
-	int lH = 30;
-	int x = e.x;
-	if (e.eventComponent != this) {
-		e.getEventRelativeTo(this); // no Work!!
-	}
+	//DBG("---=== mouseMove ===---");
 
-	if (e.eventComponent == this && e.y > lH) {
+	//if (e.eventComponent != this) {
+	//	e.getEventRelativeTo(this); // no Work!!
+	//}
+
+	if (e.eventComponent == this && freqLabel.isVisible()) {
+		int lW = 60;
+		int lH = 30;
+
+		int x = e.x;
 
 		float width = cS->newW;
-		//    float height = cS->newH;
 		float minFreq = cS->minFreq;
 		float maxFreq = cS->maxFreq;
-		//    float sampleRate = maxFreq * 2;
 
 		float freq = juce::jmap((float)x, 0.0f, width, minFreq, maxFreq);
 
@@ -743,14 +749,15 @@ void AudioAnalyzerAudioProcessorEditor::mouseMove(const juce::MouseEvent& e)
 
 		juce::String freqText = (freq < 1000) ? juce::String(round(freq)) : juce::String(round((freq / 1000) * 10) / 10) + "k";
 
-
-		float xPos = (x >(width - (lW / static_cast<float>(2)))) ? (width - lW) : e.x - (lW / static_cast<float>(2));
-		xPos = (x < (lW / 2)) ? 0 : xPos;
-
-		freqLabel.setBounds(int(xPos), 0, lW, lH);
+		int lx = x - (lW / 2);
+		if (lx < 0) lx = 0;
+		if (lx > (width - lW)) lx = width - lW;
+		int ly = (e.y > lH+5) ? 0 : lH+10;
+		freqLabel.setBounds(lx, ly, lW, lH);
 		freqLabel.setJustificationType(juce::Justification::centred);
 		freqLabel.setText(freqText, juce::dontSendNotification);
 	}
+
 }
 
 void AudioAnalyzerAudioProcessorEditor::mouseEnter(const juce::MouseEvent& e)
@@ -765,4 +772,21 @@ void AudioAnalyzerAudioProcessorEditor::mouseExit(const juce::MouseEvent& e)
 {
 	panel.setVisible(false);
 	freqLabel.setVisible(false);
+}
+
+void AudioAnalyzerAudioProcessorEditor::mouseDown(const juce::MouseEvent& e) {
+	if (e.mods.isRightButtonDown()) {
+		DBG("---=== mouseDown ====-----");
+		int pY = panel.isMouseOver() ? 6-panel.getHeight() : 0;
+		//panel.isMouseOver() ? panel.setVisible(false) : panel.setVisible(true);
+		//panel.setVisible(false);
+		if (e.eventComponent == this) {
+			DBG("---=== eventComponent this ====-----");
+			//panel.setVisible(true);
+			//hidePanel();
+			//pY = 0;
+		}
+		panel.setBounds(panel.getX(), pY, panel.getWidth(), panel.getHeight());
+
+	}
 }

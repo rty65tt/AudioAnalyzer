@@ -9,55 +9,24 @@
 */
 
 #pragma once
-#include <JuceHeader.h>
 
-
-struct LineChannelData {
-    float x = 0.f;
-    float y = 0.f;
-};
-
-struct sLineCache {
-    float freq = 0.f;
-    float slopeGain = 0.f;
-};
-
-struct xCordCache {
-    float x = 0.f;
+struct Channels {
+    float lL = 0.f;
+    float lR = 0.f;
+    //float lM = 0.f;
+    //float lS = 0.f;
+    float color = 0.f;
 };
 
 
-struct FreqIndex {
-    int v = 0;
+struct ChannelLevel {
+    ChannelLevel(int n) : num(n) { ch = new Channels[n]; }
+    ~ChannelLevel() { delete[] ch; }
+
+    int num = 0;
+    Channels* ch = nullptr;
 };
 
-class LineData {
-public:
-    LineData();
-    ~LineData();
-    void cleanCache();
-
-    sLineCache* genCacheData(const int s,
-                            const float width,
-                            const float slope,
-                            const float sampleRate,
-                            const int   fftSize,
-                            const float minFreq);
-
-    int numSmpls = 0;
-    int cacheSize = 0;
-    int freqIndexSizeLin = 0;
-    int freqIndexSizeLog = 0;
-    sLineCache* lineCache = nullptr;
-    xCordCache* xcrdlog = nullptr;
-    xCordCache* xcrdlin = nullptr;
-    LineChannelData*    ldata = nullptr;
-    FreqIndex*          freqIndexLog = nullptr;
-    FreqIndex*          freqIndexLin = nullptr;
-private:
-    float cWidth = 0;
-    float cSlope = 0;
-};
 
 class SonoImage
 {
@@ -73,7 +42,7 @@ public:
 
     void setSizeImg(const int w, const int h);
 
-    void setAnalyserPath(const int channel, LineChannelData* ldata);
+    void setAnalyserPath(const int channel, std::shared_ptr<LineChData> ldata);
     void addLineSono(const int arrSize, const int ch);
 
     int getCurLine();
@@ -83,6 +52,7 @@ public:
     int sonoColorRender = 0;
     float colorSonoL = 330.0f;
     float colorSonoR = 60.0f;
+    float colorSonoM = 180.0f;//????
     float saturatSono = 1.0f;
 
     bool ch1L = true;
@@ -98,8 +68,8 @@ public:
     const int scaleTopLineHeightInt = 20;
     const float scaleTopLineHeightFloat = float(scaleTopLineHeightInt);
 
-    LineChannelData* imgDataL = nullptr;
-    LineChannelData* imgDataR = nullptr;
+    std::shared_ptr<LineChData> imgDataL = nullptr;
+    std::shared_ptr<LineChData> imgDataR = nullptr;
 
 private:
 
@@ -113,10 +83,11 @@ private:
     int iH = height - scaleTopLineHeightInt;
     int iB = iH + 4;
     juce::Image* sonogramImage = nullptr;
+    std::shared_ptr<ChannelLevel> channelLevels = std::make_shared<ChannelLevel>(iW);
     
 
     juce::Rectangle<int>   copyImgBound { 0, 0, iW, iH };
-    juce::Rectangle<float> pastImgBound {0.0f, scaleTopLineHeightFloat, float(iW), float(iH)};
+    juce::Rectangle<float> pastImgBound {0.0f, scaleTopLineHeightFloat, float(iW), float(iH)}; //?? float whai?
 
     bool resize = true;
     bool ready = false;

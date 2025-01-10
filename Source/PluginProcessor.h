@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <JuceHeader.h>
 #include "Analyser.h"
 #include "SonoImageController.h"
@@ -57,9 +59,11 @@ public:
     //====================
     void createAnalyserPlot ();
     
-    defSettings cS;
+    DefaultPreferences cS;
 
     SonoImage sImg;
+
+    std::shared_ptr<CacheManager> cacheMngr = std::make_shared<CacheManager>(&cS);
     
     juce::Path      analyserPathCh1L;
     juce::Path      analyserPathCh1R;
@@ -68,11 +72,12 @@ public:
 
 private:
 
+    Analyser<float> inputAnalyserL1 { cacheMngr, 0, "Thread for Channel L1" };
+    Analyser<float> inputAnalyserR1 { cacheMngr, 1, "Thread for Channel R1" };
+    Analyser<float> inputAnalyserL2 { cacheMngr, 2, "Thread for Channel L2" };
+    Analyser<float> inputAnalyserR2 { cacheMngr, 3, "Thread for Channel R2" };
+
     double sampleRate = 0;
-    Analyser<float> inputAnalyserL1 { &cS, "Analyser chL1"};
-    Analyser<float> inputAnalyserR1 { &cS, "Analyser chR1" };
-    Analyser<float> inputAnalyserL2 { &cS, "Analyser chL2" };
-    Analyser<float> inputAnalyserR2 { &cS, "Analyser chR2" };
     
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (AudioAnalyzerAudioProcessor)

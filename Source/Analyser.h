@@ -12,6 +12,7 @@
 
 #include <JuceHeader.h>
 #include "settings.h"
+#include "CacheData.h"
 #include "SonoImageController.h"
 
 //==============================================================================
@@ -20,9 +21,11 @@ template<typename Type>
 class Analyser : public juce::Thread
 {
 public:
-	Analyser(defSettings* i, juce::String tName) : juce::Thread(tName)
+	Analyser(std::shared_ptr<CacheManager> cm, const int nChannel, juce::String tName)
+		: juce::Thread(tName)
+		, cChannel(nChannel)
+		, cacheMngr(cm)
 	{
-		cS = i;
 		averager.clear();
 	}
 
@@ -30,7 +33,7 @@ public:
 
 	void setupAnalyser(int audioFifoSize, Type sampleRateToUse, SonoImage* sImg)
 	{
-		sonoImage = sImg;
+		sonoImage  = sImg;
 		sampleRate = sampleRateToUse;
 		audioFifo.setSize(1, audioFifoSize);
 		abstractFifo.setTotalSize(audioFifoSize);
@@ -39,24 +42,7 @@ public:
 
 	void addAudioData(const juce::AudioBuffer<Type>& buffer, int startChannel, int numChannels)
 	{
-		cChannel = startChannel;
 		if (abstractFifo.getFreeSpace() < buffer.getNumSamples()) { return; }
-
-		if (winMet != cS->winMet) {
-			winMet = cS->winMet;
-			windowing.fillWindowingTables(size_t(fftSize), winMet);
-		}
-
-		if (fftOrder != *cS->fftOrder) {
-			fftOrder = *cS->fftOrder;
-			fftSize = 1 << fftOrder;
-			averager.clear();
-
-			fftBuffer.setSize(1, fftSize * 2);
-			averager.setSize(5, fftSize / 2);
-			fft = juce::dsp::FFT(fftOrder);
-			windowing.fillWindowingTables(size_t(fftSize), cS->winMet);
-		}
 
 		int start1, block1, start2, block2;
 		abstractFifo.prepareToWrite(buffer.getNumSamples(), start1, block1, start2, block2);
@@ -81,17 +67,31 @@ public:
 		{
 			if (abstractFifo.getNumReady() >= fft.getSize())
 			{
+				ld = cacheMngr->getCacheData();
+				if (winMet != cacheMngr->dp_ptr->winMet || fftOrder != *cacheMngr->dp_ptr->fftOrder) {
+					//DBG("\n\n\n### >>>>>>>>>> change WIN or FFT on Channel: " << cChannel);
+					winMet = cacheMngr->dp_ptr->winMet;
+
+					fftOrder = *cacheMngr->dp_ptr->fftOrder;
+					fftSize = 1 << fftOrder;
+					fftBuffer.setSize(1, fftSize * 2);
+					averager.setSize(5, fftSize / 2);
+					averager.clear();
+					fft = juce::dsp::FFT(fftOrder);
+
+					windowing.fillWindowingTables(size_t(fftSize), winMet);
+				}
 				fftBuffer.clear();
 
 				int start1, block1, start2, block2;
 				abstractFifo.prepareToRead(fftSize, start1, block1, start2, block2);
 				if (block1 > 0) fftBuffer.copyFrom(0, 0, audioFifo.getReadPointer(0, start1), block1);
 				if (block2 > 0) fftBuffer.copyFrom(0, block1, audioFifo.getReadPointer(0, start2), block2);
-				abstractFifo.finishedRead((block1 + block2) / *cS->overlap);
+				abstractFifo.finishedRead((block1 + block2) / *cacheMngr->dp_ptr->overlap);
 
-				if (cS->gain)
+				if (cacheMngr->dp_ptr->gain)
 				{
-					fftBuffer.applyGain(juce::Decibels::decibelsToGain(cS->gain));
+					fftBuffer.applyGain(juce::Decibels::decibelsToGain(cacheMngr->dp_ptr->gain));
 				}
 
 				//fftBuffer.applyGain(juce::Decibels::decibelsToGain(cS->gain - (cS->slope * 7)));
@@ -105,17 +105,20 @@ public:
 					averager.addFrom(0, 0, averager.getReadPointer(averagerPtr), averager.getNumSamples());
 					if (++averagerPtr == averager.getNumChannels()) averagerPtr = 1;
 				}
+
 				//newDataAvailable = true;
+				updateAvailable = true;
+				
+				if (cacheMngr->dp_ptr->mode == 2 && cChannel < 2) {
 
-
-				if (cS->mode == 2 && cChannel < 2) {
+					ldata = linebuffer->getLineBuffer(averager.getNumSamples());
 					createPath(sonogramLine);
 
-					sonoImage->setAnalyserPath(cChannel, ld.ldata);
+					sonoImage->setAnalyserPath(cChannel, ldata);
 
-					sonoImage->addLineSono(ld.cacheSize, cChannel);
-				
+					sonoImage->addLineSono(ld->cacheSize, cChannel);
 				}
+			//DBG("      run END   channel: " << cChannel);
 			}
 
 			if (abstractFifo.getNumReady() < fft.getSize()) { waitForData.wait(100); }
@@ -124,41 +127,37 @@ public:
 
 	void createPath(juce::Path& p)
 	{
-		lc = ld.genCacheData(averager.getNumSamples(),
-			cS->newW,
-			cS->slope,
-			sampleRate,
-			fftSize,
-			cS->minFreq);
+		//DBG("   createPath START channel: " << cChannel);
 
-		const bool sono = (cS->mode == 2) ? true : false;
+		const bool sono = (cacheMngr->dp_ptr->mode == 2) ? true : false;
+		const float infinity = cacheMngr->dp_ptr->floor;
+		const float hmin = sono ? 0.0f : cacheMngr->dp_ptr->newH;
+		const float hmax = sono ? 1.0f : sonoImage->scaleTopLineHeightFloat;
 
 		if (!sono) {
 			p.clear();
-			p.preallocateSpace(8 + ld.numSmpls * 3);
-			p.startNewSubPath(0.0f, cS->newH);
+			p.preallocateSpace(8 + ld->numSmpls * 3);
+			p.startNewSubPath(0.0f, ld->cWidth);
+			p.lineTo(0.f, hmin);
 		}
 
-		const float infinity = cS->floor;
-		const float hmin = sono ? 0.0f : cS->newH;
-		const float hmax = sono ? 1.0f : sonoImage->scaleTopLineHeightFloat;
 
-		const juce::ScopedLock lockedForReading(pathCreationLock);
-		if (!cS->channels[cChannel]) { averager.clear(); }
+		const juce::ScopedLock lockedForReading(pathCreationLock); ///??????
+		if (!cacheMngr->dp_ptr->channels[cChannel]) { averager.clear(); }  ////???????
 		const auto* fftData = averager.getReadPointer(0);
 
-		const int n = cS->setLiner ? ld.freqIndexSizeLin : ld.freqIndexSizeLog;
-		const FreqIndex* fi = cS->setLiner ? ld.freqIndexLin : ld.freqIndexLog;
-		const xCordCache* xcord = cS->setLiner ? ld.xcrdlin : ld.xcrdlog;
+		const int n = cacheMngr->dp_ptr->setLiner ? ld->freqIndexSizeLin : ld->freqIndexSizeLog;
+		const FreqIndex* fi = cacheMngr->dp_ptr->setLiner ? ld->freqIndexLin : ld->freqIndexLog;
+		const xCordCache* xcord = cacheMngr->dp_ptr->setLiner ? ld->xcrdlin : ld->xcrdlog;
+		const sLineCache* g = ld->lineCache;
 
 		for (int i = 0; i < n; ++i)
 		{
 			const int a = fi[i].v;
-
-			const float gain = lc[a].slopeGain;
+			const float gain = g[a].slopeGain;
 
 			float cc = 0.f;
-			for (int c = a; c < fi[i + 1].v; c++) {
+			for (int c = a; c < fi[i + 1].v; ++c) { // find max level for freq range
 				cc = fftData[c] > cc ? fftData[c] : cc;
 			}
 
@@ -167,15 +166,17 @@ public:
 				infinity, 0.0f, hmin, hmax);
 
 			if (sono) {
-				ld.ldata[i].x = xcord[a].x;
-				ld.ldata[i].y = y;
+				ldata->x[i] = xcord[a].x;
+				ldata->bx[i] = fi[i].bx;
+				ldata->y[i] = y;
 			}
 			else {
 				p.lineTo(xcord[a].x, y);
 			}
 		}
 
-		ld.cacheSize = n;
+		ld->cacheSize = n;   //////??????????
+		//DBG("      createPath END channel: " << cChannel);
 	}
 
 	//bool checkForNewData()
@@ -184,25 +185,33 @@ public:
 	//    newDataAvailable.store (false);
 	//    return available;
 	//}
+	bool checkUpdate()
+	{
+	    auto available = updateAvailable;
+		updateAvailable = false;
+	    return available;
+	}
 
+	std::shared_ptr<CacheManager> cacheMngr = nullptr;
+	std::shared_ptr<LineData> ld = nullptr;
 private:
-
-	LineData ld;
-	sLineCache* lc = nullptr;
 
 	juce::WaitableEvent   waitForData;
 	juce::CriticalSection pathCreationLock;
 
+
+	std::shared_ptr<LineDataBuffer> linebuffer = std::make_shared<LineDataBuffer>();
+	std::shared_ptr<LineChData> ldata = nullptr;
+	sLineCache* lc = nullptr; ////??????
+
 	SonoImage* sonoImage;
 	juce::Path sonogramLine;
 	Type sampleRate{};
-	int cChannel;
-	bool readyChFlag = false;
-
-	defSettings* cS;
+	int  cChannel;
+	bool readyChFlag = false; ////?????????
 
 	int fftOrder = 12;
-	int fftSize = 1 << fftOrder;
+	int fftSize  = 1 << fftOrder;
 	juce::dsp::WindowingFunction<float>::WindowingMethod winMet = juce::dsp::WindowingFunction<float>::hann;
 
 	juce::dsp::FFT fft{ fftOrder };
@@ -218,6 +227,8 @@ private:
 	juce::AudioBuffer<Type> audioFifo;
 
 	//std::atomic<bool> newDataAvailable;
+
+	bool updateAvailable;
 
 	JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(Analyser)
 };

@@ -6,10 +6,9 @@
   ==============================================================================
 */
 
-#pragma once
-
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+
 
 juce::AudioProcessor::BusesProperties AudioAnalyzerAudioProcessor::makeBusesProperties()
 {
@@ -26,17 +25,7 @@ juce::AudioProcessor::BusesProperties AudioAnalyzerAudioProcessor::makeBusesProp
 //==============================================================================
 AudioAnalyzerAudioProcessor::AudioAnalyzerAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
-     //: AudioProcessor (BusesProperties()
-     //                #if ! JucePlugin_IsMidiEffect
-     //                 #if ! JucePlugin_IsSynth
-     //                  .withInput  ("Input",     juce::AudioChannelSet::stereo(), true)
-     //                  .withInput  ("SideChain", juce::AudioChannelSet::stereo(), false)
-     //                 #endif
-     //                  .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
-     //                #endif
-     //                  )
     : AudioProcessor(makeBusesProperties())
-
 #endif
 {
 }
@@ -124,7 +113,6 @@ void AudioAnalyzerAudioProcessor::prepareToPlay (double newSampleRate, int newSa
     inputAnalyserR1.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
     inputAnalyserL2.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
     inputAnalyserR2.setupAnalyser ( int (sampleRate), float (sampleRate), &sImg );
-
 }
 
 void AudioAnalyzerAudioProcessor::releaseResources()
@@ -174,12 +162,16 @@ void AudioAnalyzerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer
 
     if (getActiveEditor() != nullptr)
     {
+        //DBG("=*=> # processBlock AddAudioData *** START");
+        
+        cacheMngr->checkUpdate();
         inputAnalyserL1.addAudioData (buffer, 0, 0);
         inputAnalyserR1.addAudioData (buffer, 1, 0);
         if (getTotalNumInputChannels() >= 4) { // fix for VST3
             inputAnalyserL2.addAudioData (buffer, 2, 0);
             inputAnalyserR2.addAudioData (buffer, 3, 0);
         }
+        //DBG("=*=> # processBlock AddAudioData *** END\n");
     }
     //    juce::dsp::AudioBlock<float> block (buffer);
 }
@@ -276,14 +268,15 @@ juce::AudioProcessor* JUCE_CALLTYPE createPluginFilter()
 
 void AudioAnalyzerAudioProcessor::createAnalyserPlot ()
 {
+    if (sImg.ch1L && inputAnalyserL1.checkUpdate())
     inputAnalyserL1.createPath (analyserPathCh1L);
+
+    if (sImg.ch1R && inputAnalyserR1.checkUpdate())
     inputAnalyserR1.createPath (analyserPathCh1R);
     
-    if (sImg.ch2L)
+    if (sImg.ch2L && inputAnalyserL2.checkUpdate())
     { inputAnalyserL2.createPath (analyserPathCh2L); }
     
-    if (sImg.ch2R)
+    if (sImg.ch2R && inputAnalyserR2.checkUpdate())
     { inputAnalyserR2.createPath (analyserPathCh2R); }
 }
-
-
