@@ -20,11 +20,51 @@ struct Channels {
 
 
 struct ChannelLevel {
-    ChannelLevel(int n) : num(n) { ch = new Channels[n]; }
-    ~ChannelLevel() { delete[] ch; }
+    ChannelLevel(const int w) : width(w) {
+        DBG("-----==== ChannelLevel Constructor ====----- : " << this->width);
+    }
+    ~ChannelLevel() {
+        DBG("-----==== ChannelLevel Destructor  ====----- : " << this->width);
+        delete[] ch;
+     }
 
-    int num = 0;
-    Channels* ch = nullptr;
+    int width = 0;
+    Channels* ch = new Channels[width];
+};
+
+struct sonoLineBuffer {
+    sonoLineBuffer(const int w) :  width(w) {
+        DBG("-----==== sonoLineBuffer Constructor ====----- : " << this->width);
+    }
+    ~sonoLineBuffer() {
+        DBG("-----==== sonoLineBuffer Destructor Color ====----- : " << this->width);
+        delete[] color;
+        DBG("-----==== sonoLineBuffer Destructor lL ====----- : " << this->width);
+        delete[] lL;
+        DBG("-----==== sonoLineBuffer Destructor lR ====----- : " << this->width);
+        delete[] lR;
+        DBG("-----==== sonoLineBuffer Destructor END ====----- : " << this->width);
+    }
+    int width = 0;
+    float* lL       = new float[width];
+    float* lR       = new float[width];
+    float* color    = new float[width];
+};
+
+struct sonoLineBufferMngr
+{
+    sonoLineBufferMngr(const int w) : width(w) {}
+    ~sonoLineBufferMngr() {}
+    std::shared_ptr<sonoLineBuffer> getBuffer(const int w) {
+        if (w != width) {
+            width = w;
+            sb = std::make_shared<sonoLineBuffer>(width);
+        }
+        return sb;
+    }
+
+    int width = 0;
+    std::shared_ptr<sonoLineBuffer> sb = std::make_shared<sonoLineBuffer>(width);
 };
 
 
@@ -66,7 +106,7 @@ public:
 
     float lineCR = 30.0f;
     const int scaleTopLineHeightInt = 20;
-    const float scaleTopLineHeightFloat = float(scaleTopLineHeightInt);
+    const float scaleTopLineHeightFloat = float(scaleTopLineHeightInt);////?????
 
     std::shared_ptr<LineChData> imgDataL = nullptr;
     std::shared_ptr<LineChData> imgDataR = nullptr;
@@ -83,11 +123,10 @@ private:
     int iH = height - scaleTopLineHeightInt;
     int iB = iH + 4;
     juce::Image* sonogramImage = nullptr;
-    std::shared_ptr<ChannelLevel> channelLevels = std::make_shared<ChannelLevel>(iW);
+    std::shared_ptr<sonoLineBufferMngr> channelLevels = std::make_shared<sonoLineBufferMngr>(iW);
     
-
-    juce::Rectangle<int>   copyImgBound { 0, 0, iW, iH };
-    juce::Rectangle<float> pastImgBound {0.0f, scaleTopLineHeightFloat, float(iW), float(iH)}; //?? float whai?
+    juce::Rectangle<int> copyImgBound { 0, 0, iW, iH };
+    juce::Rectangle<float> pastImgBound {0.f, scaleTopLineHeightFloat, float(iW), float(iH) }; //?? float whai?
 
     bool resize = true;
     bool ready = false;

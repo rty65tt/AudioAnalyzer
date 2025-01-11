@@ -111,7 +111,7 @@ public:
 				
 				if (cacheMngr->dp_ptr->mode == 2 && cChannel < 2) {
 
-					ldata = linebuffer->getLineBuffer(averager.getNumSamples());
+					ldata = linebuffer->getLineBuffer(averager.getNumSamples(), ld->cWidth);
 					createPath(sonogramLine);
 
 					sonoImage->setAnalyserPath(cChannel, ldata);
@@ -146,12 +146,12 @@ public:
 		if (!cacheMngr->dp_ptr->channels[cChannel]) { averager.clear(); }  ////???????
 		const auto* fftData = averager.getReadPointer(0);
 
-		const int n = cacheMngr->dp_ptr->setLiner ? ld->freqIndexSizeLin : ld->freqIndexSizeLog;
+		ld->cacheSize = cacheMngr->dp_ptr->setLiner ? ld->freqIndexSizeLin : ld->freqIndexSizeLog;
 		const FreqIndex* fi = cacheMngr->dp_ptr->setLiner ? ld->freqIndexLin : ld->freqIndexLog;
 		const xCordCache* xcord = cacheMngr->dp_ptr->setLiner ? ld->xcrdlin : ld->xcrdlog;
 		const sLineCache* g = ld->lineCache;
 
-		for (int i = 0; i < n; ++i)
+		for (int i = 0; i < ld->cacheSize; ++i)
 		{
 			const int a = fi[i].v;
 			const float gain = g[a].slopeGain;
@@ -166,16 +166,15 @@ public:
 				infinity, 0.0f, hmin, hmax);
 
 			if (sono) {
-				ldata->x[i] = xcord[a].x;
+				ldata->x[i]  = xcord[a].x;
 				ldata->bx[i] = fi[i].bx;
-				ldata->y[i] = y;
+				ldata->y[i]  = y;
 			}
 			else {
 				p.lineTo(xcord[a].x, y);
 			}
 		}
 
-		ld->cacheSize = n;   //////??????????
 		//DBG("      createPath END channel: " << cChannel);
 	}
 

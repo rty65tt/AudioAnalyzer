@@ -51,17 +51,17 @@ struct LineData {
 };
 
 struct LineChData {
-    LineChData(int n) : numsmpls(n) {}
+    LineChData(const int n, const int w) : numsmpls(n), width(w){}
     ~LineChData() {
         delete[] x;
         delete[] bx;
         delete[] y;
     }
-    int width = 0;
+    int width = 10;
     int numsmpls = 0;
     int* x = new int[numsmpls];
     int* bx = new int[numsmpls];
-    float* y  = new float[numsmpls];
+    float* y = new float[numsmpls];
 };
 
 
@@ -90,13 +90,15 @@ struct LineDataBuffer
 {
     LineDataBuffer() {}
     ~LineDataBuffer() {}
-    std::shared_ptr<LineChData> getLineBuffer(const int n) {
-        if (n != numsmpls) {
+    std::shared_ptr<LineChData> getLineBuffer(const int n, const int w) {
+        if (n != numsmpls || w != width) {
             numsmpls = n;
-            ld = std::make_shared<LineChData>(numsmpls);
+            width = w;
+            ld = std::make_shared<LineChData>(numsmpls, width);
         }
         return ld;
     }
+    int width = 10;
     int numsmpls = 0;
-    std::shared_ptr<LineChData> ld = std::make_shared<LineChData>(numsmpls);
+    std::shared_ptr<LineChData> ld = std::make_shared<LineChData>(numsmpls, width);
 };
