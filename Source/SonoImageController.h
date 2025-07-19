@@ -10,35 +10,13 @@
 
 #pragma once
 
-struct Channels {
-    float lL = 0.f;
-    float lR = 0.f;
-    //float lM = 0.f;
-    //float lS = 0.f;
-    float color = 0.f;
-};
-
-
-struct ChannelLevel {
-    ChannelLevel(const int w) : width(w) {
-        DBG("-----==== ChannelLevel Constructor ====----- : " << this->width);
-    }
-    ~ChannelLevel() {
-        DBG("-----==== ChannelLevel Destructor  ====----- : " << this->width);
-        delete[] ch;
-     }
-
-    int width = 0;
-    Channels* ch = new Channels[width];
-};
-
 struct sonoLineBuffer {
     sonoLineBuffer(const int w) :  width(w) {
         DBG("-----==== sonoLineBuffer Constructor ====----- : " << this->width);
     }
     ~sonoLineBuffer() {
-        DBG("-----==== sonoLineBuffer Destructor Color ====----- : " << this->width);
-        delete[] color;
+        //DBG("-----==== sonoLineBuffer Destructor Color ====----- : " << this->width);
+        //delete[] color;
         DBG("-----==== sonoLineBuffer Destructor lL ====----- : " << this->width);
         delete[] lL;
         DBG("-----==== sonoLineBuffer Destructor lR ====----- : " << this->width);
@@ -46,9 +24,10 @@ struct sonoLineBuffer {
         DBG("-----==== sonoLineBuffer Destructor END ====----- : " << this->width);
     }
     int width = 0;
-    float* lL       = new float[width];
-    float* lR       = new float[width];
-    float* color    = new float[width];
+    //float* color    = new float[width];
+    int ds = 5;
+    float* lL       = new float[width+ds];
+    float* lR       = new float[width+ds];
 };
 
 struct sonoLineBufferMngr
@@ -123,7 +102,7 @@ private:
     int iH = height - scaleTopLineHeightInt;
     int iB = iH + 4;
     juce::Image* sonogramImage = nullptr;
-    std::shared_ptr<sonoLineBufferMngr> channelLevels = std::make_shared<sonoLineBufferMngr>(iW);
+    sonoLineBufferMngr channelLevels = sonoLineBufferMngr(iW);
     
     juce::Rectangle<int> copyImgBound { 0, 0, iW, iH };
     juce::Rectangle<float> pastImgBound {0.f, scaleTopLineHeightFloat, float(iW), float(iH) }; //?? float whai?

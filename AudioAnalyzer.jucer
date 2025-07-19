@@ -3,9 +3,13 @@
 <JUCERPROJECT id="i76ndY" name="AudioAnalyzer" projectType="audioplug" useAppConfig="0"
               addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1" companyName="rty65tt"
               pluginVST3Category="Analyzer" version="0.3.4" pluginFormats="buildAU,buildLV2,buildStandalone,buildVST3"
-              lv2Uri="https://github.com/rty65tt/AudioAnalyzer" displaySplashScreen="1">
+              lv2Uri="https://github.com/rty65tt/AudioAnalyzer" displaySplashScreen="1"
+              pluginVSTCategory="kPlugCategAnalysis">
   <MAINGROUP id="kxv9Ch" name="AudioAnalyzer">
     <GROUP id="{CC545A59-DA21-2373-9A4D-91E5828D6152}" name="Source">
+      <GROUP id="{AD35F50C-DDDC-1489-548D-CEF6D0DD1C45}" name="icons">
+        <FILE id="IpeXe3" name="128.png" compile="0" resource="1" file="Source/icons/128.png"/>
+      </GROUP>
       <FILE id="adL1ls" name="GuiPreferences.h" compile="0" resource="0"
             file="Source/GuiPreferences.h"/>
       <FILE id="NnVNgm" name="CacheData.cpp" compile="1" resource="0" file="Source/CacheData.cpp"/>
@@ -43,7 +47,8 @@
     <MODULE id="juce_gui_basics" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
     <MODULE id="juce_gui_extra" showAllCode="1" useLocalCopy="0" useGlobalPath="1"/>
   </MODULES>
-  <JUCEOPTIONS JUCE_VST3_CAN_REPLACE_VST2="0" JUCE_USE_OGGVORBIS="0" JUCE_STRICT_REFCOUNTEDPOINTER="1"/>
+  <JUCEOPTIONS JUCE_VST3_CAN_REPLACE_VST2="0" JUCE_USE_OGGVORBIS="0" JUCE_STRICT_REFCOUNTEDPOINTER="1"
+               JUCE_USE_FLAC="0" JUCE_USE_WINDOWS_MEDIA_FORMAT="0" JUCE_WEB_BROWSER="0"/>
   <EXPORTFORMATS>
     <XCODE_MAC targetFolder="Builds/MacOSX">
       <CONFIGURATIONS>
@@ -68,11 +73,10 @@
         <MODULEPATH id="juce_dsp" path="../../../../JUCE/modules"/>
       </MODULEPATHS>
     </XCODE_MAC>
-    <VS2022 targetFolder="Builds/VisualStudio2022" extraCompilerFlags="/I&quot;F:\dev\projects\asio\asiosdk_2.3.3_2019-06-14\common&quot;">
+    <VS2022 targetFolder="Builds/VisualStudio2022" smallIcon="" bigIcon="">
       <CONFIGURATIONS>
         <CONFIGURATION isDebug="1" name="Debug"/>
         <CONFIGURATION isDebug="0" name="Release" extraCompilerFlags="/Gy"/>
-        <CONFIGURATION isDebug="0" name="RelWithProfile" extraLinkerFlags="PROFILE"/>
       </CONFIGURATIONS>
       <MODULEPATHS>
         <MODULEPATH id="juce_audio_basics" path="../../juce"/>

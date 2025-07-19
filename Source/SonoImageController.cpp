@@ -25,12 +25,12 @@ void SonoImage::drawSonogram(juce::Graphics& g) {
 	DBG("-----==== drawSonogram START ====-----");
 	if (!resize && sonogramImage != nullptr) {
 		DBG("-----==== drawSonogram DRAW     =======-----");
-		return;
+		//return;
 		const int cwline = curWrtLine;
 		const int start1 = cwline < iH ? 0 : cwline - iH;
 
 		if (cwline) {
-			DBG("-----==== drawSonogram DRAW (cwline)  ========-----");
+			//DBG("-----==== drawSonogram DRAW (cwline)  ====[" << cwline <<"]====-----");
 			copyImgBound.setWidth(sonogramImage->getWidth());
 			copyImgBound.setY(start1);
 			copyImgBound.setHeight(cwline);
@@ -42,7 +42,7 @@ void SonoImage::drawSonogram(juce::Graphics& g) {
 		}
 
 		if (!start1) {
-			DBG("-----==== drawSonogram DRAW (!start1) ========-----");
+			//DBG("-----==== drawSonogram DRAW (!start1) ====[" << start1 << "]====-----");
 			const int h2 = iH - cwline;
 			copyImgBound.setWidth(sonogramImage->getWidth());
 			copyImgBound.setY(cwline + 4);
@@ -53,7 +53,7 @@ void SonoImage::drawSonogram(juce::Graphics& g) {
 			pastImgBound.setHeight(float(h2));
 			g.drawImage(sonogramImage->getClippedImage(copyImgBound), pastImgBound);
 		}
-		DBG("-----==== drawSonogram DRAW END =======-----");
+		//DBG("-----==== drawSonogram DRAW END =======-----");
 	}
 	DBG("-----==== drawSonogram END   ====-----");
 }
@@ -63,14 +63,14 @@ void SonoImage::setColorR(const float c) { colorSonoR = c; }
 void SonoImage::setSaturation(const float s) { saturatSono = s; }
 
 void SonoImage::setSizeImg(const int w, const int h) {
-	DBG("-----==== setSizeImg START ====-----");
+	//DBG("-----==== setSizeImg START ====-----");
 	height = h;
 	iW = w;
 	iH = h - scaleTopLineHeightInt;
 	iB = iH + 4;
 	curWrtLine = 0;
 	resize = true;
-	DBG("-----==== setSizeImg END   ====-----");
+	//DBG("-----==== setSizeImg END   ====-----");
 }
 
 void SonoImage::resizeImg() {
@@ -78,6 +78,8 @@ void SonoImage::resizeImg() {
 	if (sonogramImage != nullptr) { sonogramImage->~Image(); }
 	DBG("-----==== resizeImg new sonogramImage ====-----");
 	sonogramImage = new juce::Image(juce::Image::RGB, iW, iB, true);
+	DBG("-----==== resizeImg create cache  ====-----");
+	channelLevels.getBuffer(sonogramImage->getWidth());
 	DBG("-----==== resizeImg resize = false ====-----");
 	resize = false;
 	DBG("-----==== resizeImg END   ====-----");
@@ -106,17 +108,17 @@ int SonoImage::getCurLine() {
 
 void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 {
-	DBG("-----==== drawNextLineOfSonogram START ====----- : " << y);
+	DBG("\n-----==== drawNextLineOfSonogram START ====----- : " << y);
 	if (resize) { 
 		resizeImg(); 
 		DBG("-----==== drawNextLineOfSonogram END   ====----- : " << y);
 		return; 
 	}
 
-	if (imgDataL->width != sonogramImage->getWidth()) { return; }
+	if (imgDataL->width != sonogramImage->getWidth()) { return; } // ????????
 
 	DBG("-----==== drawNextLineOfSonogram getBuffer    ====----- : " << y);
-	std::shared_ptr<sonoLineBuffer> cl = channelLevels->getBuffer(sonogramImage->getWidth()); /////??????
+	std::shared_ptr<sonoLineBuffer> cl = channelLevels.getBuffer(sonogramImage->getWidth()); /////??????
 	DBG("-----==== drawNextLineOfSonogram cl.use_count ====----- : " << cl.use_count());
 
 	const float colorL = juce::jmap(colorSonoL, 0.0f, 360.0f, 0.0f, 1.0f);///????
@@ -125,7 +127,7 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 
 	juce::Colour bgL = juce::Colours::black;
 	juce::Colour bgR = juce::Colours::transparentBlack;
-
+	
 	juce::Colour(*MyCallback)(const float l, const float r) = nullptr;
 	switch (sonoColorRender) {
 	case 1:
@@ -193,7 +195,7 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 
 	int x1 = 0, x2 = 0;
 	float yL1, yR1, yL2 = imgDataL->y[0], yR2 = imgDataR->y[0];
-	DBG("-----==== drawNextLineOfSonogram LOOP ====-----");
+	DBG("-----==== drawNextLineOfSonogram LOOP ====----- " << y);
 	//juce::PerformanceCounter pc("drawNextLineOfSonogram", 100, juce::File());
 	//pc.start();
 	for (int a = 0; a < arrWidth; ++a)
@@ -202,7 +204,7 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 		x2 = imgDataL->x[a];  ////?????? COPY ???????
 
 		yL1 = yL2;
-		yL2 = imgDataL->y[a];////?????? COPY ???????
+		yL2 = imgDataL->y[a]; ////?????? COPY ???????
 
 		yR1 = yR2;
 		yR2 = imgDataR->y[a];
@@ -210,13 +212,14 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 		const int bx = x2 - x1;			////?????? COPY ???????
 		//const int bx = imgDataL->bx[a]; ////?????? glitch some wrong ???????
 
-		const float byL = yL2 - yL1;
-		const float byR = yR2 - yR1;
+		//cl->lL[x1] = yL1;
+		//cl->lR[x1] = yR1;
 
-		float lvlL = yL1;
-		float lvlR = yR1;
-
-		if (bx > 1) {
+		if (bx != 1) {
+			float lvlL = yL1;
+			float lvlR = yR1;
+			const float byL = yL2 - yL1;
+			const float byR = yR2 - yR1;
 			const float lkoefL = byL / bx;
 			const float lkoefR = byR / bx;
 
@@ -228,25 +231,26 @@ void SonoImage::drawNextLineOfSonogram(const int arrWidth, const int y)
 				++x1;
 			}
 		} else {
-			cl->lL[x1] = lvlL;
-			cl->lR[x1] = lvlR;
+			cl->lL[x1] = yL1; // WTF!?
+			cl->lR[x1] = yR1;
 			++x1;
 		}
 	}
 
-	//if (MyCallback) {
-	//	for (int x = 0; x < sonogramImage->getWidth(); ++x) { ///iW error
-	//		sonogramImage->setPixelAt(x, y, MyCallback(cl->lL[x], cl->lR[x]));
-	//	}
-	//}
-	//else {
-	//	for (int x = 0; x < sonogramImage->getWidth(); ++x) {
-	//		bgL = juce::Colour::fromHSL(colorL, SonoImage::saturatSono, cl->lL[x], cl->lL[x]);
-	//		bgR = juce::Colour::fromHSL(colorR, SonoImage::saturatSono, cl->lR[x], cl->lR[x]);
-	//		//sonogramImage->setPixelAt(x1, y, bgL.interpolatedWith(bgR, 0.5f));
-	//		sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));
-	//	}
-	//}
+	if (MyCallback) {
+		for (int x = 0; x < sonogramImage->getWidth(); ++x) { ///iW error
+			sonogramImage->setPixelAt(x, y, MyCallback(cl->lL[x], cl->lR[x]));
+		}
+	}
+	else {
+		for (int x = 0; x < sonogramImage->getWidth(); ++x) {
+			bgL = juce::Colour::fromHSL(colorL, SonoImage::saturatSono, cl->lL[x], cl->lL[x]);
+			bgR = juce::Colour::fromHSL(colorR, SonoImage::saturatSono, cl->lR[x], cl->lR[x]);
+			//sonogramImage->setPixelAt(x1, y, bgL.interpolatedWith(bgR, 0.5f));
+			sonogramImage->setPixelAt(x, y, bgL.overlaidWith(bgR));
+		}
+	}
 	//pc.stop();
+	
 	DBG("-----==== drawNextLineOfSonogram END   ====----- : " << y);
 }

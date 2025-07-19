@@ -16,7 +16,7 @@
 // ==== Start LineData =======================================================
 LineData::LineData(DefaultPreferences* dp) : cs(dp) { genCacheData(); }
 LineData::~LineData() {
-	DBG("=*=> LineData::DESTRUCTOR ---***====================================");
+	//DBG("=*=> LineData::DESTRUCTOR ---***===========[ " << cWidth << " ]================");
 	delete[] lineCache;
 	delete[] xcrdlog;
 	delete[] xcrdlin;
@@ -26,7 +26,7 @@ LineData::~LineData() {
 
 void LineData::genCacheData() {
 	//if (numSmpls != s || cWidth != cs->newW || cSlope != cs->slope) {
-	DBG("=*=> LineData::genCacheData ---***====================================");
+	//DBG("=*=> LineData::genCacheData ---***====================================");
 
 		fftOrder = *cs->fftOrder;
 		const int fftSize = 1 << fftOrder;
@@ -86,10 +86,10 @@ void LineData::genCacheData() {
 		freqIndexSizeLin = linCount;
 		lineCache[0].slopeGain = 0.f;
 
-		DBG("cWidth:   " << cWidth);
-		DBG("numSmpls: " << numSmpls);
-		DBG("logCount: " << logCount);
-		DBG("linCount: " << linCount);
+		//DBG("cWidth:   " << cWidth);
+		//DBG("numSmpls: " << numSmpls);
+		//DBG("logCount: " << logCount);
+		//DBG("linCount: " << linCount);
 
 	//}
 	//return lineCache;

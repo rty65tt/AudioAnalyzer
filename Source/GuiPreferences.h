@@ -117,13 +117,12 @@ public:
         pSlider.setDoubleClickReturnValue(true, def);
         pSlider.setValue(gVar);
         pSlider.onValueChange = [this, &gVar] { gVar = pSlider.getValue(); };
-        if (regen) {}
     }
 
 private:
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(SetSliderS1)
 
-        juce::GroupComponent    pframe;
+    juce::GroupComponent    pframe;
     juce::Label             pLabel;
     juce::Slider            pSlider;
 };

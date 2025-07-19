@@ -552,7 +552,7 @@ AudioAnalyzerAudioProcessorEditor::AudioAnalyzerAudioProcessorEditor(AudioAnalyz
 	//#ifdef JUCE_OPENGL
 	//    openGLContext.attachTo(*getTopLevelComponent());
 	//#endif
-	startTimerHz(60);
+	startTimerHz(30);
 
 }
 
